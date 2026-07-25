@@ -179,6 +179,18 @@ def nueva_noticia():
         imagen_url = request.form.get('imagen_url')
         activa = request.form.get('activa') == 'on'
         
+        imagen_file = request.files.get('imagen_file')
+        if imagen_file and imagen_file.filename:
+            import os
+            from flask import current_app
+            ext = imagen_file.filename.rsplit('.', 1)[-1].lower()
+            if ext in ('jpg', 'jpeg', 'png', 'gif'):
+                filename = f"noticia_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+                upload_dir = os.path.join(current_app.static_folder, 'uploads', 'noticias')
+                os.makedirs(upload_dir, exist_ok=True)
+                imagen_file.save(os.path.join(upload_dir, filename))
+                imagen_url = f"/static/uploads/noticias/{filename}"
+        
         noticia = Noticia(
             titulo=titulo,
             contenido=contenido,
@@ -201,9 +213,23 @@ def editar_noticia(id_noticia):
     if request.method == 'POST':
         noticia.titulo = request.form.get('titulo')
         noticia.contenido = request.form.get('contenido')
-        noticia.imagen_url = request.form.get('imagen_url') or None
         noticia.activa = request.form.get('activa') == 'on'
         
+        imagen_url = request.form.get('imagen_url')
+        imagen_file = request.files.get('imagen_file')
+        
+        if imagen_file and imagen_file.filename:
+            import os
+            from flask import current_app
+            ext = imagen_file.filename.rsplit('.', 1)[-1].lower()
+            if ext in ('jpg', 'jpeg', 'png', 'gif'):
+                filename = f"noticia_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+                upload_dir = os.path.join(current_app.static_folder, 'uploads', 'noticias')
+                os.makedirs(upload_dir, exist_ok=True)
+                imagen_file.save(os.path.join(upload_dir, filename))
+                imagen_url = f"/static/uploads/noticias/{filename}"
+        
+        noticia.imagen_url = imagen_url if imagen_url else None
         db.session.commit()
         flash('Noticia actualizada exitosamente', 'success')
         return redirect(url_for('admin.noticias'))
