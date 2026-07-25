@@ -175,6 +175,54 @@ def noticias():
 def reportes():
     return render_template('admin/reportes.html')
 
+@admin_bp.route('/reportes/clientes/pdf')
+@login_required
+@admin_required
+def reporte_clientes_pdf():
+    from services.report_service import generate_clientes_pdf
+    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
+    buffer = generate_clientes_pdf(clientes)
+    return buffer.getvalue(), 200, {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename=reporte_clientes.pdf'
+    }
+
+@admin_bp.route('/reportes/clientes/excel')
+@login_required
+@admin_required
+def reporte_clientes_excel():
+    from services.report_service import generate_clientes_excel
+    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
+    buffer = generate_clientes_excel(clientes)
+    return buffer.getvalue(), 200, {
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': 'attachment; filename=reporte_clientes.xlsx'
+    }
+
+@admin_bp.route('/reportes/pagos/pdf')
+@login_required
+@admin_required
+def reporte_pagos_pdf():
+    from services.report_service import generate_pagos_pdf
+    pagos = Pago.query.order_by(Pago.fecha_pago.desc()).all()
+    buffer = generate_pagos_pdf(pagos)
+    return buffer.getvalue(), 200, {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename=reporte_pagos.pdf'
+    }
+
+@admin_bp.route('/reportes/pagos/excel')
+@login_required
+@admin_required
+def reporte_pagos_excel():
+    from services.report_service import generate_pagos_excel
+    pagos = Pago.query.order_by(Pago.fecha_pago.desc()).all()
+    buffer = generate_pagos_excel(pagos)
+    return buffer.getvalue(), 200, {
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': 'attachment; filename=reporte_pagos.xlsx'
+    }
+
 @admin_bp.route('/clientes/<int:id_cliente>/qr')
 @login_required
 @admin_required

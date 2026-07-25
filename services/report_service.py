@@ -59,3 +59,60 @@ def generate_clientes_excel(clientes):
     wb.save(buffer)
     buffer.seek(0)
     return buffer
+
+def generate_pagos_pdf(pagos):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(72, 750, "Reporte de Pagos")
+    c.drawString(72, 730, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    
+    c.setFont("Helvetica", 10)
+    y = 700
+    
+    c.drawString(72, y, "Cliente")
+    c.drawString(200, y, "Monto")
+    c.drawString(300, y, "Fecha")
+    c.drawString(400, y, "Metodo")
+    y -= 20
+    
+    for pago in pagos:
+        if y < 50:
+            c.showPage()
+            y = 750
+        
+        cliente = pago.cliente
+        c.drawString(72, y, cliente.numero_registro if cliente else 'N/A')
+        c.drawString(200, y, f"${pago.monto:.2f}")
+        c.drawString(300, y, pago.fecha_pago.strftime('%d/%m/%Y') if pago.fecha_pago else '')
+        c.drawString(400, y, pago.metodo_pago or '')
+        y -= 20
+    
+    c.save()
+    buffer.seek(0)
+    return buffer
+
+def generate_pagos_excel(pagos):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Pagos"
+    
+    headers = ["Cliente", "Registro", "Monto", "Fecha", "Metodo", "Concepto"]
+    ws.append(headers)
+    
+    for pago in pagos:
+        cliente = pago.cliente
+        ws.append([
+            cliente.nombre_completo if cliente else 'N/A',
+            cliente.numero_registro if cliente else 'N/A',
+            float(pago.monto),
+            pago.fecha_pago.strftime('%d/%m/%Y') if pago.fecha_pago else '',
+            pago.metodo_pago or '',
+            pago.concepto or ''
+        ])
+    
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    return buffer

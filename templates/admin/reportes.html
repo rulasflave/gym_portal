@@ -22,10 +22,10 @@
                 <div class="card-body text-center">
                     <p class="text-muted">Exportar lista completa de clientes</p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="#" class="btn btn-primary">
+                        <a href="{{ url_for('admin.reporte_clientes_pdf') }}" class="btn btn-primary">
                             <i class="fas fa-file-pdf me-2"></i>Descargar PDF
                         </a>
-                        <a href="#" class="btn btn-success">
+                        <a href="{{ url_for('admin.reporte_clientes_excel') }}" class="btn btn-success">
                             <i class="fas fa-file-excel me-2"></i>Descargar Excel
                         </a>
                     </div>
@@ -41,10 +41,10 @@
                 <div class="card-body text-center">
                     <p class="text-muted">Exportar historial de pagos</p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="#" class="btn btn-primary">
+                        <a href="{{ url_for('admin.reporte_pagos_pdf') }}" class="btn btn-primary">
                             <i class="fas fa-file-pdf me-2"></i>Descargar PDF
                         </a>
-                        <a href="#" class="btn btn-success">
+                        <a href="{{ url_for('admin.reporte_pagos_excel') }}" class="btn btn-success">
                             <i class="fas fa-file-excel me-2"></i>Descargar Excel
                         </a>
                     </div>
