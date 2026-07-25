@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Pagos - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-money-bill-wave me-2" style="color: #f5c518;"></i>Pagos
+            </h2>
+            <a href="{{ url_for('admin.nuevo_pago') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Registrar Pago
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card fade-in">
+        <div class="card-body p-4">
+            {% if pagos %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                            <th><i class="fas fa-user me-2"></i>Cliente</th>
+                            <th><i class="fas fa-calendar me-2"></i>Fecha</th>
+                            <th><i class="fas fa-tag me-2"></i>Concepto</th>
+                            <th><i class="fas fa-dollar-sign me-2"></i>Monto</th>
+                            <th><i class="fas fa-wallet me-2"></i>Método</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pago in pagos %}
+                        <tr>
+                            <td>{{ pago.id_pago }}</td>
+                            <td>{{ pago.cliente.numero_registro }} - {{ pago.cliente.nombre_completo if pago.cliente else 'N/A' }}</td>
+                            <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ pago.concepto }}</td>
+                            <td class="fw-bold" style="color: #28a745;">${{ "%.2f"|format(pago.monto) }}</td>
+                            <td>{{ pago.metodo_pago }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-3x mb-3" style="color: #ccc;"></i>
+                <p class="text-muted">No hay pagos registrados</p>
+                <a href="{{ url_for('admin.nuevo_pago') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Registrar primer pago
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

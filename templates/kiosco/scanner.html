@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}Kiosco Check-in - Gym Portal{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center scanner-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="fade-in">
+                    <i class="fas fa-dumbbell fa-4x mb-4" style="color: #f5c518;"></i>
+                    <h1 class="fw-bold mb-3">GYM PORTAL</h1>
+                    <p class="lead mb-4">Escanea tu código QR o ingresa tu número de registro</p>
+                    
+                    <div class="card mt-4">
+                        <div class="card-body p-4">
+                            <div id="qr-reader" class="mb-3" style="width: 100%;"></div>
+                            
+                            <button id="start-scan-btn" class="btn btn-secondary w-100 mb-3" onclick="startScanner()">
+                                <i class="fas fa-camera me-2"></i>Escanear con Cámara
+                            </button>
+                            
+                            <div class="divider mb-3">
+                                <span style="color: rgba(255,255,255,0.5);">— o ingresa manualmente —</span>
+                            </div>
+                            
+                            <div class="input-group input-group-lg mb-3">
+                                <span class="input-group-text" style="background-color: #1a1a1a; color: #f5c518; border: none;">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                                <input type="text" id="codigo-input" class="form-control" 
+                                       placeholder="Ingresa tu código" 
+                                       style="border: 2px solid #e0e0e0; font-size: 1.25rem;">
+                            </div>
+                            <button id="validar-btn" class="btn btn-primary btn-lg w-100 py-3" onclick="validarCodigo()">
+                                <i class="fas fa-check-circle me-2"></i>Validar Entrada
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="resultado" class="mt-4" style="display: none;">
+                        <div id="resultado-card" class="card result-card">
+                            <div class="card-body p-4">
+                                <i id="resultado-icono" class="fas fa-3x mb-3"></i>
+                                <h2 id="resultado-titulo" class="fw-bold mb-2"></h2>
+                                <p id="resultado-mensaje" class="lead mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <small style="color: rgba(255,255,255,0.5);">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Si tienes problemas, contacta a recepción
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WELCOME OVERLAY -->
+<div id="welcome-overlay" style="display: none;">
+    <div class="welcome-screen">
+        <div class="welcome-content">
+            <div id="welcome-foto-container" class="mb-4">
+                <div id="welcome-foto" class="welcome-avatar"></div>
+            </div>
+            
+            <div id="birthday-effects" style="display: none;">
+                <div class="confetti-container">
+                    <div class="confetti"></div>
+                    <div class="confetti"></div>
+                    <div class="confetti"></div>
+                    <div class="confetti"></div>
+                    <div class="confetti"></div>
+                </div>
+                <h1 class="birthday-title mb-3">🎂 ¡FELIZ CUMPLEAÑOS! 🎉</h1>
+            </div>
+            
+            <h1 id="welcome-nombre" class="welcome-name"></h1>
+            <p id="welcome-registro" class="welcome-register"></p>
+            
+            <div class="welcome-info mt-4">
+                <div class="welcome-badge" id="welcome-membresia">
+                    <i class="fas fa-crown me-2"></i><span id="welcome-tipo"></span>
+                </div>
+                <div class="welcome-badge" id="welcome-fecha">
+                    <i class="fas fa-calendar me-2"></i>Vence: <span id="welcome-fin"></span>
+                </div>
+            </div>
+            
+            <p id="welcome-mensaje" class="welcome-message mt-4"></p>
+            
+            <div class="mt-4">
+                <button class="btn btn-lg px-5 py-3" onclick="closeWelcome()" 
+                        style="background-color: #f5c518; color: #1a1a1a; font-size: 1.3rem; font-weight: bold; border-radius: 15px;">
+                    <i class="fas fa-check me-2"></i>ENTENDIDO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.5s ease;
+}
+
+.welcome-content {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    max-width: 600px;
+}
+
+.welcome-avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 0 auto;
+    border: 6px solid #f5c518;
+    box-shadow: 0 0 50px rgba(245, 197, 24, 0.5);
+    background-size: cover;
+    background-position: center;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome-avatar i {
+    font-size: 5rem;
+    color: #f5c518;
+}
+
+.welcome-name {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #f5c518;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-register {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1rem;
+}
+
+.welcome-info {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.welcome-badge {
+    background: rgba(245, 197, 24, 0.2);
+    border: 2px solid #f5c518;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    color: #f5c518;
+    font-weight: 600;
+}
+
+.welcome-message {
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 600;
+}
+
+.birthday-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(45deg, #f5c518, #ff6b6b, #f5c518);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: -20px;
+    animation: confetti-fall 3s linear infinite;
+}
+
+.confetti:nth-child(1) { left: 10%; background: #f5c518; animation-delay: 0s; }
+.confetti:nth-child(2) { left: 30%; background: #ff6b6b; animation-delay: 0.5s; }
+.confetti:nth-child(3) { left: 50%; background: #4ecdc4; animation-delay: 1s; }
+.confetti:nth-child(4) { left: 70%; background: #f5c518; animation-delay: 1.5s; }
+.confetti:nth-child(5) { left: 90%; background: #ff6b6b; animation-delay: 2s; }
+
+@keyframes confetti-fall {
+    0% { top: -10%; transform: rotate(0deg); opacity: 1; }
+    100% { top: 110%; transform: rotate(720deg); opacity: 0; }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let html5QrCode = null;
+let welcomeTimer = null;
+let isProcessing = false;
+
+function startScanner() {
+    const btn = document.getElementById('start-scan-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando cámara...';
+    
+    html5QrCode = new Html5Qrcode("qr-reader");
+    
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            if (isProcessing) return;
+            document.getElementById('codigo-input').value = decodedText;
+            validarCodigo();
+        },
+        (errorMessage) => {}
+    ).then(() => {
+        btn.innerHTML = '<i class="fas fa-stop me-2"></i>Detener Cámara';
+        btn.onclick = stopScanner;
+        btn.disabled = false;
+    }).catch(err => {
+        btn.innerHTML = '<i class="fas fa-camera me-2"></i>Escanear con Cámara';
+        btn.disabled = false;
+        alert('No se pudo acceder a la cámara. Ingresa el código manualmente.');
+    });
+}
+
+function stopScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            const btn = document.getElementById('start-scan-btn');
+            btn.innerHTML = '<i class="fas fa-camera me-2"></i>Escanear con Cámara';
+            btn.onclick = startScanner;
+        });
+    }
+}
+
+document.getElementById('codigo-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') validarCodigo();
+});
+
+async function validarCodigo() {
+    const codigo = document.getElementById('codigo-input').value.trim();
+    if (!codigo || isProcessing) return;
+    
+    isProcessing = true;
+    const btn = document.getElementById('validar-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validando...';
+    
+    try {
+        const response = await fetch('/kiosco/validar', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({codigo: codigo})
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+            showWelcome(data);
+        } else {
+            showError(data);
+        }
+    } catch (error) {
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado-card').className = 'card result-card error';
+        document.getElementById('resultado-titulo').textContent = 'Error de Conexión';
+        document.getElementById('resultado-mensaje').textContent = 'No se pudo conectar al servidor. Intenta de nuevo.';
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Validar Entrada';
+    document.getElementById('codigo-input').value = '';
+    isProcessing = false;
+}
+
+function showWelcome(data) {
+    const overlay = document.getElementById('welcome-overlay');
+    
+    const fotoContainer = document.getElementById('welcome-foto');
+    if (data.foto_url) {
+        fotoContainer.innerHTML = '';
+        fotoContainer.style.backgroundImage = `url(${data.foto_url})`;
+    } else {
+        fotoContainer.innerHTML = '<i class="fas fa-user"></i>';
+        fotoContainer.style.backgroundImage = 'none';
+    }
+    
+    document.getElementById('welcome-nombre').textContent = data.nombre;
+    document.getElementById('welcome-registro').textContent = data.numero_registro;
+    document.getElementById('welcome-tipo').textContent = data.tipo_membresia;
+    document.getElementById('welcome-fin').textContent = data.fecha_fin || 'N/A';
+    document.getElementById('welcome-mensaje').textContent = data.mensaje;
+    
+    const birthdayEffects = document.getElementById('birthday-effects');
+    if (data.es_cumpleanos) {
+        birthdayEffects.style.display = 'block';
+        document.getElementById('welcome-nombre').style.color = '#ff6b6b';
+    } else {
+        birthdayEffects.style.display = 'none';
+        document.getElementById('welcome-nombre').style.color = '#f5c518';
+    }
+    
+    overlay.style.display = 'block';
+    
+    if (welcomeTimer) clearTimeout(welcomeTimer);
+    welcomeTimer = setTimeout(closeWelcome, 5000);
+}
+
+function closeWelcome() {
+    document.getElementById('welcome-overlay').style.display = 'none';
+    if (welcomeTimer) { clearTimeout(welcomeTimer); welcomeTimer = null; }
+}
+
+function showError(data) {
+    document.getElementById('resultado').style.display = 'block';
+    document.getElementById('resultado-mensaje').textContent = data.message;
+    
+    const card = document.getElementById('resultado-card');
+    const icono = document.getElementById('resultado-icono');
+    
+    card.className = 'card result-card';
+    card.classList.add('error');
+    icono.className = 'fas fa-times-circle fa-3x mb-3';
+    document.getElementById('resultado-titulo').textContent = 'Acceso Denegado';
+}
+</script>
+{% endblock %}

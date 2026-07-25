@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Noticias - Gym Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-newspaper me-2" style="color: #f5c518;"></i>Noticias y Publicaciones
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for noticia in noticias %}
+        <div class="col-lg-6 mb-4">
+            <div class="card fade-in h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bullhorn me-2"></i>{{ noticia.titulo }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ noticia.fecha_publicacion.strftime('%d/%m/%Y %H:%M') }}
+                    </p>
+                    <p>{{ noticia.contenido }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not noticias %}
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-newspaper fa-3x mb-3" style="color: #ccc;"></i>
+                    <p class="text-muted">No hay noticias disponibles</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <hr>
+    <a href="{{ url_for('cliente.dashboard') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver
+    </a>
+</div>
+{% endblock %}

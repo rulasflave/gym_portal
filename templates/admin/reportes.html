@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-chart-bar me-2" style="color: #f5c518;"></i>Reportes
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card fade-in h-100">
+                <div class="card-header text-center">
+                    <i class="fas fa-file-pdf fa-2x mb-2" style="color: #f5c518;"></i>
+                    <h5 class="mb-0">Reporte de Clientes</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted">Exportar lista completa de clientes</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                        </a>
+                        <a href="#" class="btn btn-success">
+                            <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card fade-in h-100">
+                <div class="card-header text-center">
+                    <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #f5c518;"></i>
+                    <h5 class="mb-0">Reporte de Pagos</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted">Exportar historial de pagos</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                        </a>
+                        <a href="#" class="btn btn-success">
+                            <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

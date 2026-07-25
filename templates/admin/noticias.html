@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Noticias - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-newspaper me-2" style="color: #f5c518;"></i>Gestionar Noticias
+            </h2>
+        </div>
+    </div>
+
+    <div class="card fade-in">
+        <div class="card-body p-4">
+            {% if noticias %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                            <th><i class="fas fa-heading me-2"></i>Título</th>
+                            <th><i class="fas fa-calendar me-2"></i>Fecha</th>
+                            <th><i class="fas fa-toggle-on me-2"></i>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for noticia in noticias %}
+                        <tr>
+                            <td>{{ noticia.id_noticia }}</td>
+                            <td>{{ noticia.titulo }}</td>
+                            <td>{{ noticia.fecha_publicacion.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <span class="badge {% if noticia.activa %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ 'Activa' if noticia.activa else 'Inactiva' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-newspaper fa-3x mb-3" style="color: #ccc;"></i>
+                <p class="text-muted">No hay noticias publicadas</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}QR de {{ cliente.nombre_completo }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-qrcode me-2" style="color: #f5c518;"></i>Código QR - {{ cliente.numero_registro }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card fade-in">
+                <div class="card-body p-4 text-center">
+                    <h5 class="fw-bold mb-1">{{ cliente.nombre_completo }}</h5>
+                    <p class="text-muted mb-4">{{ cliente.numero_registro }}</p>
+                    
+                    <div class="mb-4 p-3 bg-white d-inline-block rounded" style="border: 3px solid #f5c518;">
+                        <img src="{{ qr_data }}" alt="QR de {{ cliente.nombre_completo }}" id="qr-image" 
+                             style="width: 250px; height: 250px;">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button onclick="downloadQR()" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i>Descargar QR
+                        </button>
+                        <button onclick="printQR()" class="btn btn-secondary">
+                            <i class="fas fa-print me-2"></i>Imprimir QR
+                        </button>
+                    </div>
+
+                    <hr>
+                    <a href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}" class="btn btn-secondary w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * { visibility: hidden; }
+    #qr-image, #qr-image * { visibility: visible; }
+    #qr-image { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function downloadQR() {
+    const link = document.createElement('a');
+    link.download = 'qr-{{ cliente.numero_registro }}.png';
+    link.href = document.getElementById('qr-image').src;
+    link.click();
+}
+
+function printQR() {
+    window.print();
+}
+</script>
+{% endblock %}

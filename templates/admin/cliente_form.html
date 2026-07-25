@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-user-edit me-2" style="color: #f5c518;"></i>
+                {{ 'Editar' if cliente else 'Nuevo' }} Cliente
+            </h2>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card fade-in">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% if cliente and cliente.foto_url %}
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='uploads/' + cliente.foto_url) }}" 
+                         alt="Foto de {{ cliente.nombre_completo }}"
+                         class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f5c518;">
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <label for="foto" class="form-label">
+                        <i class="fas fa-camera me-2"></i>Foto del Cliente
+                    </label>
+                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                    <small class="text-muted">Formatos: PNG, JPG, GIF. Máximo 5MB.</small>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="numero_registro" class="form-label">Número de Registro</label>
+                        <input type="text" class="form-control" id="numero_registro" name="numero_registro" 
+                               value="{{ cliente.numero_registro if cliente else '' }}" 
+                               {{ 'readonly' if cliente else '' }} required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="nombre_completo" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" 
+                               value="{{ cliente.nombre_completo if cliente else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nickname" class="form-label">Nickname</label>
+                        <input type="text" class="form-control" id="nickname" name="nickname" 
+                               value="{{ cliente.nickname if cliente else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" 
+                               value="{{ cliente.telefono if cliente else '' }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ cliente.email if cliente else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" 
+                               value="{{ cliente.fecha_nacimiento.strftime('%Y-%m-%d') if cliente and cliente.fecha_nacimiento else '' }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="contacto_emergencia" class="form-label">Contacto de Emergencia</label>
+                        <input type="text" class="form-control" id="contacto_emergencia" name="contacto_emergencia" 
+                               value="{{ cliente.contacto_emergencia if cliente else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="tipo_membresia" class="form-label">Tipo de Membresía</label>
+                        <select class="form-select" id="tipo_membresia" name="tipo_membresia">
+                            <option value="Normal" {{ 'selected' if cliente and cliente.tipo_membresia == 'Normal' }}>Normal</option>
+                            <option value="Beca" {{ 'selected' if cliente and cliente.tipo_membresia == 'Beca' }}>Beca</option>
+                            <option value="Programa" {{ 'selected' if cliente and cliente.tipo_membresia == 'Programa' }}>Programa</option>
+                            <option value="Visita" {{ 'selected' if cliente and cliente.tipo_membresia == 'Visita' }}>Visita</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="lesiones_medicas" class="form-label">Lesiones/Médico</label>
+                    <textarea class="form-control" id="lesiones_medicas" name="lesiones_medicas" rows="2"
+                              placeholder="Describa lesiones o condiciones médicas">{{ cliente.lesiones_medicas if cliente else '' }}</textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="fecha_inicio" class="form-label">Fecha Inicio Membresía</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" 
+                               value="{{ cliente.fecha_inicio_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_inicio_membresia else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="fecha_fin" class="form-label">Fecha Fin Membresía</label>
+                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" 
+                               value="{{ cliente.fecha_fin_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_fin_membresia else '' }}">
+                    </div>
+                    {% if cliente %}
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Estado (automático)</label>
+                        <div class="form-control" style="background-color: #f8f9fa;">
+                            <span class="badge {% if cliente.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ cliente.estado_membresia|upper }}
+                            </span>
+                            {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
+                            <small class="text-muted d-block mt-1">{{ cliente.dias_para_vencer }} días restantes</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr>
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                    <a href="{{ url_for('admin.clientes') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

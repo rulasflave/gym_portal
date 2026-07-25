@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Clientes - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-users me-2" style="color: #f5c518;"></i>Clientes
+            </h2>
+            <a href="{{ url_for('admin.nuevo_cliente') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nuevo Cliente
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card fade-in">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-camera me-2"></i>Foto</th>
+                            <th><i class="fas fa-id-card me-2"></i>Registro</th>
+                            <th><i class="fas fa-user me-2"></i>Nombre</th>
+                            <th><i class="fas fa-phone me-2"></i>Teléfono</th>
+                            <th><i class="fas fa-crown me-2"></i>Membresía</th>
+                            <th><i class="fas fa-circle me-2"></i>Estado</th>
+                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td>
+                                {% if cliente.foto_url %}
+                                <img src="{{ url_for('static', filename='uploads/' + cliente.foto_url) }}" 
+                                     alt="Foto" class="rounded-circle" 
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px; background-color: #f5c518; color: #1a1a1a;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td><span class="fw-bold">{{ cliente.numero_registro }}</span></td>
+                            <td>{{ cliente.nombre_completo }}</td>
+                            <td>{{ cliente.telefono }}</td>
+                            <td>{{ cliente.tipo_membresia }}</td>
+                            <td>
+                                <span class="badge {% if cliente.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ cliente.estado_membresia|upper }}
+                                </span>
+                                {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
+                                <br><small class="text-muted">{{ cliente.dias_para_vencer }} días</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit me-1"></i>Editar
+                                </a>
+                                <a href="{{ url_for('admin.cliente_qr', id_cliente=cliente.id_cliente) }}" 
+                                   class="btn btn-sm btn-outline-secondary" title="Ver QR">
+                                    <i class="fas fa-qrcode"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

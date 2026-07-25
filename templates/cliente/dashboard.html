@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gym Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: #1a1a1a;">
+                <i class="fas fa-home me-2" style="color: #f5c518;"></i>Mi Dashboard
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Mi Perfil</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-circle mx-auto mb-3">
+                            <i class="fas fa-user fa-3x"></i>
+                        </div>
+                        <h5 class="fw-bold">{{ current_user.nombre_completo }}</h5>
+                        <p class="text-muted mb-0">{{ current_user.numero_registro }}</p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Membresía</small>
+                        <span class="badge {% if current_user.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ current_user.estado_membresia|upper }}
+                        </span>
+                    </div>
+                    
+                    {% if current_user.fecha_fin_membresia %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Vence el</small>
+                        <strong>{{ current_user.fecha_fin_membresia.strftime('%d/%m/%Y') }}</strong>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('cliente.perfil') }}" class="btn btn-outline-primary w-100 mt-3">
+                        <i class="fas fa-id-card me-2"></i>Ver Perfil Completo
+                    </a>
+                    <a href="{{ url_for('cliente.mi_qr') }}" class="btn btn-primary w-100 mt-2">
+                        <i class="fas fa-qrcode me-2"></i>Mi Código QR
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Attendance Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Últimas Asistencias</h5>
+                </div>
+                <div class="card-body">
+                    {% if asistencias %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-calendar me-1"></i>Fecha</th>
+                                        <th><i class="fas fa-clock me-1"></i>Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asistencia in asistencias %}
+                                    <tr>
+                                        <td>{{ asistencia.fecha_hora_entrada.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ asistencia.fecha_hora_entrada.strftime('%H:%M') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No hay asistencias registradas</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- News Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Noticias Recientes</h5>
+                </div>
+                <div class="card-body">
+                    {% for noticia in noticias %}
+                        <div class="news-item mb-3 p-3 rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold mb-1">{{ noticia.titulo }}</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>{{ noticia.fecha_publicacion.strftime('%d/%m/%Y') }}
+                            </small>
+                            <p class="mb-0 mt-2">{{ noticia.contenido[:200] }}...</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f5c518;
+}
+</style>
+{% endblock %}
