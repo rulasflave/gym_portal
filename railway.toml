@@ -3,6 +3,5 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "gunicorn wsgi:app"
-releaseCommand = "python seed_data.py"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
