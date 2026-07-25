@@ -98,6 +98,10 @@
                 <div class="card-body">
                     {% for noticia in noticias %}
                         <div class="news-item mb-3 p-3 rounded" style="background-color: #f8f9fa;">
+                            {% if noticia.imagen_url %}
+                            <img src="{{ noticia.imagen_url }}" class="img-fluid rounded mb-2 w-100" 
+                                 style="max-height: 200px; object-fit: cover;" alt="{{ noticia.titulo }}">
+                            {% endif %}
                             <h6 class="fw-bold mb-1">{{ noticia.titulo }}</h6>
                             <small class="text-muted">
                                 <i class="fas fa-calendar-alt me-1"></i>{{ noticia.fecha_publicacion.strftime('%d/%m/%Y') }}
