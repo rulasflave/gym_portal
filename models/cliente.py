@@ -16,7 +16,7 @@ class Cliente(UserMixin, db.Model):
     foto_url = db.Column(db.String(255))
     contacto_emergencia = db.Column(db.String(100))
     lesiones_medicas = db.Column(db.Text)
-    tipo_membresia = db.Column(db.Enum('Beca', 'Programa', 'Normal', 'Visita'))
+    tipo_membresia = db.Column(db.String(20))
     fecha_inicio_membresia = db.Column(db.Date)
     fecha_fin_membresia = db.Column(db.Date)
     usuario_login = db.Column(db.String(10), unique=True, nullable=False)
