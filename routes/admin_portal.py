@@ -169,6 +169,47 @@ def noticias():
     noticias = Noticia.query.order_by(Noticia.fecha_publicacion.desc()).all()
     return render_template('admin/noticias.html', noticias=noticias)
 
+@admin_bp.route('/noticias/nueva', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def nueva_noticia():
+    if request.method == 'POST':
+        titulo = request.form.get('titulo')
+        contenido = request.form.get('contenido')
+        imagen_url = request.form.get('imagen_url')
+        activa = request.form.get('activa') == 'on'
+        
+        noticia = Noticia(
+            titulo=titulo,
+            contenido=contenido,
+            imagen_url=imagen_url if imagen_url else None,
+            activa=activa
+        )
+        db.session.add(noticia)
+        db.session.commit()
+        flash('Noticia creada exitosamente', 'success')
+        return redirect(url_for('admin.noticias'))
+    
+    return render_template('admin/noticia_form.html', noticia=None, titulo='Nueva Noticia')
+
+@admin_bp.route('/noticias/editar/<int:id_noticia>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def editar_noticia(id_noticia):
+    noticia = Noticia.query.get_or_404(id_noticia)
+    
+    if request.method == 'POST':
+        noticia.titulo = request.form.get('titulo')
+        noticia.contenido = request.form.get('contenido')
+        noticia.imagen_url = request.form.get('imagen_url') or None
+        noticia.activa = request.form.get('activa') == 'on'
+        
+        db.session.commit()
+        flash('Noticia actualizada exitosamente', 'success')
+        return redirect(url_for('admin.noticias'))
+    
+    return render_template('admin/noticia_form.html', noticia=noticia, titulo='Editar Noticia')
+
 @admin_bp.route('/reportes')
 @login_required
 @admin_required

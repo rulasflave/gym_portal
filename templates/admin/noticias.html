@@ -5,12 +5,25 @@
 {% block content %}
 <div class="container py-5">
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-between align-items-center">
             <h2 class="fw-bold" style="color: #1a1a1a;">
                 <i class="fas fa-newspaper me-2" style="color: #f5c518;"></i>Gestionar Noticias
             </h2>
+            <a href="{{ url_for('admin.nueva_noticia') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nueva Noticia
+            </a>
         </div>
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <div class="card fade-in">
         <div class="card-body p-4">
@@ -23,6 +36,7 @@
                             <th><i class="fas fa-heading me-2"></i>Título</th>
                             <th><i class="fas fa-calendar me-2"></i>Fecha</th>
                             <th><i class="fas fa-toggle-on me-2"></i>Estado</th>
+                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,6 +49,12 @@
                                 <span class="badge {% if noticia.activa %}bg-success{% else %}bg-danger{% endif %}">
                                     {{ 'Activa' if noticia.activa else 'Inactiva' }}
                                 </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_noticia', id_noticia=noticia.id_noticia) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit me-1"></i>Editar
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
