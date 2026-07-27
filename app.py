@@ -5,7 +5,6 @@ from extensions import db, login_manager
 def migrate_config_column(app):
     with app.app_context():
         try:
-            db.create_all()
             result = db.session.execute(db.text(
                 "SELECT column_name FROM information_schema.columns "
                 "WHERE table_name='configuracion_recordatorio' AND column_name='mensaje_whatsapp'"
@@ -18,7 +17,10 @@ def migrate_config_column(app):
                 print("Migrated: renamed mensaje_whatsapp to mensaje_recordatorio")
         except Exception as e:
             print(f"Migration skip: {e}")
-            db.session.rollback()
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -54,8 +56,11 @@ def create_app(config_class=Config):
 
     migrate_config_column(app)
 
-    from services.reminder_scheduler import init_scheduler
-    init_scheduler(app)
+    try:
+        from services.reminder_scheduler import init_scheduler
+        init_scheduler(app)
+    except Exception as e:
+        print(f"Scheduler init error: {e}")
 
     @app.route('/')
     def index():
