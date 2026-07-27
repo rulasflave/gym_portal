@@ -15,7 +15,7 @@ def configuracion_recordatorios():
         config.dias_antes = int(request.form.get('dias_antes', 3))
         config.horario_envio = request.form.get('horario_envio', '09:00')
         config.activo = request.form.get('activo') == 'on'
-        config.mensaje_whatsapp = request.form.get('mensaje_whatsapp', '')
+        config.mensaje_recordatorio = request.form.get('mensaje_recordatorio', '')
 
         db.session.commit()
         flash('Configuración actualizada exitosamente', 'success')

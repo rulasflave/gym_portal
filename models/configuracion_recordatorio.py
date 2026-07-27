@@ -8,10 +8,9 @@ class ConfiguracionRecordatorio(db.Model):
     dias_antes = db.Column(db.Integer, default=3)
     horario_envio = db.Column(db.String(5), default='09:00')
     activo = db.Column(db.Boolean, default=True)
-    mensaje_whatsapp = db.Column(db.Text, default=(
-        'Hola {nombre}, tu membresía {tipo} vence en {días} días '
-        '({fecha}). Acércate a renovar para seguir entrenando. '
-        '¡Te esperamos en el gym! 💪'
+    mensaje_recordatorio = db.Column(db.Text, default=(
+        '¡Hola {nombre}! 💪 Tu membresía {tipo} vence en {días} días '
+        '({fecha}). ¡Renueva pronto para seguir entrenando!'
     ))
 
     @classmethod

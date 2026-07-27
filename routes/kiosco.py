@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify
 from models.cliente import Cliente
 from models.asistencia import Asistencia
 from extensions import db
-from datetime import datetime
+from datetime import datetime, date
 
 kiosco_bp = Blueprint('kiosco', __name__)
 
@@ -42,6 +42,15 @@ def validar_codigo():
     if cliente.fecha_nacimiento:
         es_cumple = cliente.fecha_nacimiento.month == hoy.month and cliente.fecha_nacimiento.day == hoy.day
     
+    # Check if membership expires in 3 days or less
+    dias_restantes = None
+    alerta_vencimiento = False
+    if cliente.fecha_fin_membresia:
+        delta = cliente.fecha_fin_membresia - hoy
+        dias_restantes = delta.days
+        if dias_restantes <= 3:
+            alerta_vencimiento = True
+    
     return jsonify({
         'status': 'ok',
         'nombre': cliente.nickname or cliente.nombre_completo,
@@ -51,5 +60,7 @@ def validar_codigo():
         'tipo_membresia': cliente.tipo_membresia,
         'fecha_fin': cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else None,
         'es_cumpleanos': es_cumple,
+        'alerta_vencimiento': alerta_vencimiento,
+        'dias_restantes': dias_restantes,
         'mensaje': f'¡Feliz cumpleaños {cliente.nickname or cliente.nombre_completo}! 🎂🎉' if es_cumple else f'Bienvenido {cliente.nickname or cliente.nombre_completo}!'
     })

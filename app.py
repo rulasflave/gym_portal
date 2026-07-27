@@ -34,7 +34,7 @@ def create_app(config_class=Config):
     from routes.configuracion import config_bp
     app.register_blueprint(config_bp)
 
-    from services.whatsapp_scheduler import init_scheduler
+    from services.reminder_scheduler import init_scheduler
     init_scheduler(app)
 
     @app.route('/')

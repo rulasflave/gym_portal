@@ -38,11 +38,16 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Mensaje WhatsApp</label>
-                    <textarea name="mensaje_whatsapp" class="form-control" rows="4">{{ config.mensaje_whatsapp }}</textarea>
+                    <label class="form-label">Mensaje de recordatorio</label>
+                    <textarea name="mensaje_recordatorio" class="form-control" rows="4">{{ config.mensaje_recordatorio }}</textarea>
                     <small class="text-muted">
                         Variables disponibles: <code>{nombre}</code>, <code>{tipo}</code>, <code>{días}</code>, <code>{fecha}</code>
                     </small>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Telegram:</strong> Los recordatorios se envían al chat ID configurado en las variables de entorno.
                 </div>
 
                 <button type="submit" class="btn btn-primary">
