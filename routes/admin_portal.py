@@ -100,15 +100,17 @@ def nuevo_cliente():
         flash('Cliente creado exitosamente', 'success')
         return redirect(url_for('admin.clientes'))
     
-    last_cliente = Cliente.query.order_by(Cliente.id_cliente.desc()).first()
-    if last_cliente and last_cliente.numero_registro and last_cliente.numero_registro.startswith('V'):
-        try:
-            last_num = int(last_cliente.numero_registro[1:])
-            next_num = last_num + 1
-        except ValueError:
-            next_num = 1
-    else:
-        next_num = 1
+    all_clientes = Cliente.query.all()
+    max_num = 0
+    for c in all_clientes:
+        if c.numero_registro and c.numero_registro.upper().startswith('V'):
+            try:
+                num = int(c.numero_registro[1:])
+                if num > max_num:
+                    max_num = num
+            except ValueError:
+                pass
+    next_num = max_num + 1
     next_registro = f"V{next_num:03d}"
     
     return render_template('admin/cliente_form.html', next_registro=next_registro)
