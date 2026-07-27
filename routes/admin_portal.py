@@ -121,12 +121,17 @@ def nuevo_cliente():
 @admin_required
 def eliminar_cliente(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
-    Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
-    Pago.query.filter_by(id_cliente=cliente.id_cliente).delete()
-    RecordatorioEnviado.query.filter_by(id_cliente=cliente.id_cliente).delete()
-    db.session.delete(cliente)
-    db.session.commit()
-    flash(f'Cliente {cliente.nombre_completo} eliminado', 'success')
+    try:
+        RecordatorioEnviado.query.filter_by(id_cliente=cliente.id_cliente).delete()
+        Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
+        Pago.query.filter_by(id_cliente=cliente.id_cliente).delete()
+        db.session.flush()
+        db.session.delete(cliente)
+        db.session.commit()
+        flash(f'Cliente {cliente.nombre_completo} eliminado', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar: {str(e)}', 'error')
     return redirect(url_for('admin.clientes'))
 
 @admin_bp.route('/clientes/<int:id_cliente>/editar', methods=['GET', 'POST'])
