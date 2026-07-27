@@ -12,7 +12,7 @@ def scanner():
 
 @kiosco_bp.route('/validar', methods=['POST'])
 def validar_codigo():
-    codigo = request.json.get('codigo')
+    codigo = request.json.get('codigo', '').strip().upper()
     
     cliente = Cliente.query.filter_by(numero_registro=codigo).first()
     

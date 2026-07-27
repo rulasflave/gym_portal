@@ -64,7 +64,7 @@ def save_photo(file):
 @admin_required
 def nuevo_cliente():
     if request.method == 'POST':
-        numero_registro = request.form.get('numero_registro')
+        numero_registro = request.form.get('numero_registro', '').strip().upper()
         
         if Cliente.query.filter_by(numero_registro=numero_registro).first():
             flash('El número de registro ya existe', 'error')
@@ -100,7 +100,18 @@ def nuevo_cliente():
         flash('Cliente creado exitosamente', 'success')
         return redirect(url_for('admin.clientes'))
     
-    return render_template('admin/cliente_form.html')
+    last_cliente = Cliente.query.order_by(Cliente.id_cliente.desc()).first()
+    if last_cliente and last_cliente.numero_registro and last_cliente.numero_registro.startswith('V'):
+        try:
+            last_num = int(last_cliente.numero_registro[1:])
+            next_num = last_num + 1
+        except ValueError:
+            next_num = 1
+    else:
+        next_num = 1
+    next_registro = f"V{next_num:03d}"
+    
+    return render_template('admin/cliente_form.html', next_registro=next_registro)
 
 @admin_bp.route('/clientes/<int:id_cliente>/editar', methods=['GET', 'POST'])
 @login_required

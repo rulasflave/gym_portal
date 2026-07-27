@@ -62,28 +62,6 @@
     </div>
 </div>
 
-<!-- EXPIRY ALERT MODAL -->
-<div id="alerta-vencimiento" style="display: none;">
-    <div class="alerta-screen">
-        <div class="alerta-content">
-            <div class="alerta-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h2 class="alerta-titulo">¡Atención!</h2>
-            <p id="alerta-mensaje" class="alerta-mensaje">Tu membresía está por vencer.</p>
-            <div class="alerta-badge">
-                <i class="fas fa-calendar me-2"></i>
-                <span id="alerta-dias"></span>
-            </div>
-            <p class="alerta-accion">Acércate a recepción para renovar</p>
-            <button class="btn btn-lg px-5 py-3 mt-4" onclick="closeAlerta()" 
-                    style="background-color: #f5c518; color: #1a1a1a; font-size: 1.2rem; font-weight: bold; border-radius: 15px;">
-                <i class="fas fa-check me-2"></i>ENTENDIDO
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- WELCOME OVERLAY -->
 <div id="welcome-overlay" style="display: none;">
     <div class="welcome-screen">
@@ -112,6 +90,22 @@
                 </div>
                 <div class="welcome-badge" id="welcome-fecha">
                     <i class="fas fa-calendar me-2"></i>Vence: <span id="welcome-fin"></span>
+                </div>
+            </div>
+            
+            <!-- EXPIRY WARNING (inside welcome) -->
+            <div id="welcome-alerta-expiracion" style="display: none;" class="mt-4">
+                <div class="alerta-interna">
+                    <div class="alerta-interna-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="alerta-interna-titulo">¡Atención!</h3>
+                    <p id="welcome-alerta-mensaje" class="alerta-interna-mensaje"></p>
+                    <div class="alerta-interna-badge">
+                        <i class="fas fa-calendar me-2"></i>
+                        <span id="welcome-alerta-dias"></span>
+                    </div>
+                    <p class="alerta-interna-accion">Acércate a recepción para renovar</p>
                 </div>
             </div>
             
@@ -319,6 +313,64 @@
     color: rgba(255,255,255,0.7);
     font-style: italic;
 }
+
+.alerta-interna {
+    background: rgba(255, 107, 107, 0.15);
+    border: 2px solid #ff6b6b;
+    border-radius: 20px;
+    padding: 1.5rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.alerta-interna-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+}
+
+.alerta-interna-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.alerta-interna-titulo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ff6b6b;
+    margin-bottom: 0.5rem;
+}
+
+.alerta-interna-mensaje {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 1rem;
+}
+
+.alerta-interna-badge {
+    display: inline-block;
+    background: rgba(255, 107, 107, 0.3);
+    border: 2px solid #ff6b6b;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    color: #ff6b6b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.alerta-interna-accion {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.7);
+    font-style: italic;
+    margin-bottom: 0;
+}
 </style>
 {% endblock %}
 
@@ -372,7 +424,7 @@ document.getElementById('codigo-input').addEventListener('keypress', function(e)
 });
 
 async function validarCodigo() {
-    const codigo = document.getElementById('codigo-input').value.trim();
+    const codigo = document.getElementById('codigo-input').value.trim().toUpperCase();
     if (!codigo || isProcessing) return;
     
     isProcessing = true;
@@ -434,36 +486,29 @@ function showWelcome(data) {
         document.getElementById('welcome-nombre').style.color = '#f5c518';
     }
     
+    // Show expiry alert inside welcome
+    const alertaDiv = document.getElementById('welcome-alerta-expiracion');
+    if (data.alerta_vencimiento) {
+        document.getElementById('welcome-alerta-mensaje').textContent = 
+            'Tu membresía está por vencer. ¡Renueva pronto!';
+        document.getElementById('welcome-alerta-dias').textContent = 
+            `${data.dias_restantes} día${data.dias_restantes !== 1 ? 's' : ''} restante${data.dias_restantes !== 1 ? 's' : ''}`;
+        alertaDiv.style.display = 'block';
+    } else {
+        alertaDiv.style.display = 'none';
+    }
+    
     overlay.style.display = 'block';
     
     if (welcomeTimer) clearTimeout(welcomeTimer);
     welcomeTimer = setTimeout(() => {
         closeWelcome();
-        // Show expiry alert if applicable
-        if (data.alerta_vencimiento) {
-            setTimeout(() => {
-                showAlerta(data);
-            }, 500);
-        }
-    }, 5000);
+    }, 8000);
 }
 
 function closeWelcome() {
     document.getElementById('welcome-overlay').style.display = 'none';
     if (welcomeTimer) { clearTimeout(welcomeTimer); welcomeTimer = null; }
-}
-
-function showAlerta(data) {
-    const modal = document.getElementById('alerta-vencimiento');
-    document.getElementById('alerta-mensaje').textContent = 
-        `Tu membresía está por vencer. ¡Renueva pronto!`;
-    document.getElementById('alerta-dias').textContent = 
-        `${data.dias_restantes} día${data.dias_restantes !== 1 ? 's' : ''} restante${data.dias_restantes !== 1 ? 's' : ''}`;
-    modal.style.display = 'block';
-}
-
-function closeAlerta() {
-    document.getElementById('alerta-vencimiento').style.display = 'none';
 }
 
 function showError(data) {

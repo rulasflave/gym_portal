@@ -48,8 +48,9 @@
                     <div class="col-md-6 mb-3">
                         <label for="numero_registro" class="form-label">Número de Registro</label>
                         <input type="text" class="form-control" id="numero_registro" name="numero_registro" 
-                               value="{{ cliente.numero_registro if cliente else '' }}" 
-                               {{ 'readonly' if cliente else '' }} required>
+                               value="{{ cliente.numero_registro if cliente else next_registro }}" 
+                               readonly required>
+                        <small class="text-muted">Código automático</small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="nombre_completo" class="form-label">Nombre Completo</label>
