@@ -122,6 +122,8 @@ def nuevo_cliente():
 def eliminar_cliente(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
     Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
+    Pago.query.filter_by(id_cliente=cliente.id_cliente).delete()
+    RecordatorioEnviado.query.filter_by(id_cliente=cliente.id_cliente).delete()
     db.session.delete(cliente)
     db.session.commit()
     flash(f'Cliente {cliente.nombre_completo} eliminado', 'success')
