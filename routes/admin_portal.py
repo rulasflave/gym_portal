@@ -88,7 +88,6 @@ def nuevo_cliente():
             tipo_membresia=request.form.get('tipo_membresia'),
             fecha_inicio_membresia=datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None,
             fecha_fin_membresia=datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None,
-            estado_membresia='activa',
             usuario_login=numero_registro,
             password_hash=password,
             primer_login=True,
