@@ -307,7 +307,12 @@ def enviar_recordatorio(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
     config = ConfiguracionRecordatorio.get_config()
 
-    mensaje = config.mensaje_recordatorio.format(
+    mensaje_template = config.mensaje_recordatorio or (
+        '¡Hola {nombre}! 💪 Tu membresía {tipo} vence en {días} días '
+        '({fecha}). ¡Renueva pronto para seguir entrenando!'
+    )
+
+    mensaje = mensaje_template.format(
         nombre=cliente.nickname or cliente.nombre_completo,
         tipo=cliente.tipo_membresia or 'General',
         días=cliente.dias_para_vencer or 0,
@@ -326,8 +331,8 @@ def enviar_recordatorio(id_cliente):
     db.session.commit()
 
     if exitoso:
-        flash('Recordatorio enviado exitosamente', 'success')
+        flash('Recordatorio enviado exitosamente por Telegram', 'success')
     else:
-        flash('Error al enviar recordatorio', 'danger')
+        flash('Error al enviar. Verifica que TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID estén configurados en Railway.', 'danger')
 
     return redirect(url_for('admin.cliente_detalle', id_cliente=id_cliente))
