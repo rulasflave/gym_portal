@@ -6,6 +6,9 @@ def migrate_config_column(app):
     with app.app_context():
         try:
             db.create_all()
+        except Exception as e:
+            print(f"create_all: {e}")
+        try:
             result = db.session.execute(db.text(
                 "SELECT column_name FROM information_schema.columns "
                 "WHERE table_name='configuracion_recordatorio' AND column_name='mensaje_whatsapp'"
@@ -17,7 +20,7 @@ def migrate_config_column(app):
                 db.session.commit()
                 print("Migrated: renamed mensaje_whatsapp to mensaje_recordatorio")
             else:
-                print("No migration needed: column already named mensaje_recordatorio or table is new")
+                print("No migration needed")
         except Exception as e:
             print(f"Migration skip: {e}")
             try:

@@ -304,35 +304,43 @@ def cliente_qr(id_cliente):
 @login_required
 @admin_required
 def enviar_recordatorio(id_cliente):
-    cliente = Cliente.query.get_or_404(id_cliente)
-    config = ConfiguracionRecordatorio.get_config()
+    try:
+        cliente = Cliente.query.get_or_404(id_cliente)
 
-    mensaje_template = config.mensaje_recordatorio or (
-        '¡Hola {nombre}! 💪 Tu membresía {tipo} vence en {días} días '
-        '({fecha}). ¡Renueva pronto para seguir entrenando!'
-    )
+        default_msg = (
+            '¡Hola {nombre}! 💪 Tu membresía {tipo} vence en {días} días '
+            '({fecha}). ¡Renueva pronto para seguir entrenando!'
+        )
 
-    mensaje = mensaje_template.format(
-        nombre=cliente.nickname or cliente.nombre_completo,
-        tipo=cliente.tipo_membresia or 'General',
-        días=cliente.dias_para_vencer or 0,
-        fecha=cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else 'N/A'
-    )
+        try:
+            config = ConfiguracionRecordatorio.get_config()
+            mensaje_template = config.mensaje_recordatorio or default_msg
+        except Exception:
+            mensaje_template = default_msg
 
-    exitoso = send_telegram(mensaje)
+        mensaje = mensaje_template.format(
+            nombre=cliente.nickname or cliente.nombre_completo,
+            tipo=cliente.tipo_membresia or 'General',
+            días=cliente.dias_para_vencer or 0,
+            fecha=cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else 'N/A'
+        )
 
-    recordatorio = RecordatorioEnviado(
-        id_cliente=cliente.id_cliente,
-        tipo='manual',
-        mensaje=mensaje,
-        exitoso=exitoso
-    )
-    db.session.add(recordatorio)
-    db.session.commit()
+        exitoso = send_telegram(mensaje)
 
-    if exitoso:
-        flash('Recordatorio enviado exitosamente por Telegram', 'success')
-    else:
-        flash('Error al enviar. Verifica que TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID estén configurados en Railway.', 'danger')
+        recordatorio = RecordatorioEnviado(
+            id_cliente=cliente.id_cliente,
+            tipo='manual',
+            mensaje=mensaje,
+            exitoso=exitoso
+        )
+        db.session.add(recordatorio)
+        db.session.commit()
+
+        if exitoso:
+            flash('Recordatorio enviado por Telegram', 'success')
+        else:
+            flash('Error al enviar. Verifica TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID en Railway.', 'danger')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
 
     return redirect(url_for('admin.clientes'))
