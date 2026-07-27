@@ -335,4 +335,4 @@ def enviar_recordatorio(id_cliente):
     else:
         flash('Error al enviar. Verifica que TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID estén configurados en Railway.', 'danger')
 
-    return redirect(url_for('admin.cliente_detalle', id_cliente=id_cliente))
+    return redirect(url_for('admin.clientes'))
