@@ -6,6 +6,9 @@ def send_telegram(message):
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     
+    print(f"DEBUG: TELEGRAM_BOT_TOKEN = {'SET' if token else 'NOT SET'}")
+    print(f"DEBUG: TELEGRAM_CHAT_ID = {'SET' if chat_id else 'NOT SET'}")
+    
     if not token or not chat_id:
         print("Telegram not configured, skipping message")
         return False
@@ -18,6 +21,8 @@ def send_telegram(message):
             'parse_mode': 'HTML'
         }
         response = requests.post(url, json=payload, timeout=10)
+        print(f"DEBUG: Telegram response status = {response.status_code}")
+        print(f"DEBUG: Telegram response = {response.text[:200]}")
         return response.status_code == 200
     except Exception as e:
         print(f"Error sending Telegram: {e}")
