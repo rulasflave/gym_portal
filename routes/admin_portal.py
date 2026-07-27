@@ -106,12 +106,14 @@ def nuevo_cliente():
         if c.numero_registro and c.numero_registro.upper().startswith('V'):
             try:
                 num = int(c.numero_registro[1:])
+                print(f"DEBUG AUTO: Found {c.numero_registro} -> num={num}")
                 if num > max_num:
                     max_num = num
             except ValueError:
                 pass
     next_num = max_num + 1
     next_registro = f"V{next_num:03d}"
+    print(f"DEBUG AUTO: next_registro={next_registro}")
     
     return render_template('admin/cliente_form.html', next_registro=next_registro)
 
