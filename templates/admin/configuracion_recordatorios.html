@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Configuración de Recordatorios{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-cog me-2"></i>Configuración de Recordatorios</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Días antes del vencimiento</label>
+                        <input type="number" name="dias_antes" class="form-control"
+                               value="{{ config.dias_antes }}" min="1" max="30">
+                        <small class="text-muted">Enviar recordatorio X días antes de vencer</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Horario de envío</label>
+                        <input type="time" name="horario_envio" class="form-control"
+                               value="{{ config.horario_envio }}">
+                        <small class="text-muted">Hora diaria de envío automático</small>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" name="activo" class="form-check-input"
+                           {{ 'checked' if config.activo }}>
+                    <label class="form-check-label">Envío automático activo</label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mensaje WhatsApp</label>
+                    <textarea name="mensaje_whatsapp" class="form-control" rows="4">{{ config.mensaje_whatsapp }}</textarea>
+                    <small class="text-muted">
+                        Variables disponibles: <code>{nombre}</code>, <code>{tipo}</code>, <code>{días}</code>, <code>{fecha}</code>
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Guardar configuración
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,9 +3,12 @@ from flask_login import login_required, current_user
 from models.cliente import Cliente
 from models.pago import Pago
 from models.noticia import Noticia
+from models.configuracion_recordatorio import ConfiguracionRecordatorio
+from models.recordatorio_enviado import RecordatorioEnviado
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from services.qr_service import generate_qr_code
+from services.notification_service import send_whatsapp
 from extensions import db
 from datetime import datetime
 import os
@@ -297,3 +300,39 @@ def cliente_qr(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
     qr_data = generate_qr_code(cliente.numero_registro)
     return render_template('admin/cliente_qr.html', cliente=cliente, qr_data=qr_data)
+
+@admin_bp.route('/clientes/<int:id_cliente>/recordatorio', methods=['POST'])
+@login_required
+@admin_required
+def enviar_recordatorio(id_cliente):
+    cliente = Cliente.query.get_or_404(id_cliente)
+    config = ConfiguracionRecordatorio.get_config()
+
+    if not cliente.telefono:
+        flash('El cliente no tiene teléfono registrado', 'warning')
+        return redirect(url_for('admin.cliente_detalle', id_cliente=id_cliente))
+
+    mensaje = config.mensaje_whatsapp.format(
+        nombre=cliente.nickname or cliente.nombre_completo,
+        tipo=cliente.tipo_membresia or 'General',
+        días=cliente.dias_para_vencer or 0,
+        fecha=cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else 'N/A'
+    )
+
+    exitoso = send_whatsapp(cliente.telefono, mensaje)
+
+    recordatorio = RecordatorioEnviado(
+        id_cliente=cliente.id_cliente,
+        tipo='manual',
+        mensaje=mensaje,
+        exitoso=exitoso
+    )
+    db.session.add(recordatorio)
+    db.session.commit()
+
+    if exitoso:
+        flash('Recordatorio enviado exitosamente', 'success')
+    else:
+        flash('Error al enviar recordatorio', 'danger')
+
+    return redirect(url_for('admin.cliente_detalle', id_cliente=id_cliente))

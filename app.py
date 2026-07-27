@@ -31,6 +31,12 @@ def create_app(config_class=Config):
     from routes.kiosco import kiosco_bp
     app.register_blueprint(kiosco_bp, url_prefix='/kiosco')
 
+    from routes.configuracion import config_bp
+    app.register_blueprint(config_bp)
+
+    from services.whatsapp_scheduler import init_scheduler
+    init_scheduler(app)
+
     @app.route('/')
     def index():
         return redirect(url_for('auth.login'))
