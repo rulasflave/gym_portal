@@ -115,6 +115,16 @@ def nuevo_cliente():
     
     return render_template('admin/cliente_form.html', next_registro=next_registro)
 
+@admin_bp.route('/clientes/<int:id_cliente>/eliminar', methods=['POST'])
+@login_required
+@admin_required
+def eliminar_cliente(id_cliente):
+    cliente = Cliente.query.get_or_404(id_cliente)
+    db.session.delete(cliente)
+    db.session.commit()
+    flash(f'Cliente {cliente.nombre_completo} eliminado', 'success')
+    return redirect(url_for('admin.clientes'))
+
 @admin_bp.route('/clientes/<int:id_cliente>/editar', methods=['GET', 'POST'])
 @login_required
 @admin_required

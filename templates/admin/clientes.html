@@ -81,6 +81,11 @@
                                         <i class="fab fa-telegram me-1"></i>Recordatorio
                                     </button>
                                 </form>
+                                <form method="POST" action="{{ url_for('admin.eliminar_cliente', id_cliente=cliente.id_cliente) }}" style="display:inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar a {{ cliente.nombre_completo }}? Esta acción no se puede deshacer.')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
