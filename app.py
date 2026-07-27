@@ -5,6 +5,7 @@ from extensions import db, login_manager
 def migrate_config_column(app):
     with app.app_context():
         try:
+            db.create_all()
             result = db.session.execute(db.text(
                 "SELECT column_name FROM information_schema.columns "
                 "WHERE table_name='configuracion_recordatorio' AND column_name='mensaje_whatsapp'"
