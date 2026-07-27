@@ -3,13 +3,16 @@ import requests
 
 
 def send_telegram(message):
-    import sys
     all_keys = sorted(os.environ.keys())
-    print(f"DEBUG: Total env vars = {len(all_keys)}", file=sys.stderr)
-    print(f"DEBUG: Env keys with TELEGRAM = {[k for k in all_keys if 'TELEGRAM' in k.upper()]}", file=sys.stderr)
+    print(f"DEBUG2: Total env vars = {len(all_keys)}")
+    telegram_keys = [k for k in all_keys if 'TELEGRAM' in k.upper()]
+    print(f"DEBUG2: TELEGRAM keys found = {telegram_keys}")
+    for k in telegram_keys:
+        v = os.environ.get(k, '')
+        print(f"DEBUG2: {k} = {v[:15]}..." if len(v) > 15 else f"DEBUG2: {k} = {v}")
     
-    token = os.getenv('TELEGRAM_BOT_TOKEN')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
     
     print(f"DEBUG: token={token[:10] if token else 'NONE'}...", file=sys.stderr)
     print(f"DEBUG: chat_id={chat_id}", file=sys.stderr)
