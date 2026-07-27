@@ -2,6 +2,23 @@ from flask import Flask, redirect, url_for
 from config import Config
 from extensions import db, login_manager
 
+def migrate_config_column(app):
+    with app.app_context():
+        try:
+            result = db.session.execute(db.text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='configuracion_recordatorio' AND column_name='mensaje_whatsapp'"
+            ))
+            if result.fetchone():
+                db.session.execute(db.text(
+                    "ALTER TABLE configuracion_recordatorio RENAME COLUMN mensaje_whatsapp TO mensaje_recordatorio"
+                ))
+                db.session.commit()
+                print("Migrated: renamed mensaje_whatsapp to mensaje_recordatorio")
+        except Exception as e:
+            print(f"Migration skip: {e}")
+            db.session.rollback()
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -33,6 +50,8 @@ def create_app(config_class=Config):
 
     from routes.configuracion import config_bp
     app.register_blueprint(config_bp)
+
+    migrate_config_column(app)
 
     from services.reminder_scheduler import init_scheduler
     init_scheduler(app)
