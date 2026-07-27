@@ -3,11 +3,16 @@ import requests
 
 
 def send_telegram(message):
+    import sys
+    all_keys = sorted(os.environ.keys())
+    print(f"DEBUG: Total env vars = {len(all_keys)}", file=sys.stderr)
+    print(f"DEBUG: Env keys with TELEGRAM = {[k for k in all_keys if 'TELEGRAM' in k.upper()]}", file=sys.stderr)
+    
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     
-    print(f"DEBUG: TELEGRAM_BOT_TOKEN = {'SET' if token else 'NOT SET'}")
-    print(f"DEBUG: TELEGRAM_CHAT_ID = {'SET' if chat_id else 'NOT SET'}")
+    print(f"DEBUG: token={token[:10] if token else 'NONE'}...", file=sys.stderr)
+    print(f"DEBUG: chat_id={chat_id}", file=sys.stderr)
     
     if not token or not chat_id:
         print("Telegram not configured, skipping message")
