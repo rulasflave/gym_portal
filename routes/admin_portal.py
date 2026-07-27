@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required, current_user
 from models.cliente import Cliente
+from models.asistencia import Asistencia
 from models.pago import Pago
 from models.noticia import Noticia
 from models.configuracion_recordatorio import ConfiguracionRecordatorio
@@ -120,6 +121,7 @@ def nuevo_cliente():
 @admin_required
 def eliminar_cliente(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
+    Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
     db.session.delete(cliente)
     db.session.commit()
     flash(f'Cliente {cliente.nombre_completo} eliminado', 'success')
