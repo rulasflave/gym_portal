@@ -22,7 +22,38 @@ def validar_codigo():
             'message': 'Código no válido. Consulta en recepción.'
         })
     
+    hoy = datetime.now().date()
+    
     if not cliente.is_membresia_activa:
+        # Check if within 2-day grace period
+        if cliente.fecha_fin_membresia:
+            dias_expirado = (hoy - cliente.fecha_fin_membresia).days
+            if dias_expirado <= 2:
+                # Allow access with warning
+                asistencia = Asistencia(
+                    id_cliente=cliente.id_cliente,
+                    fecha_hora_entrada=datetime.now(),
+                    qr_escaneado=True
+                )
+                db.session.add(asistencia)
+                db.session.commit()
+                
+                return jsonify({
+                    'status': 'ok',
+                    'grace_period': True,
+                    'dias_expirado': dias_expirado,
+                    'nombre': cliente.nickname or cliente.nombre_completo,
+                    'nombre_completo': cliente.nombre_completo,
+                    'numero_registro': cliente.numero_registro,
+                    'foto_url': f'/static/uploads/{cliente.foto_url}' if cliente.foto_url else None,
+                    'tipo_membresia': cliente.tipo_membresia,
+                    'fecha_fin': cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else None,
+                    'es_cumpleanos': False,
+                    'alerta_vencimiento': False,
+                    'dias_restantes': None,
+                    'mensaje': f'⚠️ Días de gracia: {dias_expirado}/2. ¡Renueva ya!'
+                })
+        
         return jsonify({
             'status': 'vencida',
             'message': f'Tu membresía venció el {cliente.fecha_fin_membresia.strftime("%d/%m/%Y")}. Renueva para continuar.',
@@ -37,12 +68,10 @@ def validar_codigo():
     db.session.add(asistencia)
     db.session.commit()
     
-    hoy = datetime.now().date()
     es_cumple = False
     if cliente.fecha_nacimiento:
         es_cumple = cliente.fecha_nacimiento.month == hoy.month and cliente.fecha_nacimiento.day == hoy.day
     
-    # Check if membership expires in 3 days or less
     dias_restantes = None
     alerta_vencimiento = False
     if cliente.fecha_fin_membresia:
@@ -53,6 +82,7 @@ def validar_codigo():
     
     return jsonify({
         'status': 'ok',
+        'grace_period': False,
         'nombre': cliente.nickname or cliente.nombre_completo,
         'nombre_completo': cliente.nombre_completo,
         'numero_registro': cliente.numero_registro,

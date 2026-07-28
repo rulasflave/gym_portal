@@ -113,11 +113,17 @@
                         <label for="fecha_inicio" class="form-label">Fecha Inicio Membresía</label>
                         <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" 
                                value="{{ cliente.fecha_inicio_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_inicio_membresia else '' }}">
+                        <small class="text-muted">La fecha fin se calcula automáticamente (+30 días)</small>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="fecha_fin" class="form-label">Fecha Fin Membresía</label>
-                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" 
-                               value="{{ cliente.fecha_fin_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_fin_membresia else '' }}">
+                        <label class="form-label">Fecha Fin Membresía</label>
+                        <div class="form-control" style="background-color: #f8f9fa;">
+                            {% if cliente and cliente.fecha_fin_membresia %}
+                            {{ cliente.fecha_fin_membresia.strftime('%d/%m/%Y') }}
+                            {% else %}
+                            <span class="text-muted">Se calcula al guardar</span>
+                            {% endif %}
+                        </div>
                     </div>
                     {% if cliente %}
                     <div class="col-md-4 mb-3">

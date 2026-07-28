@@ -488,11 +488,17 @@ function showWelcome(data) {
     
     // Show expiry alert inside welcome
     const alertaDiv = document.getElementById('welcome-alerta-expiracion');
-    if (data.alerta_vencimiento) {
+    if (data.alerta_vencimiento && !data.grace_period) {
         document.getElementById('welcome-alerta-mensaje').textContent = 
             'Tu membresía está por vencer. ¡Renueva pronto!';
         document.getElementById('welcome-alerta-dias').textContent = 
             `${data.dias_restantes} día${data.dias_restantes !== 1 ? 's' : ''} restante${data.dias_restantes !== 1 ? 's' : ''}`;
+        alertaDiv.style.display = 'block';
+    } else if (data.grace_period) {
+        document.getElementById('welcome-alerta-mensaje').textContent = 
+            '¡Membresía vencida! Estás en días de gracia.';
+        document.getElementById('welcome-alerta-dias').textContent = 
+            `Día ${data.dias_expirado} de 2 - ¡Renueva ya!`;
         alertaDiv.style.display = 'block';
     } else {
         alertaDiv.style.display = 'none';

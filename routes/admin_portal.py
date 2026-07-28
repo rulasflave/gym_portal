@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from services.qr_service import generate_qr_code
 from services.notification_service import send_telegram
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 admin_bp = Blueprint('admin', __name__)
@@ -77,6 +77,11 @@ def nuevo_cliente():
         if 'foto' in request.files:
             foto_url = save_photo(request.files['foto'])
         
+        fecha_inicio = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
+        fecha_fin = None
+        if fecha_inicio:
+            fecha_fin = fecha_inicio + timedelta(days=30)
+        
         cliente = Cliente(
             numero_registro=numero_registro,
             nombre_completo=request.form.get('nombre_completo'),
@@ -87,8 +92,8 @@ def nuevo_cliente():
             contacto_emergencia=request.form.get('contacto_emergencia'),
             lesiones_medicas=request.form.get('lesiones_medicas'),
             tipo_membresia=request.form.get('tipo_membresia'),
-            fecha_inicio_membresia=datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None,
-            fecha_fin_membresia=datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None,
+            fecha_inicio_membresia=fecha_inicio,
+            fecha_fin_membresia=fecha_fin,
             usuario_login=numero_registro,
             password_hash=password,
             primer_login=True,
@@ -150,7 +155,8 @@ def editar_cliente(id_cliente):
         cliente.lesiones_medicas = request.form.get('lesiones_medicas')
         cliente.tipo_membresia = request.form.get('tipo_membresia')
         cliente.fecha_inicio_membresia = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
-        cliente.fecha_fin_membresia = datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None
+        if cliente.fecha_inicio_membresia:
+            cliente.fecha_fin_membresia = cliente.fecha_inicio_membresia + timedelta(days=30)
         
         if 'foto' in request.files and request.files['foto'].filename:
             foto_url = save_photo(request.files['foto'])
@@ -178,23 +184,56 @@ def nuevo_pago():
     if request.method == 'POST':
         id_cliente = request.form.get('id_cliente')
         cliente = Cliente.query.get_or_404(int(id_cliente))
+        fecha_pago = datetime.strptime(request.form.get('fecha_pago'), '%Y-%m-%d').date()
         
         pago = Pago(
             id_cliente=int(id_cliente),
             monto=float(request.form.get('monto', 0)),
-            fecha_pago=datetime.strptime(request.form.get('fecha_pago'), '%Y-%m-%d').date(),
+            fecha_pago=fecha_pago,
             metodo_pago=request.form.get('metodo_pago'),
             concepto=request.form.get('concepto')
         )
         
         db.session.add(pago)
+        
+        # Auto-update membership dates
+        cliente.fecha_inicio_membresia = fecha_pago
+        cliente.fecha_fin_membresia = fecha_pago + timedelta(days=30)
+        
         db.session.commit()
         
-        flash('Pago registrado exitosamente', 'success')
+        flash(f'Pago registrado. Membresía de {cliente.nombre_completo} actualizada hasta el {cliente.fecha_fin_membresia.strftime("%d/%m/%Y")}', 'success')
         return redirect(url_for('admin.pagos'))
     
     clientes = Cliente.query.order_by(Cliente.numero_registro).all()
-    return render_template('admin/pago_form.html', clientes=clientes, today=datetime.now().strftime('%Y-%m-%d'))
+    return render_template('admin/pago_form.html', clientes=clientes, today=datetime.now().strftime('%Y-%m-%d'), pago=None)
+
+@admin_bp.route('/pagos/<int:id_pago>/editar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def editar_pago(id_pago):
+    pago = Pago.query.get_or_404(id_pago)
+    if request.method == 'POST':
+        pago.id_cliente = int(request.form.get('id_cliente'))
+        pago.monto = float(request.form.get('monto', 0))
+        pago.fecha_pago = datetime.strptime(request.form.get('fecha_pago'), '%Y-%m-%d').date()
+        pago.metodo_pago = request.form.get('metodo_pago')
+        pago.concepto = request.form.get('concepto')
+        db.session.commit()
+        flash('Pago actualizado', 'success')
+        return redirect(url_for('admin.pagos'))
+    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
+    return render_template('admin/pago_form.html', clientes=clientes, pago=pago)
+
+@admin_bp.route('/pagos/<int:id_pago>/eliminar', methods=['POST'])
+@login_required
+@admin_required
+def eliminar_pago(id_pago):
+    pago = Pago.query.get_or_404(id_pago)
+    db.session.delete(pago)
+    db.session.commit()
+    flash('Pago eliminado', 'success')
+    return redirect(url_for('admin.pagos'))
 
 @admin_bp.route('/noticias')
 @login_required

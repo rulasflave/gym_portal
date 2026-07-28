@@ -38,6 +38,7 @@
                             <th><i class="fas fa-tag me-2"></i>Concepto</th>
                             <th><i class="fas fa-dollar-sign me-2"></i>Monto</th>
                             <th><i class="fas fa-wallet me-2"></i>Método</th>
+                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,6 +50,16 @@
                             <td>{{ pago.concepto }}</td>
                             <td class="fw-bold" style="color: #28a745;">${{ "%.2f"|format(pago.monto) }}</td>
                             <td>{{ pago.metodo_pago }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_pago', id_pago=pago.id_pago) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.eliminar_pago', id_pago=pago.id_pago) }}" style="display:inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar pago de ${{ "%.2f"|format(pago.monto) }}?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
