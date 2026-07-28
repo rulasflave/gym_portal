@@ -78,9 +78,11 @@ def nuevo_cliente():
             foto_url = save_photo(request.files['foto'])
         
         fecha_inicio = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
-        fecha_fin = None
-        if fecha_inicio:
+        fecha_fin_input = datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None
+        if fecha_inicio and not fecha_fin_input:
             fecha_fin = fecha_inicio + timedelta(days=30)
+        else:
+            fecha_fin = fecha_fin_input
         
         cliente = Cliente(
             numero_registro=numero_registro,
@@ -155,7 +157,8 @@ def editar_cliente(id_cliente):
         cliente.lesiones_medicas = request.form.get('lesiones_medicas')
         cliente.tipo_membresia = request.form.get('tipo_membresia')
         cliente.fecha_inicio_membresia = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
-        if cliente.fecha_inicio_membresia:
+        cliente.fecha_fin_membresia = datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None
+        if cliente.fecha_inicio_membresia and not cliente.fecha_fin_membresia:
             cliente.fecha_fin_membresia = cliente.fecha_inicio_membresia + timedelta(days=30)
         
         if 'foto' in request.files and request.files['foto'].filename:
