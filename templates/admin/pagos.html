@@ -34,6 +34,7 @@
                         <tr>
                             <th><i class="fas fa-hashtag me-2"></i>ID</th>
                             <th><i class="fas fa-user me-2"></i>Cliente</th>
+                            <th><i class="fas fa-building me-2"></i>Empresa</th>
                             <th><i class="fas fa-calendar me-2"></i>Fecha</th>
                             <th><i class="fas fa-tag me-2"></i>Concepto</th>
                             <th><i class="fas fa-dollar-sign me-2"></i>Monto</th>
@@ -46,6 +47,13 @@
                         <tr>
                             <td>{{ pago.id_pago }}</td>
                             <td>{{ pago.cliente.numero_registro }} - {{ pago.cliente.nombre_completo if pago.cliente else 'N/A' }}</td>
+                            <td>
+                                {% if pago.cliente and pago.cliente.empresa %}
+                                <span class="badge" style="background-color: #f5c518; color: #1a1a1a;">{{ pago.cliente.empresa }}</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
                             <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
                             <td>{{ pago.concepto }}</td>
                             <td class="fw-bold" style="color: #28a745;">${{ "%.2f"|format(pago.monto) }}</td>

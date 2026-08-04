@@ -94,6 +94,7 @@ def nuevo_cliente():
             contacto_emergencia=request.form.get('contacto_emergencia'),
             lesiones_medicas=request.form.get('lesiones_medicas'),
             tipo_membresia=request.form.get('tipo_membresia'),
+            empresa=request.form.get('empresa'),
             fecha_inicio_membresia=fecha_inicio,
             fecha_fin_membresia=fecha_fin,
             usuario_login=numero_registro,
@@ -156,6 +157,7 @@ def editar_cliente(id_cliente):
         cliente.contacto_emergencia = request.form.get('contacto_emergencia')
         cliente.lesiones_medicas = request.form.get('lesiones_medicas')
         cliente.tipo_membresia = request.form.get('tipo_membresia')
+        cliente.empresa = request.form.get('empresa')
         cliente.fecha_inicio_membresia = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
         cliente.fecha_fin_membresia = datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None
         if cliente.fecha_inicio_membresia and not cliente.fecha_fin_membresia:

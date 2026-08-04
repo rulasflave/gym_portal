@@ -41,7 +41,7 @@
                                 <option value="">Seleccionar cliente...</option>
                                 {% for cliente in clientes %}
                                 <option value="{{ cliente.id_cliente }}" {{ 'selected' if pago and pago.id_cliente == cliente.id_cliente }}>
-                                    {{ cliente.numero_registro }} - {{ cliente.nombre_completo }}
+                                    {{ cliente.numero_registro }} - {{ cliente.nombre_completo }}{% if cliente.empresa %} ({{ cliente.empresa }}){% endif %}
                                 </option>
                                 {% endfor %}
                             </select>

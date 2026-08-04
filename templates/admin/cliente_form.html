@@ -92,6 +92,18 @@
                                value="{{ cliente.contacto_emergencia if cliente else '' }}">
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label for="empresa" class="form-label">Empresa</label>
+                        <select class="form-select" id="empresa" name="empresa">
+                            <option value="">Seleccionar empresa...</option>
+                            <option value="Vitela" {{ 'selected' if cliente and cliente.empresa == 'Vitela' }}>Vitela</option>
+                            <option value="Axis" {{ 'selected' if cliente and cliente.empresa == 'Axis' }}>Axis</option>
+                            <option value="Hulka" {{ 'selected' if cliente and cliente.empresa == 'Hulka' }}>Hulka</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
                         <label for="tipo_membresia" class="form-label">Tipo de Membresía</label>
                         <select class="form-select" id="tipo_membresia" name="tipo_membresia">
                             <option value="Normal" {{ 'selected' if cliente and cliente.tipo_membresia == 'Normal' }}>Normal</option>
