@@ -17,7 +17,11 @@
             <div class="card fade-in">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        {% if current_user.foto_url %}
+                        {% if current_user.foto_data %}
+                        <img src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" 
+                             alt="Mi foto" class="rounded-circle" 
+                             style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f5c518;">
+                        {% elif current_user.foto_url %}
                         <img src="{{ url_for('static', filename='uploads/' + current_user.foto_url) }}" 
                              alt="Mi foto" class="rounded-circle" 
                              style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f5c518;">

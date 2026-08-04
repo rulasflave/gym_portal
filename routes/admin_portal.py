@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response
 from flask_login import login_required, current_user
 from models.cliente import Cliente
 from models.asistencia import Asistencia
@@ -52,13 +52,18 @@ def clientes():
 
 def save_photo(file):
     if file and file.filename and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
-        os.makedirs(upload_dir, exist_ok=True)
-        file.save(os.path.join(upload_dir, unique_filename))
-        return unique_filename
-    return None
+        data = file.read()
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        mime = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif'}.get(ext, 'image/jpeg')
+        return None, data, mime
+    return None, None, None
+
+@admin_bp.route('/foto/<int:id_cliente>')
+def foto_cliente(id_cliente):
+    cliente = Cliente.query.get_or_404(id_cliente)
+    if cliente.foto_data:
+        return Response(cliente.foto_data, mimetype=cliente.foto_mime or 'image/jpeg')
+    return redirect(url_for('static', filename='uploads/' + cliente.foto_url)) if cliente.foto_url else ('', 404)
 
 @admin_bp.route('/clientes/nuevo', methods=['GET', 'POST'])
 @login_required
@@ -74,8 +79,10 @@ def nuevo_cliente():
         password = generate_password_hash('cambiar123')
         
         foto_url = None
+        foto_data = None
+        foto_mime = None
         if 'foto' in request.files:
-            foto_url = save_photo(request.files['foto'])
+            foto_url, foto_data, foto_mime = save_photo(request.files['foto'])
         
         fecha_inicio = datetime.strptime(request.form.get('fecha_inicio'), '%Y-%m-%d').date() if request.form.get('fecha_inicio') else None
         fecha_fin_input = datetime.strptime(request.form.get('fecha_fin'), '%Y-%m-%d').date() if request.form.get('fecha_fin') else None
@@ -100,7 +107,9 @@ def nuevo_cliente():
             usuario_login=numero_registro,
             password_hash=password,
             primer_login=True,
-            foto_url=foto_url
+            foto_url=foto_url,
+            foto_data=foto_data,
+            foto_mime=foto_mime
         )
         
         db.session.add(cliente)
@@ -164,9 +173,11 @@ def editar_cliente(id_cliente):
             cliente.fecha_fin_membresia = cliente.fecha_inicio_membresia + timedelta(days=30)
         
         if 'foto' in request.files and request.files['foto'].filename:
-            foto_url = save_photo(request.files['foto'])
-            if foto_url:
-                cliente.foto_url = foto_url
+            _, foto_data, foto_mime = save_photo(request.files['foto'])
+            if foto_data:
+                cliente.foto_data = foto_data
+                cliente.foto_mime = foto_mime
+                cliente.foto_url = None
         
         db.session.commit()
         

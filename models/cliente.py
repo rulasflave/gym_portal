@@ -14,6 +14,8 @@ class Cliente(UserMixin, db.Model):
     email = db.Column(db.String(100))
     fecha_nacimiento = db.Column(db.Date)
     foto_url = db.Column(db.String(255))
+    foto_data = db.Column(db.LargeBinary)
+    foto_mime = db.Column(db.String(50))
     contacto_emergencia = db.Column(db.String(100))
     lesiones_medicas = db.Column(db.Text)
     tipo_membresia = db.Column(db.String(20))

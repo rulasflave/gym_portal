@@ -44,6 +44,26 @@ def migrate_config_column(app):
                 db.session.rollback()
             except Exception:
                 pass
+        try:
+            result = db.session.execute(db.text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='clientes' AND column_name='foto_data'"
+            ))
+            if not result.fetchone():
+                db.session.execute(db.text(
+                    "ALTER TABLE clientes ADD COLUMN foto_data BYTEA"
+                ))
+                db.session.execute(db.text(
+                    "ALTER TABLE clientes ADD COLUMN foto_mime VARCHAR(50)"
+                ))
+                db.session.commit()
+                print("Migrated: added foto_data and foto_mime columns to clientes")
+        except Exception as e:
+            print(f"Migration foto skip: {e}")
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)

@@ -45,7 +45,11 @@
                         {% for cliente in clientes %}
                         <tr>
                             <td>
-                                {% if cliente.foto_url %}
+                                {% if cliente.foto_data %}
+                                <img src="{{ url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) }}" 
+                                     alt="Foto" class="rounded-circle" 
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                {% elif cliente.foto_url %}
                                 <img src="{{ url_for('static', filename='uploads/' + cliente.foto_url) }}" 
                                      alt="Foto" class="rounded-circle" 
                                      style="width: 40px; height: 40px; object-fit: cover;">
