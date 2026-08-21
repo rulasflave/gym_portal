@@ -433,7 +433,7 @@ async function validarCodigo() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validando...';
     
     try {
-        const response = await fetch('/kiosco/validar', {
+        const response = await fetch('{{ url_for("kiosco.validar_codigo") }}', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({codigo: codigo})

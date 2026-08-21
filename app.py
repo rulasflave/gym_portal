@@ -84,18 +84,18 @@ def create_app(config_class=Config):
         return None
 
     from routes.auth import auth_bp
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_bp, url_prefix='/vitelas')
 
     from routes.cliente_portal import cliente_bp
     from routes.admin_portal import admin_bp
-    app.register_blueprint(cliente_bp, url_prefix='/portal')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(cliente_bp, url_prefix='/vitelas/portal')
+    app.register_blueprint(admin_bp, url_prefix='/vitelas/admin')
 
     from routes.kiosco import kiosco_bp
-    app.register_blueprint(kiosco_bp, url_prefix='/kiosco')
+    app.register_blueprint(kiosco_bp, url_prefix='/vitelas/kiosco')
 
     from routes.configuracion import config_bp
-    app.register_blueprint(config_bp)
+    app.register_blueprint(config_bp, url_prefix='/vitelas')
 
     migrate_config_column(app)
 
