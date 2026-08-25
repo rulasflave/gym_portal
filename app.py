@@ -105,9 +105,11 @@ def create_app(config_class=Config):
     except Exception as e:
         print(f"Scheduler init error: {e}")
 
+    from flask import render_template
+
     @app.route('/')
     def index():
-        return redirect(url_for('auth.login'))
+        return render_template('home/index.html')
 
     @app.cli.command("init-db")
     def init_db_command():
