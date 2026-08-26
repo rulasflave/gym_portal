@@ -111,6 +111,10 @@ def create_app(config_class=Config):
     def index():
         return render_template('home/index.html')
 
+    @app.route('/ax')
+    def ax():
+        return render_template('home/ax.html')
+
     @app.cli.command("init-db")
     def init_db_command():
         db.create_all()

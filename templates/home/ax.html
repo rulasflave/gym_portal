@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXIS - Próximamente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            overflow: hidden;
+        }
+        .ax-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            animation: fadeIn 1.2s ease;
+        }
+        .ax-logo {
+            width: 500px;
+            max-width: 90vw;
+            height: auto;
+        }
+        .ax-text {
+            text-align: center;
+        }
+        .ax-title {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 12px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .ax-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: #0878FF;
+            margin-top: 12px;
+            text-transform: uppercase;
+        }
+        .ax-line {
+            width: 80px;
+            height: 1px;
+            background: #0878FF;
+            margin: 20px auto 0;
+            animation: expandLine 1.5s ease 0.6s both;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes expandLine {
+            from { width: 0; opacity: 0; }
+            to { width: 80px; opacity: 1; }
+        }
+        @media (max-width: 600px) {
+            .ax-title { font-size: 32px; letter-spacing: 8px; }
+            .ax-sub { font-size: 11px; letter-spacing: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ax-container">
+        <img src="{{ url_for('static', filename='assets/images/AXIS_AXOG.svg') }}" alt="AXIS" class="ax-logo">
+        <div class="ax-text">
+            <h1 class="ax-title">PRÓXIMAMENTE</h1>
+            <p class="ax-sub">AXIS HYBRID TRAINING</p>
+            <div class="ax-line"></div>
+        </div>
+    </div>
+</body>
+</html>
