@@ -32,6 +32,60 @@ body {
     position: relative;
 }
 
+.kiosk-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/static/assets/images/IMG_4390.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.kiosk-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 8, 11, 0.85) 0%, rgba(5, 8, 11, 0.7) 50%, rgba(5, 8, 11, 0.92) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.kiosk-inner,
+.powered-by {
+    position: relative;
+    z-index: 1;
+}
+
+.kiosk-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/static/assets/images/IMG_4390.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.kiosk-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 8, 11, 0.85) 0%, rgba(5, 8, 11, 0.7) 50%, rgba(5, 8, 11, 0.92) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.kiosk-inner,
+.powered-by {
+    position: relative;
+    z-index: 1;
+}
+
 .kiosk-inner {
     max-width: 1600px;
     width: 100%;
