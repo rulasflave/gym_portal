@@ -295,7 +295,7 @@ body {
 
 .scanner-card {
     flex: 1;
-    background: rgba(12, 12, 12, 0.90);
+    background: transparent;
     border: 1px solid var(--card-border);
     border-radius: 18px;
     min-height: 0;
