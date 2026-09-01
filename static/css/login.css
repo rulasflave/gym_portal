@@ -277,11 +277,12 @@ body {
         padding: 25px 22px 20px;
     }
     .login-logo {
-        height: 200px;
+        height: 220px;
+        padding: 40px;
     }
     .login-logo img {
-        max-width: 128px;
-        max-height: 135px;
+        max-width: 180px;
+        max-height: 187px;
     }
     .input-wrap input {
         height: 56px;
