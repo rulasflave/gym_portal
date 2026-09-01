@@ -149,7 +149,7 @@ body {
     background: #000000;
     border: 2px solid #555;
     border-radius: 10px;
-    color: #555;
+    color: #858585;
     font-size: 18px;
     padding: 0 20px;
     outline: none;
@@ -161,7 +161,7 @@ body {
 .input-wrap input:-webkit-autofill:hover,
 .input-wrap input:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0 1000px #000000 inset;
-    -webkit-text-fill-color: #555;
+    -webkit-text-fill-color: #858585;
     transition: background-color 9999s ease-in-out 0s;
 }
 
