@@ -124,21 +124,25 @@ body {
     text-align: center;
 }
 
-/* Panel ayuda */
-.kiosk-left-bottom {
-    margin-top: auto;
-    width: calc(100% + 22px);
-}
-
-.help-panel {
+/* Panel ayuda ANCHO (debajo del layout) */
+.help-panel-wide {
     background: rgba(12, 12, 12, 0.90);
     border: 1px solid var(--card-border);
     border-radius: 18px;
-    padding: 24px 22px;
+    padding: 22px 26px;
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 18px;
+    gap: 26px;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.help-wide-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .help-icon {
@@ -153,7 +157,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 0;
 }
 
 .help-text-title {
@@ -162,6 +165,7 @@ body {
     font-size: 17px;
     color: var(--text-primary);
     letter-spacing: 1px;
+    white-space: nowrap;
 }
 
 .help-text-yellow {
@@ -170,6 +174,7 @@ body {
     font-size: 15px;
     color: var(--accent);
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .help-center-text {
@@ -535,8 +540,9 @@ body {
     .kiosk-page { padding: 24px 20px; }
     .kiosk-title .line-white,
     .kiosk-title .line-yellow { font-size: 56px; }
-    .help-panel { grid-template-columns: auto 1fr; }
-    .help-button { grid-column: 1 / -1; width: 100%; }
+    .help-panel-wide { grid-template-columns: 1fr; text-align: center; }
+    .help-wide-left { justify-content: center; flex-wrap: wrap; }
+    .help-button { width: 100%; }
     .datetime-time { font-size: 42px; }
 }
 
@@ -544,7 +550,6 @@ body {
     .kiosk-layout {
         grid-template-columns: 1fr;
     }
-    .kiosk-left-bottom { width: 100%; margin-top: 20px; }
     .kiosk-title .line-white,
     .kiosk-title .line-yellow { font-size: 52px; }
     .scanner-card { min-height: 280px; }
