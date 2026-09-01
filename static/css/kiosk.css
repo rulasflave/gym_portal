@@ -32,15 +32,22 @@ body {
     position: relative;
 }
 
+.kiosk-inner {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
 .kiosk-layout {
     display: grid;
     grid-template-columns: 29% 42% 29%;
     gap: 22px;
     flex: 1;
     min-height: 0;
-    max-width: 1600px;
-    width: 100%;
-    margin: 0 auto;
 }
 
 /* ============ COLUMNA IZQUIERDA ============ */
@@ -124,7 +131,7 @@ body {
     text-align: center;
 }
 
-/* Panel ayuda ANCHO (debajo del layout) */
+/* Panel ayuda ANCHO (debajo del layout, solo bajo col1+col2) */
 .help-panel-wide {
     background: rgba(12, 12, 12, 0.90);
     border: 1px solid var(--card-border);
@@ -134,9 +141,8 @@ body {
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 26px;
-    max-width: 1600px;
-    width: 100%;
-    margin: 0 auto;
+    width: 71%;
+    margin: 26px 0 0 0;
 }
 
 .help-wide-left {
