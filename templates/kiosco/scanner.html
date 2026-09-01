@@ -1,533 +1,228 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitellas Boxing - Kiosco</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/kiosk.css') }}?v=1">
+</head>
+<body>
+    <div class="kiosk-page">
+        <div class="kiosk-layout">
 
-{% block title %}Kiosco Check-in - Gym Portal{% endblock %}
+            <!-- ===== COLUMNA IZQUIERDA ===== -->
+            <div class="kiosk-left">
+                <div class="kiosk-brand">
+                    <div class="brand-logo-placeholder">
+                        <img src="{{ url_for('static', filename='assets/images/HULK AGILA_vitelas.svg') }}" alt="Vitellas Boxing">
+                    </div>
+                </div>
 
-{% block navbar %}{% endblock %}
+                <div class="kiosk-title">
+                    <span class="line-white">ESCANEA</span>
+                    <div class="kiosk-title-line2">
+                        <span class="star">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5L8 13.8 2 9.2h7.6z"/></svg>
+                        </span>
+                        <span class="line-yellow">TU QR</span>
+                        <span class="star">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5L8 13.8 2 9.2h7.6z"/></svg>
+                        </span>
+                    </div>
+                </div>
 
-{% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center scanner-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <div class="fade-in">
-                    <i class="fas fa-dumbbell fa-4x mb-4" style="color: #f5c518;"></i>
-                    <h1 class="fw-bold mb-3">GYM PORTAL</h1>
-                    <p class="lead mb-4">Escanea tu código QR o ingresa tu número de registro</p>
-                    
-                    <div class="card mt-4">
-                        <div class="card-body p-4">
-                            <div id="qr-reader" class="mb-3" style="width: 100%;"></div>
-                            
-                            <button id="start-scan-btn" class="btn btn-secondary w-100 mb-3" onclick="startScanner()">
-                                <i class="fas fa-camera me-2"></i>Escanear con Cámara
-                            </button>
-                            
-                            <div class="divider mb-3">
-                                <span style="color: rgba(255,255,255,0.5);">— o ingresa manualmente —</span>
-                            </div>
-                            
-                            <div class="input-group input-group-lg mb-3">
-                                <span class="input-group-text" style="background-color: #1a1a1a; color: #f5c518; border: none;">
-                                    <i class="fas fa-id-card"></i>
-                                </span>
-                                <input type="text" id="codigo-input" class="form-control" 
-                                       placeholder="Ingresa tu código" 
-                                       style="border: 2px solid #e0e0e0; font-size: 1.25rem;">
-                            </div>
-                            <button id="validar-btn" class="btn btn-primary btn-lg w-100 py-3" onclick="validarCodigo()">
-                                <i class="fas fa-check-circle me-2"></i>Validar Entrada
-                            </button>
+                <div class="kiosk-divider"></div>
+
+                <p class="kiosk-instruction">
+                    Coloca tu código frente al escáner<br>
+                    para registrar tu entrada.
+                </p>
+
+                <div class="kiosk-left-bottom">
+                    <div class="help-panel">
+                        <div class="help-icon">
+                            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="help-text-block">
+                            <span class="help-text-title">¿NO TIENES TU QR?</span>
+                            <span class="help-text-yellow">Te podemos ayudar</span>
+                        </div>
+                        <div class="help-center-text">
+                            Solicita acceso manual<br>en recepción con tu nombre<br>y número de teléfono.
+                        </div>
+                        <button class="help-button" id="helpButton">
+                            <span class="help-button-headset">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+                            </span>
+                            <span class="help-button-label">Solicitar ayuda</span>
+                            <span class="help-button-sub">Llama al staff</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== COLUMNA CENTRAL - ESCÁNER ===== -->
+            <div class="kiosk-center">
+                <div class="scanner-card">
+                    <div class="scanner-placeholder">
+                        <div class="manual-entry">
+                            <input type="text" id="codigo-input" class="manual-input" placeholder="Ingresa tu código" autocomplete="off">
+                            <button id="validar-btn" class="manual-submit" onclick="validarCodigoSilencioso()">Validar</button>
                         </div>
                     </div>
-                    
-                    <div id="resultado" class="mt-4" style="display: none;">
-                        <div id="resultado-card" class="card result-card">
-                            <div class="card-body p-4">
-                                <i id="resultado-icono" class="fas fa-3x mb-3"></i>
-                                <h2 id="resultado-titulo" class="fw-bold mb-2"></h2>
-                                <p id="resultado-mensaje" class="lead mb-0"></p>
-                            </div>
+                </div>
+
+                <div class="scanner-status">
+                    <div class="status-item">
+                        <span class="status-dot"></span>
+                        <div class="status-text">
+                            <span class="status-title">ESCÁNER ACTIVO</span>
+                            <span class="status-sub">Listo para leer</span>
                         </div>
                     </div>
-                    
-                    <div class="mt-5">
-                        <small style="color: rgba(255,255,255,0.5);">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Si tienes problemas, contacta a recepción
-                        </small>
+                    <div class="status-item">
+                        <span class="status-dot"></span>
+                        <div class="status-text">
+                            <span class="status-title">CONEXIÓN ESTABLE</span>
+                            <span class="status-sub">En línea</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot"></span>
+                        <div class="status-text">
+                            <span class="status-title">ACCESO HABILITADO</span>
+                            <span class="status-sub">Registro permitido</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== COLUMNA DERECHA ===== -->
+            <div class="kiosk-right">
+                <div class="kiosk-card datetime-card">
+                    <div class="datetime-date" id="fechaActual">—</div>
+                    <div class="datetime-time">
+                        <span id="horaActual">--:--</span>
+                        <span class="datetime-ampm" id="ampmActual">AM</span>
+                    </div>
+                    <div class="datetime-local">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Hora local
+                    </div>
+                </div>
+
+                <div class="kiosk-card class-card">
+                    <div class="class-title">
+                        <span class="dot"></span>
+                        CLASE ACTUAL
+                    </div>
+                </div>
+
+                <div class="kiosk-card">
+                    <div class="access-title">ÚLTIMOS ACCESOS</div>
+                    <div class="access-list" id="accesosLista">
+                        <div class="access-empty">Cargando...</div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- WELCOME OVERLAY -->
-<div id="welcome-overlay" style="display: none;">
-    <div class="welcome-screen">
-        <div class="welcome-content">
-            <div id="welcome-foto-container" class="mb-4">
-                <div id="welcome-foto" class="welcome-avatar"></div>
-            </div>
-            
-            <div id="birthday-effects" style="display: none;">
-                <div class="confetti-container">
-                    <div class="confetti"></div>
-                    <div class="confetti"></div>
-                    <div class="confetti"></div>
-                    <div class="confetti"></div>
-                    <div class="confetti"></div>
-                </div>
-                <h1 class="birthday-title mb-3">🎂 ¡FELIZ CUMPLEAÑOS! 🎉</h1>
-            </div>
-            
-            <h1 id="welcome-nombre" class="welcome-name"></h1>
-            <p id="welcome-registro" class="welcome-register"></p>
-            
-            <div class="welcome-info mt-4">
-                <div class="welcome-badge" id="welcome-membresia">
-                    <i class="fas fa-crown me-2"></i><span id="welcome-tipo"></span>
-                </div>
-                <div class="welcome-badge" id="welcome-fecha">
-                    <i class="fas fa-calendar me-2"></i>Vence: <span id="welcome-fin"></span>
-                </div>
-            </div>
-            
-            <!-- EXPIRY WARNING (inside welcome) -->
-            <div id="welcome-alerta-expiracion" style="display: none;" class="mt-4">
-                <div class="alerta-interna">
-                    <div class="alerta-interna-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <h3 class="alerta-interna-titulo">¡Atención!</h3>
-                    <p id="welcome-alerta-mensaje" class="alerta-interna-mensaje"></p>
-                    <div class="alerta-interna-badge">
-                        <i class="fas fa-calendar me-2"></i>
-                        <span id="welcome-alerta-dias"></span>
-                    </div>
-                    <p class="alerta-interna-accion">Acércate a recepción para renovar</p>
-                </div>
-            </div>
-            
-            <p id="welcome-mensaje" class="welcome-message mt-4"></p>
-            
-            <div class="mt-4">
-                <button class="btn btn-lg px-5 py-3" onclick="closeWelcome()" 
-                        style="background-color: #f5c518; color: #1a1a1a; font-size: 1.3rem; font-weight: bold; border-radius: 15px;">
-                    <i class="fas fa-check me-2"></i>ENTENDIDO
-                </button>
-            </div>
+        <div class="powered-by">
+            <span class="powered-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </span>
+            <span class="powered-text">Powered by</span>
+            <span class="powered-brand">nBroken Hub</span>
         </div>
     </div>
-</div>
 
-<style>
-.welcome-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.5s ease;
-}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(function() {
+            // Fecha y hora
+            function updateDateTime() {
+                var ahora = new Date();
+                var dias = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
+                var meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+                var fecha = dias[ahora.getDay()] + ', ' + ahora.getDate() + ' DE ' + meses[ahora.getMonth()] + ' DE ' + ahora.getFullYear();
+                $('#fechaActual').text(fecha);
 
-.welcome-content {
-    text-align: center;
-    color: white;
-    padding: 2rem;
-    max-width: 600px;
-}
+                var h = ahora.getHours();
+                var m = ahora.getMinutes();
+                var s = ahora.getSeconds();
+                var ampm = h >= 12 ? 'PM' : 'AM';
+                var h12 = h % 12;
+                h12 = h12 === 0 ? 12 : h12;
+                $('#horaActual').text((h12 < 10 ? '0' : '') + h12 + ':' + (m < 10 ? '0' : '') + m);
+                $('#ampmActual').text(ampm);
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
 
-.welcome-avatar {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    margin: 0 auto;
-    border: 6px solid #f5c518;
-    box-shadow: 0 0 50px rgba(245, 197, 24, 0.5);
-    background-size: cover;
-    background-position: center;
-    background-color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+            // Últimos accesos
+            function cargarAccesos() {
+                $.get('{{ url_for("kiosco.ultimos_accesos") }}')
+                    .done(function(data) {
+                        var html = '';
+                        if (data.length === 0) {
+                            html = '<div class="access-empty">Aún no hay registros</div>';
+                        } else {
+                            $.each(data, function(i, acc) {
+                                var avatar = acc.foto_url
+                                    ? '<img src="' + acc.foto_url + '" alt="">'
+                                    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+                                html += '<div class="access-item">' +
+                                    '<div class="access-avatar">' + avatar + '</div>' +
+                                    '<div class="access-name">' + $('<div>').text(acc.nombre).html() + '</div>' +
+                                    '<div class="access-time">' + acc.hora + '</div>' +
+                                    '<div class="access-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+                                    '</div>';
+                            });
+                        }
+                        $('#accesosLista').html(html);
+                    })
+                    .fail(function() {
+                        $('#accesosLista').html('<div class="access-empty">No se pudieron cargar los accesos</div>');
+                    });
+            }
+            cargarAccesos();
+            setInterval(cargarAccesos, 15000);
 
-.welcome-avatar i {
-    font-size: 5rem;
-    color: #f5c518;
-}
+            // Check-in silencioso: registra sin mostrar overlay
+            var isProcessing = false;
+            $('#codigo-input').on('keypress', function(e) {
+                if (e.key === 'Enter') validarCodigoSilencioso();
+            });
 
-.welcome-name {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #f5c518;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    margin-bottom: 0.5rem;
-}
+            function validarCodigoSilencioso() {
+                var codigo = $('#codigo-input').val().trim().toUpperCase();
+                if (!codigo || isProcessing) return;
+                isProcessing = true;
+                $('#validar-btn').prop('disabled', true).text('Registrando...');
 
-.welcome-register {
-    font-size: 1.5rem;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 1rem;
-}
-
-.welcome-info {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.welcome-badge {
-    background: rgba(245, 197, 24, 0.2);
-    border: 2px solid #f5c518;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    color: #f5c518;
-    font-weight: 600;
-}
-
-.welcome-message {
-    font-size: 1.8rem;
-    color: white;
-    font-weight: 600;
-}
-
-.birthday-title {
-    font-size: 3.5rem;
-    font-weight: 900;
-    background: linear-gradient(45deg, #f5c518, #ff6b6b, #f5c518);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.confetti-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-.confetti {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    top: -20px;
-    animation: confetti-fall 3s linear infinite;
-}
-
-.confetti:nth-child(1) { left: 10%; background: #f5c518; animation-delay: 0s; }
-.confetti:nth-child(2) { left: 30%; background: #ff6b6b; animation-delay: 0.5s; }
-.confetti:nth-child(3) { left: 50%; background: #4ecdc4; animation-delay: 1s; }
-.confetti:nth-child(4) { left: 70%; background: #f5c518; animation-delay: 1.5s; }
-.confetti:nth-child(5) { left: 90%; background: #ff6b6b; animation-delay: 2s; }
-
-@keyframes confetti-fall {
-    0% { top: -10%; transform: rotate(0deg); opacity: 1; }
-    100% { top: 110%; transform: rotate(720deg); opacity: 0; }
-}
-
-.alerta-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.5s ease;
-}
-
-.alerta-content {
-    text-align: center;
-    color: white;
-    padding: 2rem;
-    max-width: 500px;
-}
-
-.alerta-icon {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse 1.5s infinite;
-    box-shadow: 0 0 50px rgba(255, 107, 107, 0.5);
-}
-
-.alerta-icon i {
-    font-size: 4rem;
-    color: white;
-}
-
-.alerta-titulo {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #ff6b6b;
-    margin-bottom: 1rem;
-}
-
-.alerta-mensaje {
-    font-size: 1.3rem;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 1.5rem;
-}
-
-.alerta-badge {
-    display: inline-block;
-    background: rgba(255, 107, 107, 0.2);
-    border: 2px solid #ff6b6b;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    font-size: 1.2rem;
-    color: #ff6b6b;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.alerta-accion {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.7);
-    font-style: italic;
-}
-
-.alerta-interna {
-    background: rgba(255, 107, 107, 0.15);
-    border: 2px solid #ff6b6b;
-    border-radius: 20px;
-    padding: 1.5rem;
-    animation: fadeIn 0.5s ease;
-}
-
-.alerta-interna-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 1rem;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse 1.5s infinite;
-    box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-}
-
-.alerta-interna-icon i {
-    font-size: 2.5rem;
-    color: white;
-}
-
-.alerta-interna-titulo {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #ff6b6b;
-    margin-bottom: 0.5rem;
-}
-
-.alerta-interna-mensaje {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 1rem;
-}
-
-.alerta-interna-badge {
-    display: inline-block;
-    background: rgba(255, 107, 107, 0.3);
-    border: 2px solid #ff6b6b;
-    padding: 0.5rem 1.2rem;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    color: #ff6b6b;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.alerta-interna-accion {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.7);
-    font-style: italic;
-    margin-bottom: 0;
-}
-</style>
-{% endblock %}
-
-{% block scripts %}
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script>
-let html5QrCode = null;
-let welcomeTimer = null;
-let isProcessing = false;
-
-function startScanner() {
-    const btn = document.getElementById('start-scan-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando cámara...';
-    
-    html5QrCode = new Html5Qrcode("qr-reader");
-    
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-            if (isProcessing) return;
-            document.getElementById('codigo-input').value = decodedText;
-            validarCodigo();
-        },
-        (errorMessage) => {}
-    ).then(() => {
-        btn.innerHTML = '<i class="fas fa-stop me-2"></i>Detener Cámara';
-        btn.onclick = stopScanner;
-        btn.disabled = false;
-    }).catch(err => {
-        btn.innerHTML = '<i class="fas fa-camera me-2"></i>Escanear con Cámara';
-        btn.disabled = false;
-        alert('No se pudo acceder a la cámara. Ingresa el código manualmente.');
-    });
-}
-
-function stopScanner() {
-    if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().then(() => {
-            html5QrCode.clear();
-            const btn = document.getElementById('start-scan-btn');
-            btn.innerHTML = '<i class="fas fa-camera me-2"></i>Escanear con Cámara';
-            btn.onclick = startScanner;
+                $.ajax({
+                    url: '{{ url_for("kiosco.validar_codigo") }}',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({codigo: codigo})
+                })
+                .done(function(data) {
+                    if (data.status === 'ok') { cargarAccesos(); }
+                    // Registro hecho, nada más que mostrar
+                })
+                .fail(function() {
+                    // Mantener funcionamiento: no muestra pantalla
+                })
+                .always(function() {
+                    $('#validar-btn').prop('disabled', false).text('Validar');
+                    $('#codigo-input').val('').focus();
+                    isProcessing = false;
+                });
+            }
         });
-    }
-}
-
-document.getElementById('codigo-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') validarCodigo();
-});
-
-async function validarCodigo() {
-    const codigo = document.getElementById('codigo-input').value.trim().toUpperCase();
-    if (!codigo || isProcessing) return;
-    
-    isProcessing = true;
-    const btn = document.getElementById('validar-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validando...';
-    
-    try {
-        const response = await fetch('{{ url_for("kiosco.validar_codigo") }}', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({codigo: codigo})
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'ok') {
-            showWelcome(data);
-        } else {
-            showError(data);
-        }
-    } catch (error) {
-        document.getElementById('resultado').style.display = 'block';
-        document.getElementById('resultado-card').className = 'card result-card error';
-        document.getElementById('resultado-titulo').textContent = 'Error de Conexión';
-        document.getElementById('resultado-mensaje').textContent = 'No se pudo conectar al servidor. Intenta de nuevo.';
-    }
-    
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Validar Entrada';
-    document.getElementById('codigo-input').value = '';
-    isProcessing = false;
-}
-
-function showWelcome(data) {
-    const overlay = document.getElementById('welcome-overlay');
-    
-    const fotoContainer = document.getElementById('welcome-foto');
-    if (data.foto_url) {
-        fotoContainer.innerHTML = '';
-        fotoContainer.style.backgroundImage = `url(${data.foto_url})`;
-    } else {
-        fotoContainer.innerHTML = '<i class="fas fa-user"></i>';
-        fotoContainer.style.backgroundImage = 'none';
-    }
-    
-    document.getElementById('welcome-nombre').textContent = data.nombre;
-    document.getElementById('welcome-registro').textContent = data.numero_registro;
-    document.getElementById('welcome-tipo').textContent = data.tipo_membresia;
-    document.getElementById('welcome-fin').textContent = data.fecha_fin || 'N/A';
-    document.getElementById('welcome-mensaje').textContent = data.mensaje;
-    
-    const birthdayEffects = document.getElementById('birthday-effects');
-    if (data.es_cumpleanos) {
-        birthdayEffects.style.display = 'block';
-        document.getElementById('welcome-nombre').style.color = '#ff6b6b';
-    } else {
-        birthdayEffects.style.display = 'none';
-        document.getElementById('welcome-nombre').style.color = '#f5c518';
-    }
-    
-    // Show expiry alert inside welcome
-    const alertaDiv = document.getElementById('welcome-alerta-expiracion');
-    if (data.alerta_vencimiento && !data.grace_period) {
-        document.getElementById('welcome-alerta-mensaje').textContent = 
-            'Tu membresía está por vencer. ¡Renueva pronto!';
-        document.getElementById('welcome-alerta-dias').textContent = 
-            `${data.dias_restantes} día${data.dias_restantes !== 1 ? 's' : ''} restante${data.dias_restantes !== 1 ? 's' : ''}`;
-        alertaDiv.style.display = 'block';
-    } else if (data.grace_period) {
-        document.getElementById('welcome-alerta-mensaje').textContent = 
-            '¡Membresía vencida! Estás en días de gracia.';
-        document.getElementById('welcome-alerta-dias').textContent = 
-            `Día ${data.dias_expirado} de 2 - ¡Renueva ya!`;
-        alertaDiv.style.display = 'block';
-    } else {
-        alertaDiv.style.display = 'none';
-    }
-    
-    overlay.style.display = 'block';
-    
-    if (welcomeTimer) clearTimeout(welcomeTimer);
-    welcomeTimer = setTimeout(() => {
-        closeWelcome();
-    }, 8000);
-}
-
-function closeWelcome() {
-    document.getElementById('welcome-overlay').style.display = 'none';
-    if (welcomeTimer) { clearTimeout(welcomeTimer); welcomeTimer = null; }
-}
-
-function showError(data) {
-    document.getElementById('resultado').style.display = 'block';
-    document.getElementById('resultado-mensaje').textContent = data.message;
-    
-    const card = document.getElementById('resultado-card');
-    const icono = document.getElementById('resultado-icono');
-    
-    card.className = 'card result-card';
-    card.classList.add('error');
-    icono.className = 'fas fa-times-circle fa-3x mb-3';
-    document.getElementById('resultado-titulo').textContent = 'Acceso Denegado';
-}
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>

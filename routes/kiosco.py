@@ -10,6 +10,24 @@ kiosco_bp = Blueprint('kiosco', __name__)
 def scanner():
     return render_template('kiosco/scanner.html')
 
+@kiosco_bp.route('/ultimos-accesos')
+def ultimos_accesos():
+    asistencias = (Asistencia.query
+                   .order_by(Asistencia.fecha_hora_entrada.desc())
+                   .limit(5)
+                   .all())
+    accesos = []
+    for a in asistencias:
+        cliente = a.cliente
+        if not cliente:
+            continue
+        accesos.append({
+            'nombre': cliente.nickname or cliente.nombre_completo,
+            'hora': a.fecha_hora_entrada.strftime('%H:%M') if a.fecha_hora_entrada else '--:--',
+            'foto_url': f'/admin/foto/{cliente.id_cliente}' if cliente.foto_data else None
+        })
+    return jsonify(accesos)
+
 @kiosco_bp.route('/validar', methods=['POST'])
 def validar_codigo():
     codigo = request.json.get('codigo', '').strip().upper()
