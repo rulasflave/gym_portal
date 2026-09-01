@@ -141,7 +141,7 @@ body {
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 26px;
-    width: 71%;
+    width: calc(71% + 22px);
     margin: 26px 0 0 0;
 }
 
