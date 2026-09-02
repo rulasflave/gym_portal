@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vitelas Hub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=1">
+</head>
+<body>
+    <div class="admin-hub">
+        <aside class="admin-sidebar">
+            <a class="admin-logo" href="{{ url_for('admin.dashboard') }}">
+                <img src="{{ url_for('static', filename='assets/images/HULK AGILA_vitelas.svg') }}" alt="Vitelas Hub">
+            </a>
+
+            <nav class="admin-sidebar-menu" id="adminSidebarMenu">
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Panel
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.clientes' }}" href="{{ url_for('admin.clientes') }}">
+                    <i class="fas fa-user-friends"></i> Clientes
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.pagos' }}" href="{{ url_for('admin.pagos') }}">
+                    <i class="fas fa-dollar-sign"></i> Pagos
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.noticias' }}" href="{{ url_for('admin.noticias') }}">
+                    <i class="fas fa-newspaper"></i> Noticias
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.reportes' }}" href="{{ url_for('admin.reportes') }}">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint == 'configuracion.configuracion_recordatorios' }}" href="{{ url_for('configuracion.configuracion_recordatorios') }}">
+                    <i class="fas fa-bell"></i> Recordatorios
+                </a>
+                <a class="menu-item" href="{{ url_for('auth.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-motivation">
+                <i class="fas fa-dumbbell"></i> Cuida los detalles, los clientes volverán.
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <button class="admin-hamburger" id="adminMenuToggle" aria-label="Abrir menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="admin-header-title">{% block page_title %}{% endblock %}</span>
+                <span class="admin-header-user">
+                    <i class="fas fa-user-circle"></i> {{ current_user.nombre }} ({{ current_user.rol }})
+                </span>
+            </header>
+
+            <div class="admin-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="admin-flash admin-flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block admin_content %}{% endblock %}
+            </div>
+
+            <footer class="admin-footer">
+                <img src="{{ url_for('static', filename='assets/images/logos_nbroken_HUB.svg') }}" alt="nbroken Hub">
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var $toggle = $('#adminMenuToggle');
+            var $menu = $('#adminSidebarMenu');
+
+            $toggle.on('click', function (e) {
+                e.stopPropagation();
+                $menu.toggleClass('open');
+            });
+
+            $menu.on('click', '.menu-item', function () {
+                $menu.removeClass('open');
+            });
+
+            $(document).on('click', function (e) {
+                if (!$menu.is(e.target) && $menu.has(e.target).length === 0) {
+                    $menu.removeClass('open');
+                }
+            });
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
