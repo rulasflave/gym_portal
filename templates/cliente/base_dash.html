@@ -11,6 +11,15 @@
 </head>
 <body>
 <div class="hub">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="hub-flashes">
+        {% for category, message in messages %}
+        <div class="hub-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <aside class="sidebar">
         <div class="sidebar-logo-placeholder">
             <img src="{{ url_for('static', filename='assets/images/HULK AGILA_vitelas.svg') }}" alt="Vitellas Boxing">
@@ -72,7 +81,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </button>
                 <div class="user-chip" id="userChip">
-                    {% if current_user.foto_data %}
+                    {% if current_user.foto_data or current_user.foto_url %}
                     <img class="user-avatar" src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" alt="avatar">
                     {% else %}
                     <span class="user-avatar user-avatar-fallback">
@@ -111,10 +120,10 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <div class="modal-head">
-            {% if current_user.foto_data %}
-            <img class="modal-avatar" src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" alt="foto">
+            {% if current_user.foto_data or current_user.foto_url %}
+            <img class="modal-avatar" id="perfilAvatar" src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" alt="foto">
             {% else %}
-            <span class="modal-avatar modal-avatar-fallback">
+            <span class="modal-avatar modal-avatar-fallback" id="perfilAvatarFallback">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </span>
             {% endif %}
@@ -123,19 +132,48 @@
                 <span class="modal-code">{{ current_user.numero_registro }}</span>
             </div>
         </div>
-        <div class="modal-grid">
-            <div><span class="m-label">Nickname</span><span class="m-val">{{ current_user.nickname or 'No registrado' }}</span></div>
-            <div><span class="m-label">Teléfono</span><span class="m-val">{{ current_user.telefono or 'No registrado' }}</span></div>
-            <div><span class="m-label">Email</span><span class="m-val">{{ current_user.email or 'No registrado' }}</span></div>
-            <div><span class="m-label">Fecha de nacimiento</span><span class="m-val">{{ current_user.fecha_nacimiento.strftime('%d/%m/%Y') if current_user.fecha_nacimiento else 'No registrada' }}</span></div>
-            <div><span class="m-label">Contacto emergencia</span><span class="m-val">{{ current_user.contacto_emergencia or 'No registrado' }}</span></div>
-            <div><span class="m-label">Tipo membresía</span><span class="m-val">{{ current_user.tipo_membresia }}</span></div>
-            <div><span class="m-label">Empresa</span><span class="m-val">{{ current_user.empresa or '—' }}</span></div>
-            <div><span class="m-label">Estado</span><span class="m-val">{{ current_user.estado_membresia }}</span></div>
-        </div>
-        {% if current_user.lesiones_medicas %}
-        <div class="modal-note">{{ current_user.lesiones_medicas }}</div>
-        {% endif %}
+        <form method="post" action="{{ url_for('cliente.perfil_actualizar') }}" enctype="multipart/form-data">
+            <div class="modal-form-grid">
+                <div class="field">
+                    <span class="m-label">Nombre completo *</span>
+                    <input class="m-input" type="text" name="nombre_completo" value="{{ current_user.nombre_completo }}" required>
+                </div>
+                <div class="field">
+                    <span class="m-label">Nickname</span>
+                    <input class="m-input" type="text" name="nickname" value="{{ current_user.nickname or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Teléfono</span>
+                    <input class="m-input" type="text" name="telefono" value="{{ current_user.telefono or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Email</span>
+                    <input class="m-input" type="email" name="email" value="{{ current_user.email or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Fecha de nacimiento</span>
+                    <input class="m-input" type="date" name="fecha_nacimiento" value="{{ current_user.fecha_nacimiento.strftime('%Y-%m-%d') if current_user.fecha_nacimiento else '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Contacto de emergencia</span>
+                    <input class="m-input" type="text" name="contacto_emergencia" value="{{ current_user.contacto_emergencia or '' }}">
+                </div>
+                <div class="field field-full">
+                    <span class="m-label">Lesiones / Médico</span>
+                    <textarea class="m-input m-textarea" name="lesiones_medicas" rows="2">{{ current_user.lesiones_medicas or '' }}</textarea>
+                </div>
+                <div class="field field-full">
+                    <span class="m-label">Foto</span>
+                    <input class="m-input" type="file" name="foto" id="perfilFoto" accept="image/png,image/jpeg,image/gif">
+                    {% if current_user.foto_data or current_user.foto_url %}
+                    <label class="m-check"><input type="checkbox" name="quitar_foto" value="1"> Quitar foto actual</label>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">Guardar cambios</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -148,6 +186,20 @@ $(function(){
     });
     $('#userChip').on('click', function(e){ e.stopPropagation(); $('#userDropdown').toggle(); });
     $(document).on('click', function(e){ if(!$(e.target).closest('#userChip').length){ $('#userDropdown').hide(); } });
+    $('#perfilFoto').on('change', function(){
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e){
+            var img = $('#perfilAvatar');
+            var fallback = $('#perfilAvatarFallback');
+            if (img.length) { img.attr('src', e.target.result); }
+            else if (fallback.length) {
+                fallback.replaceWith('<img class="modal-avatar" id="perfilAvatar" src="' + e.target.result + '" alt="foto">');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
 });
 </script>
 {% block scripts %}{% endblock %}

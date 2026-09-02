@@ -6,6 +6,7 @@ from models.pago import Pago
 from models.noticia import Noticia
 from werkzeug.security import generate_password_hash
 from services.qr_service import generate_qr_code
+from routes.admin_portal import save_photo
 from extensions import db
 
 cliente_bp = Blueprint('cliente', __name__)
@@ -47,6 +48,47 @@ def dashboard():
 @cliente_bp.route('/perfil')
 @login_required
 def perfil():
+    return redirect(url_for('cliente.dashboard'))
+
+@cliente_bp.route('/perfil/actualizar', methods=['POST'])
+@login_required
+def perfil_actualizar():
+    nombre_completo = request.form.get('nombre_completo', '').strip()
+    if not nombre_completo:
+        flash('El nombre completo es obligatorio', 'error')
+        return redirect(url_for('cliente.dashboard'))
+
+    current_user.nombre_completo = nombre_completo
+    current_user.nickname = request.form.get('nickname', '').strip() or None
+    current_user.telefono = request.form.get('telefono', '').strip() or None
+    current_user.email = request.form.get('email', '').strip() or None
+    current_user.contacto_emergencia = request.form.get('contacto_emergencia', '').strip() or None
+    current_user.lesiones_medicas = request.form.get('lesiones_medicas', '').strip() or None
+
+    fecha_nacimiento = request.form.get('fecha_nacimiento', '').strip()
+    if fecha_nacimiento:
+        try:
+            current_user.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Formato de fecha inválido', 'error')
+            return redirect(url_for('cliente.dashboard'))
+    else:
+        current_user.fecha_nacimiento = None
+
+    if request.form.get('quitar_foto'):
+        current_user.foto_data = None
+        current_user.foto_mime = None
+        current_user.foto_url = None
+
+    if 'foto' in request.files and request.files['foto'].filename:
+        foto_url, foto_data, foto_mime = save_photo(request.files['foto'])
+        if foto_data:
+            current_user.foto_data = foto_data
+            current_user.foto_mime = foto_mime
+            current_user.foto_url = None
+
+    db.session.commit()
+    flash('Tus datos fueron actualizados', 'success')
     return redirect(url_for('cliente.dashboard'))
 
 @cliente_bp.route('/mi-qr')

@@ -182,3 +182,130 @@ def test_cambiar_password_mismatch_flash(app, client):
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'no coinciden' in response.data
+
+
+def _login_cliente(app, client, numero, password='test123'):
+    with app.app_context():
+        pw = generate_password_hash(password)
+        cliente = Cliente(
+            numero_registro=numero,
+            nombre_completo=numero + ' User',
+            usuario_login=numero,
+            password_hash=pw,
+            primer_login=False,
+            fecha_inicio_membresia=date(2026, 1, 1),
+            fecha_fin_membresia=date(2026, 12, 31)
+        )
+        db.session.add(cliente)
+        db.session.commit()
+
+    client.post('/vitelas/login', data={
+        'usuario': numero,
+        'password': password
+    })
+
+
+def test_perfil_actualizar_requiere_login(client):
+    response = client.post('/vitelas/portal/perfil/actualizar', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Iniciar Sesi' in response.data
+
+
+def test_perfil_actualizar_guarda_campos(app, client):
+    _login_cliente(app, client, 'V100')
+
+    response = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Nuevo Nombre',
+        'nickname': 'nuevo_nick',
+        'telefono': '555-1234',
+        'email': 'cliente@mail.com',
+        'fecha_nacimiento': '1990-05-20',
+        'contacto_emergencia': 'Ana 555-9999',
+        'lesiones_medicas': 'Lesion en rodilla'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Tus datos fueron actualizados' in response.data
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V100').one()
+        assert cliente.nombre_completo == 'Nuevo Nombre'
+        assert cliente.nickname == 'nuevo_nick'
+        assert cliente.telefono == '555-1234'
+        assert cliente.email == 'cliente@mail.com'
+        assert cliente.fecha_nacimiento == date(1990, 5, 20)
+        assert cliente.contacto_emergencia == 'Ana 555-9999'
+        assert cliente.lesiones_medicas == 'Lesion en rodilla'
+
+
+def test_perfil_nombre_vacio_no_guarda(app, client):
+    _login_cliente(app, client, 'V101')
+
+    response = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': '   ',
+        'nickname': 'x'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'El nombre completo es obligatorio' in response.data
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V101').one()
+        assert cliente.nombre_completo == 'V101 User'
+        assert cliente.nickname is None
+
+
+def test_perfil_actualizar_no_cambia_campos_admin(app, client):
+    _login_cliente(app, client, 'V102')
+
+    response = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Hacker User',
+        'tipo_membresia': 'VIP',
+        'fecha_fin_membresia': '2099-12-31'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V102').one()
+        assert cliente.nombre_completo == 'Hacker User'
+        assert cliente.tipo_membresia != 'VIP'
+        assert cliente.fecha_fin_membresia != date(2099, 12, 31)
+
+
+def test_perfil_actualizar_foto_uploads(app, client):
+    import io
+    _login_cliente(app, client, 'V103')
+
+    png = b'\x89PNG\r\n\x1a\n' + b'x' * 100
+    response = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Foto User',
+        'foto': (io.BytesIO(png), 'foto.png')
+    }, content_type='multipart/form-data', follow_redirects=True)
+    assert response.status_code == 200
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V103').one()
+        assert cliente.foto_data is not None
+        assert cliente.foto_mime == 'image/png'
+
+
+def test_perfil_actualizar_quitar_foto(app, client):
+    import io
+    _login_cliente(app, client, 'V104')
+
+    png = b'\x89PNG\r\n\x1a\n' + b'y' * 100
+    r1 = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Con Foto',
+        'foto': (io.BytesIO(png), 'foto.png')
+    }, content_type='multipart/form-data', follow_redirects=True)
+    assert r1.status_code == 200
+
+    response = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Sin Foto',
+        'quitar_foto': '1'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V104').one()
+        assert cliente.foto_data is None
+        assert cliente.foto_mime is None
+        assert cliente.foto_url is None

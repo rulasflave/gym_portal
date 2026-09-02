@@ -346,6 +346,48 @@ body {
     padding: 10px 12px; border-radius: 10px; font-size: 12px;
 }
 
+/* Formulario editable del modal perfil */
+.modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-full { grid-column: 1 / -1; }
+.field .m-label { margin-bottom: 4px; }
+.m-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+.m-input:focus { outline: none; border-color: var(--accent); }
+.m-textarea { resize: vertical; }
+.m-check { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+.modal-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+.btn-save {
+    background: var(--accent);
+    color: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn-save:hover { filter: brightness(1.1); }
+
+/* Flashes del hub */
+.hub-flashes { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; gap: 8px; }
+.hub-flash {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.hub-flash.success { background: #1e3a2a; color: #7dffb0; border: 1px solid rgba(125,255,176,0.4); }
+.hub-flash.error { background: #3a1e1e; color: #ff9d9d; border: 1px solid rgba(255,157,157,0.4); }
+
 @media (max-width: 1200px) {
     .grid5 { grid-template-columns: repeat(3, 1fr); }
 }
