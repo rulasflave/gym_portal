@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/kiosk.css') }}?v=7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/kiosk.css') }}?v=10">
 </head>
 <body>
     <div class="kiosk-page">
@@ -47,10 +47,11 @@
             <div class="kiosk-center">
                 <div class="scanner-card">
                     <div class="scanner-placeholder">
-                        <div class="manual-entry">
+                        <div class="manual-entry" id="manual-entry">
                             <input type="text" id="codigo-input" class="manual-input" placeholder="Ingresa tu código" autocomplete="off">
-                            <button id="validar-btn" class="manual-submit" onclick="validarCodigoSilencioso()">Validar</button>
+                            <button id="validar-btn" class="manual-submit">Validar</button>
                         </div>
+                        <div class="kiosk-result" id="result-view"></div>
                     </div>
                 </div>
 
@@ -134,9 +135,7 @@
         </div>
 
         <div class="powered-by">
-            <span class="powered-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </span>
+            <span class="powered-icon"><img src="{{ url_for('static', filename='assets/images/logos_nbroken_HUB.svg') }}" alt="nBroken Hub"></span>
             <span class="powered-text">Powered by</span>
             <span class="powered-brand">nBroken Hub</span>
         </div>
@@ -175,7 +174,7 @@
                         } else {
                             $.each(data, function(i, acc) {
                                 var avatar = acc.foto_url
-                                    ? '<img src="' + acc.foto_url + '" alt="">'
+                                    ? '<img src="' + esc(acc.foto_url) + '" alt="">'
                                     : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
                                 html += '<div class="access-item">' +
                                     '<div class="access-avatar">' + avatar + '</div>' +
@@ -194,13 +193,86 @@
             cargarAccesos();
             setInterval(cargarAccesos, 15000);
 
-            // Check-in silencioso: registra sin mostrar overlay
+            // Check-in con bienvenida visual
             var isProcessing = false;
-            $('#codigo-input').on('keypress', function(e) {
-                if (e.key === 'Enter') validarCodigoSilencioso();
-            });
+            var timeoutId = null;
 
-            function validarCodigoSilencioso() {
+            function esc(s) {
+                return $('<div>').text(s == null ? '' : String(s)).html();
+            }
+
+            function avatarHtml(data) {
+                if (data.foto_url) {
+                    return '<div class="result-avatar"><img src="' + esc(data.foto_url) + '" alt=""></div>';
+                }
+                return '<div class="result-avatar">' +
+                    '<svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' +
+                    '</div>';
+            }
+
+            function lanzarConfeti() {
+                var colores = ['#FFC400', '#16C83E', '#F0F0F0', '#FFC400', '#16C83E'];
+                var $wrap = $('#confettiWrap');
+                for (var i = 0; i < 40; i++) {
+                    var w = 6 + Math.random() * 6;
+                    var h = 10 + Math.random() * 8;
+                    $('<span class="confetti-piece"></span>').css({
+                        left: (Math.random() * 100) + '%',
+                        width: w + 'px',
+                        height: h + 'px',
+                        background: colores[i % colores.length],
+                        animationDuration: (2 + Math.random() * 2) + 's',
+                        animationDelay: (Math.random() * 0.8) + 's'
+                    }).appendTo($wrap);
+                }
+            }
+
+            function mostrarResultado(data) {
+                var $result = $('#result-view');
+                var html;
+
+                if (data.es_cumpleanos) {
+                    html = '<div class="confetti-wrap" id="confettiWrap">' +
+                             '<div class="kiosk-result show">' +
+                               '<div class="result-title">¡FELIZ CUMPLEAÑOS ' + esc(data.nombre) + '! 🎂</div>' +
+                               avatarHtml(data) +
+                               '<div class="result-sub">Bienvenido ' + esc(data.nombre) + '</div>' +
+                             '</div>' +
+                           '</div>';
+                    $result.html(html).addClass('show');
+                    lanzarConfeti();
+                } else if (data.status === 'ok') {
+                    html = '<div class="kiosk-result show">' +
+                             '<div class="result-title">BIENVENIDO</div>' +
+                             avatarHtml(data) +
+                             '<div class="result-name">' + esc(data.nombre) + '</div>' +
+                             (data.grace_period
+                                 ? '<div class="result-alert">Días de gracia: ' + esc(data.dias_expirado) + '/2. ¡Renueva ya!</div>'
+                                 : '') +
+                           '</div>';
+                    $result.html(html).addClass('show');
+                } else {
+                    var msg = data.message || 'Código no válido. Consulta en recepción.';
+                    html = '<div class="kiosk-result show"><div class="result-error">' + esc(msg) + '</div></div>';
+                    $result.html(html).addClass('show');
+                }
+
+                $('#manual-entry').hide();
+                var delay = (data.status === 'ok' || data.grace_period) ? 5000 : 3000;
+                timeoutId = setTimeout(volverAlInicio, delay);
+            }
+
+            function volverAlInicio() {
+                if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+                $('#confettiWrap').empty();
+                $('#result-view').html('').removeClass('show').hide();
+                $('#manual-entry').show();
+                $('#validar-btn').prop('disabled', false).text('Validar');
+                $('#codigo-input').val('').focus();
+                isProcessing = false;
+            }
+
+            function validarCodigo() {
                 var codigo = $('#codigo-input').val().trim().toUpperCase();
                 if (!codigo || isProcessing) return;
                 isProcessing = true;
@@ -213,18 +285,18 @@
                     data: JSON.stringify({codigo: codigo})
                 })
                 .done(function(data) {
-                    if (data.status === 'ok') { cargarAccesos(); }
-                    // Registro hecho, nada más que mostrar
+                    if (data.status === 'ok' || data.grace_period) { cargarAccesos(); }
+                    mostrarResultado(data);
                 })
                 .fail(function() {
-                    // Mantener funcionamiento: no muestra pantalla
-                })
-                .always(function() {
-                    $('#validar-btn').prop('disabled', false).text('Validar');
-                    $('#codigo-input').val('').focus();
-                    isProcessing = false;
+                    mostrarResultado({status: 'error', message: 'Error de conexión. Intenta de nuevo.'});
                 });
             }
+
+            $('#codigo-input').on('keypress', function(e) {
+                if (e.key === 'Enter') validarCodigo();
+            });
+            $('#validar-btn').on('click', validarCodigo);
         });
     </script>
 </body>

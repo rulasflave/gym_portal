@@ -1,82 +1,33 @@
-{% extends "base.html" %}
-
-{% block title %}Mis Asistencias - Gym Portal{% endblock %}
-
+{% extends "cliente/base_dash.html" %}
+{% block title %}Asistencias · Vitellas Hub{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-calendar-check me-2" style="color: #f5c518;"></i>Mis Asistencias
-            </h2>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card fade-in">
-                <div class="card-body p-4">
-                    {% if asistencias.items %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-calendar me-2"></i>Fecha</th>
-                                    <th><i class="fas fa-clock me-2"></i>Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for asistencia in asistencias.items %}
-                                <tr>
-                                    <td>{{ asistencia.fecha_hora_entrada.strftime('%d/%m/%Y') }}</td>
-                                    <td>{{ asistencia.fecha_hora_entrada.strftime('%H:%M') }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            {% if asistencias.has_prev %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ asistencias.prev_num }}">
-                                    <i class="fas fa-chevron-left"></i> Anterior
-                                </a>
-                            </li>
-                            {% endif %}
-
-                            {% for page_num in asistencias.iter_pages() %}
-                            {% if page_num %}
-                            <li class="page-item {% if page_num == asistencias.page %}active{% endif %}">
-                                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-                            </li>
-                            {% else %}
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                            {% endif %}
-                            {% endfor %}
-
-                            {% if asistencias.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ asistencias.next_num }}">Siguiente <i class="fas fa-chevron-right"></i></a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-calendar-times fa-3x mb-3" style="color: #ccc;"></i>
-                        <p class="text-muted">No hay asistencias registradas</p>
-                    </div>
-                    {% endif %}
-
-                    <hr>
-                    <a href="{{ url_for('cliente.dashboard') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Volver
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="card">
+  <span class="card-title">MIS ASISTENCIAS</span>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="color:#8E8E8E;border-bottom:1px solid #292929;text-align:left;">
+          <th style="padding:10px;">Fecha</th><th style="padding:10px;">Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in asistencias %}
+        <tr style="border-bottom:1px solid #1d1d1d;">
+          <td style="padding:12px 10px;">{{ a.fecha_hora_entrada|localdt('%d/%m/%Y') }}</td>
+          <td style="padding:12px 10px;">{{ a.fecha_hora_entrada|localdt('%I:%M %p') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2" style="padding:20px;text-align:center;color:#696969;">Sin asistencias</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if asistencias.has_prev or asistencias.has_next %}
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+    {% if asistencias.has_prev %}<a class="sub-btn" href="{{ url_for('cliente.asistencias', page=asistencias.prev_num) }}">← Anterior</a>{% endif %}
+    <span class="card-pill" style="align-self:center;">Página {{ asistencias.page }} de {{ asistencias.pages }}</span>
+    {% if asistencias.has_next %}<a class="sub-btn" href="{{ url_for('cliente.asistencias', page=asistencias.next_num) }}">Siguiente →</a>{% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

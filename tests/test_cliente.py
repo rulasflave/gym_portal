@@ -1,8 +1,9 @@
 import pytest
-from datetime import date
+from datetime import date, datetime, timezone
 from werkzeug.security import generate_password_hash
 from extensions import db
 from models.cliente import Cliente
+from models.asistencia import Asistencia
 
 
 def test_dashboard_requires_login(client):
@@ -71,6 +72,37 @@ def test_asistencias_requires_login(client):
     response = client.get('/portal/asistencias', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
+
+
+def test_asistencias_hora_en_zona_local(app, client):
+    with app.app_context():
+        password = generate_password_hash('test123')
+        cliente = Cliente(
+            numero_registro='V010',
+            nombre_completo='Tz User',
+            usuario_login='V010',
+            password_hash=password,
+            primer_login=False,
+            fecha_inicio_membresia=date(2026, 1, 1),
+            fecha_fin_membresia=date(2026, 12, 31)
+        )
+        db.session.add(cliente)
+        db.session.commit()
+        db.session.add(Asistencia(id_cliente=cliente.id_cliente,
+                                  fecha_hora_entrada=datetime(2026, 9, 2, 2, 45, tzinfo=timezone.utc)))
+        db.session.commit()
+
+    client.post('/vitelas/login', data={
+        'usuario': 'V010',
+        'password': 'test123'
+    })
+
+    response = client.get('/vitelas/portal/asistencias')
+    body = response.data.decode()
+    assert response.status_code == 200
+    assert '08:45 PM' in body
+    assert '02:45 AM' not in body
+    assert '01/09/2026' in body
 
 
 def test_pagos_requires_login(client):

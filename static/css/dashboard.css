@@ -180,6 +180,7 @@ body {
     font-size: 15px;
 }
 .powered-icon { color: var(--text-secondary); display: flex; }
+.powered-icon img { height: 20px; width: auto; display: block; }
 .powered-text { color: var(--text-secondary); }
 .powered-brand { color: var(--accent); font-weight: 600; }
 
@@ -318,6 +319,7 @@ body {
     z-index: 60;
     padding: 20px;
 }
+.modal-overlay[hidden] { display: none; }
 .modal-box {
     position: relative;
     width: 520px; max-width: 100%;

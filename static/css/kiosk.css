@@ -586,6 +586,12 @@ body {
     align-items: center;
 }
 
+.powered-by .powered-icon img {
+    height: 20px;
+    width: auto;
+    display: block;
+}
+
 .powered-by .powered-text {
     color: var(--text-secondary);
 }
@@ -593,6 +599,113 @@ body {
 .powered-by .powered-brand {
     color: var(--accent);
     font-weight: 600;
+}
+
+/* ============ RESULTADO DEL ESCÁNER ============ */
+.scanner-card { position: relative; }
+
+.kiosk-result { display: none; }
+
+.kiosk-result.show {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 3vh, 24px);
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.result-title {
+    font-family: var(--font-title);
+    font-weight: 900;
+    font-size: clamp(40px, 8vw, 88px);
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.result-name {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: clamp(28px, 4.2vw, 46px);
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-sub {
+    font-size: clamp(18px, 2.6vw, 26px);
+    color: var(--text-secondary);
+}
+
+.result-avatar {
+    width: clamp(170px, 26vh, 280px);
+    height: clamp(170px, 26vh, 280px);
+    border-radius: 50%;
+    overflow: hidden;
+    background: #222;
+    border: 4px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.result-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.result-avatar svg { color: var(--accent); }
+
+.result-error {
+    font-size: clamp(18px, 2.4vw, 28px);
+    color: #FF6B6B;
+    max-width: 460px;
+    line-height: 1.5;
+}
+
+.result-alert {
+    font-size: clamp(15px, 2vw, 22px);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 20px;
+}
+
+/* Confeti */
+.confetti-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border-radius: 18px;
+    z-index: 2;
+}
+
+.confetti-wrap .kiosk-result.show {
+    position: relative;
+    z-index: 1;
+    padding-top: 90px;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -16px;
+    width: 8px;
+    height: 14px;
+    opacity: 0.9;
+    pointer-events: none;
+    animation-name: kiosk-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes kiosk-fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.95; }
+    100% { transform: translateY(340px) rotate(540deg); opacity: 0.1; }
 }
 
 /* ============ RESPONSIVE ============ */

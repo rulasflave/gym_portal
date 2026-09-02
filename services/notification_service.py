@@ -4,21 +4,24 @@ import requests
 
 def send_telegram(message):
     token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
+    chat_ids = [c.strip() for c in os.environ.get('TELEGRAM_CHAT_ID', '').split(',') if c.strip()]
 
-    if not token or not chat_id:
+    if not token or not chat_ids:
         print("Telegram not configured, skipping message")
         return False
 
+    ok = False
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = {
-            'chat_id': chat_id,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        response = requests.post(url, json=payload, timeout=10)
-        return response.status_code == 200
+        for chat_id in chat_ids:
+            payload = {
+                'chat_id': chat_id,
+                'text': message,
+                'parse_mode': 'HTML'
+            }
+            response = requests.post(url, json=payload, timeout=10)
+            ok = ok or response.status_code == 200
+        return ok
     except Exception as e:
         print(f"Error sending Telegram: {e}")
         return False

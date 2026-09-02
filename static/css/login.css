@@ -260,6 +260,12 @@ body {
     align-items: center;
 }
 
+.powered-by .powered-icon img {
+    height: 20px;
+    width: auto;
+    display: block;
+}
+
 .powered-by .powered-text {
     color: var(--text-secondary);
 }

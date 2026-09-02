@@ -97,6 +97,9 @@ def create_app(config_class=Config):
     from routes.configuracion import config_bp
     app.register_blueprint(config_bp, url_prefix='/vitelas')
 
+    from services.timeutil import to_local
+    app.jinja_env.filters['localdt'] = lambda dt, fmt: to_local(dt).strftime(fmt) if dt is not None else '—'
+
     migrate_config_column(app)
 
     try:

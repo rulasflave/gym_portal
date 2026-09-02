@@ -1,10 +1,17 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, url_for
 from models.cliente import Cliente
 from models.asistencia import Asistencia
 from extensions import db
-from datetime import datetime, date
+from datetime import datetime, date, timezone
+from services.timeutil import TZ_LOCAL, to_local
 
 kiosco_bp = Blueprint('kiosco', __name__)
+
+
+def _hora_local(dt):
+    if dt is None:
+        return '--:--'
+    return to_local(dt).strftime('%H:%M')
 
 @kiosco_bp.route('/')
 def scanner():
@@ -23,8 +30,8 @@ def ultimos_accesos():
             continue
         accesos.append({
             'nombre': cliente.nickname or cliente.nombre_completo,
-            'hora': a.fecha_hora_entrada.strftime('%H:%M') if a.fecha_hora_entrada else '--:--',
-            'foto_url': f'/admin/foto/{cliente.id_cliente}' if cliente.foto_data else None
+            'hora': _hora_local(a.fecha_hora_entrada),
+            'foto_url': url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) if (cliente.foto_data or cliente.foto_url) else None
         })
     return jsonify(accesos)
 
@@ -40,7 +47,7 @@ def validar_codigo():
             'message': 'Código no válido. Consulta en recepción.'
         })
     
-    hoy = datetime.now().date()
+    hoy = datetime.now(TZ_LOCAL).date()
     
     if not cliente.is_membresia_activa:
         # Check if within 2-day grace period
@@ -50,7 +57,7 @@ def validar_codigo():
                 # Allow access with warning
                 asistencia = Asistencia(
                     id_cliente=cliente.id_cliente,
-                    fecha_hora_entrada=datetime.now(),
+fecha_hora_entrada=datetime.now(timezone.utc),
                     qr_escaneado=True
                 )
                 db.session.add(asistencia)
@@ -63,7 +70,7 @@ def validar_codigo():
                     'nombre': cliente.nickname or cliente.nombre_completo,
                     'nombre_completo': cliente.nombre_completo,
                     'numero_registro': cliente.numero_registro,
-                    'foto_url': f'/admin/foto/{cliente.id_cliente}' if cliente.foto_data else None,
+                    'foto_url': url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) if (cliente.foto_data or cliente.foto_url) else None,
                     'tipo_membresia': cliente.tipo_membresia,
                     'fecha_fin': cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else None,
                     'es_cumpleanos': False,
@@ -104,7 +111,7 @@ def validar_codigo():
         'nombre': cliente.nickname or cliente.nombre_completo,
         'nombre_completo': cliente.nombre_completo,
         'numero_registro': cliente.numero_registro,
-        'foto_url': f'/admin/foto/{cliente.id_cliente}' if cliente.foto_data else None,
+        'foto_url': url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) if (cliente.foto_data or cliente.foto_url) else None,
         'tipo_membresia': cliente.tipo_membresia,
         'fecha_fin': cliente.fecha_fin_membresia.strftime('%d/%m/%Y') if cliente.fecha_fin_membresia else None,
         'es_cumpleanos': es_cumple,

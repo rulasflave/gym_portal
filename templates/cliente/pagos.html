@@ -1,58 +1,29 @@
-{% extends "base.html" %}
-
-{% block title %}Mis Pagos - Gym Portal{% endblock %}
-
+{% extends "cliente/base_dash.html" %}
+{% block title %}Pagos · Vitellas Hub{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-credit-card me-2" style="color: #f5c518;"></i>Mis Pagos
-            </h2>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card fade-in">
-                <div class="card-body p-4">
-                    {% if pagos %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-calendar me-2"></i>Fecha</th>
-                                    <th><i class="fas fa-tag me-2"></i>Concepto</th>
-                                    <th><i class="fas fa-dollar-sign me-2"></i>Monto</th>
-                                    <th><i class="fas fa-wallet me-2"></i>Método</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for pago in pagos %}
-                                <tr>
-                                    <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
-                                    <td>{{ pago.concepto }}</td>
-                                    <td class="fw-bold" style="color: #28a745;">${{ "%.2f"|format(pago.monto) }}</td>
-                                    <td>{{ pago.metodo_pago }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-receipt fa-3x mb-3" style="color: #ccc;"></i>
-                        <p class="text-muted">No hay pagos registrados</p>
-                    </div>
-                    {% endif %}
-
-                    <hr>
-                    <a href="{{ url_for('cliente.dashboard') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Volver
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="card">
+  <span class="card-title">MIS PAGOS</span>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="color:#8E8E8E;border-bottom:1px solid #292929;text-align:left;">
+          <th style="padding:10px;">Fecha</th><th style="padding:10px;">Concepto</th>
+          <th style="padding:10px;">Método</th><th style="padding:10px;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pagos %}
+        <tr style="border-bottom:1px solid #1d1d1d;">
+          <td style="padding:12px 10px;">{{ p.fecha_pago.strftime('%d/%m/%Y') if p.fecha_pago else '—' }}</td>
+          <td style="padding:12px 10px;">{{ p.concepto or '—' }}</td>
+          <td style="padding:12px 10px;">{{ p.metodo_pago or '—' }}</td>
+          <td style="padding:12px 10px;font-weight:600;">${{ p.monto }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="padding:20px;text-align:center;color:#696969;">Sin pagos registrados</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

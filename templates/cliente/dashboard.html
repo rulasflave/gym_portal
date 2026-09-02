@@ -1,130 +1,136 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - Gym Portal{% endblock %}
-
+{% extends "cliente/base_dash.html" %}
+{% block title %}Resumen · Vitellas Hub{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-home me-2" style="color: #f5c518;"></i>Mi Dashboard
-            </h2>
-        </div>
+
+<!-- Fila superior: 5 tarjetas -->
+<div class="grid5">
+
+  <div class="card">
+    <span class="card-title">MEMBRESÍA ACTIVA</span>
+    <div class="card-icon-circle">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h3l2 5 4-14 3 9h3l1 6"/></svg>
     </div>
-    
-    <div class="row">
-        <!-- Profile Card -->
-        <div class="col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Mi Perfil</h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="avatar-circle mx-auto mb-3">
-                            <i class="fas fa-user fa-3x"></i>
-                        </div>
-                        <h5 class="fw-bold">{{ current_user.nombre_completo }}</h5>
-                        <p class="text-muted mb-0">{{ current_user.numero_registro }}</p>
-                    </div>
-                    
-                    <hr>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted d-block">Membresía</small>
-                        <span class="badge {% if current_user.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ current_user.estado_membresia|upper }}
-                        </span>
-                    </div>
-                    
-                    {% if current_user.fecha_fin_membresia %}
-                    <div class="mb-3">
-                        <small class="text-muted d-block">Vence el</small>
-                        <strong>{{ current_user.fecha_fin_membresia.strftime('%d/%m/%Y') }}</strong>
-                    </div>
-                    {% endif %}
-                    
-                    <a href="{{ url_for('cliente.perfil') }}" class="btn btn-outline-primary w-100 mt-3">
-                        <i class="fas fa-id-card me-2"></i>Ver Perfil Completo
-                    </a>
-                    <a href="{{ url_for('cliente.mi_qr') }}" class="btn btn-primary w-100 mt-2">
-                        <i class="fas fa-qrcode me-2"></i>Mi Código QR
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <!-- Attendance Card -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Últimas Asistencias</h5>
-                </div>
-                <div class="card-body">
-                    {% if asistencias %}
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th><i class="fas fa-calendar me-1"></i>Fecha</th>
-                                        <th><i class="fas fa-clock me-1"></i>Hora</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for asistencia in asistencias %}
-                                    <tr>
-                                        <td>{{ asistencia.fecha_hora_entrada.strftime('%d/%m/%Y') }}</td>
-                                        <td>{{ asistencia.fecha_hora_entrada.strftime('%H:%M') }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No hay asistencias registradas</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- News Card -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Noticias Recientes</h5>
-                </div>
-                <div class="card-body">
-                    {% for noticia in noticias %}
-                        <div class="news-item mb-3 p-3 rounded" style="background-color: #f8f9fa;">
-                            {% if noticia.imagen_url %}
-                            <img src="{{ noticia.imagen_url }}" class="img-fluid rounded mb-2 w-100" 
-                                 style="max-height: 200px; object-fit: cover;" alt="{{ noticia.titulo }}">
-                            {% endif %}
-                            <h6 class="fw-bold mb-1">{{ noticia.titulo }}</h6>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar-alt me-1"></i>{{ noticia.fecha_publicacion.strftime('%d/%m/%Y') }}
-                            </small>
-                            <p class="mb-0 mt-2">{{ noticia.contenido[:200] }}...</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+    <div class="card-num">{{ current_user.tipo_membresia }}</div>
+    <span class="card-pill">Válida hasta {{ current_user.fecha_fin_membresia.strftime('%d %b %Y') if current_user.fecha_fin_membresia else '—' }}</span>
+    <a class="sub-btn" href="#membresia">Ver detalles <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">PRÓXIMA CLASE</span>
+    <div class="pending-box">Próximamente</div>
+    <a class="sub-btn" href="#clases">Ver agenda <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">ASISTENCIAS DEL MES</span>
+    <div class="donut-wrap">
+      <svg class="donut-svg" width="108" height="108" viewBox="0 0 108 108">
+        <circle cx="54" cy="54" r="44" fill="none" stroke="#262626" stroke-width="12"></circle>
+        <circle cx="54" cy="54" r="44" fill="none" stroke="#FFC400" stroke-width="12"
+          stroke-linecap="round" pathLength="100" stroke-dasharray="{{ pct_donut }} {{ 100 - pct_donut }}"
+          stroke-dashoffset="25" style="transition: stroke-dasharray .6s ease;"></circle>
+      </svg>
+      <div class="donut-center">
+        <span class="donut-num">{{ asistencias_del_mes }}</span>
+        <span class="donut-total">/{{ objetivo_mensual }}</span>
+      </div>
     </div>
+    <span class="donut-label">{{ pct_donut }}% del objetivo</span>
+    <a class="sub-btn" href="{{ url_for('cliente.asistencias') }}">Ver asistencias <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">ESTADO DE PAGO</span>
+    <div class="card-icon-circle">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div><span class="badge {{ 'ok' if al_dia else 'md' }}">{{ 'Al día' if al_dia else current_user.estado_membresia }}</span></div>
+    <span class="card-pill">Próximo pago {{ current_user.fecha_fin_membresia.strftime('%d %b %Y') if current_user.fecha_fin_membresia else '—' }}</span>
+    <a class="sub-btn" href="{{ url_for('cliente.pagos') }}">Ver pagos <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">TU ACCESO QR</span>
+    <span class="card-pill">Escanea en recepción</span>
+    <div style="background:#fff;padding:10px;border-radius:10px;display:inline-flex;align-self:center;">
+      <img src="{{ qr_data }}" alt="QR" style="width:120px;height:120px;">
+    </div>
+  </div>
 </div>
 
-<style>
-.avatar-circle {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #f5c518;
-}
-</style>
+<!-- Segunda fila: 3 tarjetas -->
+<div class="grid3">
+
+  <div class="card">
+    <span class="card-title">VISITAS RECIENTES</span>
+    {% for v in visitas %}
+    <div class="visit">
+      <span class="visit-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+      <div>
+        <div class="visit-date">{{ v.fecha_hora_entrada|localdt('%d %b %Y') }}</div>
+        <div class="visit-time">{{ v.fecha_hora_entrada|localdt('%I:%M %p') }}</div>
+      </div>
+      <span class="visit-tag">Entrada</span>
+    </div>
+    {% else %}
+    <div class="pending-box">Sin visitas registradas</div>
+    {% endfor %}
+    <a class="sub-btn" href="{{ url_for('cliente.asistencias') }}">Ver historial completo <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">AGENDA DEL DÍA</span>
+    <div class="pending-box">Próximamente</div>
+    <a class="sub-btn" href="#clases">Ver todas las clases <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+
+  <div class="card">
+    <span class="card-title">AVISOS</span>
+    {% for n in noticias %}
+    <div class="news-item">
+      <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 9 4-18 3 9h4"/></svg></span>
+      <div>
+        <div class="news-title">{{ n.titulo }}</div>
+        <div class="news-date">{{ n.fecha_publicacion.strftime('%d %b') if n.fecha_publicacion else '' }}</div>
+        <div class="news-body">{{ n.contenido[:90] }}{% if n.contenido|length > 90 %}…{% endif %}</div>
+      </div>
+    </div>
+    {% else %}
+    <div class="pending-box">Sin avisos</div>
+    {% endfor %}
+    <a class="sub-btn" href="{{ url_for('cliente.noticias') }}">Ver todos los avisos <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+  </div>
+</div>
+
+<!-- Tercera fila: organizaciones -->
+<div class="card" style="margin-bottom:22px;">
+  <span class="card-title">TUS ORGANIZACIONES</span>
+  <a class="org-card" href="{{ url_for('cliente.dashboard') }}">
+    <span class="org-logo"><img src="{{ url_for('static', filename='assets/images/HULK AGILA_vitelas.svg') }}" alt="Vitellas"></span>
+    <div>
+      <div class="org-name">Vitellas Boxing</div>
+      <div class="org-desc">Tu gimnasio, tu casa.</div>
+    </div>
+    <span class="org-principal">Principal</span>
+    <span class="org-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </a>
+  {% if current_user.empresa %}
+  <a class="org-card" href="#empresas" style="margin-top:12px;">
+    <span class="org-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+    <div>
+      <div class="org-name">{{ current_user.empresa }}</div>
+      <div class="org-desc">Tu empresa.</div>
+    </div>
+    <span class="org-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </a>
+  {% endif %}
+  <a class="org-card" href="#empresas" style="margin-top:12px;">
+    <span class="org-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+    <div>
+      <div class="org-name">Explorar más</div>
+      <div class="org-desc">Descubre más espacios y comunidades.</div>
+    </div>
+    <span class="org-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </a>
+</div>
 {% endblock %}
