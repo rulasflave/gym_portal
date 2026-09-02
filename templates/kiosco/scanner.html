@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/kiosk.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/kiosk.css') }}?v=11">
 </head>
 <body>
     <div class="kiosk-page">
@@ -234,7 +234,7 @@
                 if (data.es_cumpleanos) {
                     html = '<div class="confetti-wrap" id="confettiWrap">' +
                              '<div class="kiosk-result show">' +
-                               '<div class="result-title">¡FELIZ CUMPLEAÑOS ' + esc(data.nombre) + '! 🎂</div>' +
+                               '<div class="result-title result-title-birthday">¡FELIZ CUMPLEAÑOS ' + esc(data.nombre) + '! 🎂</div>' +
                                avatarHtml(data) +
                                '<div class="result-sub">Bienvenido ' + esc(data.nombre) + '</div>' +
                              '</div>' +

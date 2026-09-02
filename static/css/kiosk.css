@@ -629,6 +629,11 @@ body {
     line-height: 1.1;
 }
 
+.result-title-birthday {
+    font-size: clamp(24px, 4.5vw, 40px);
+    letter-spacing: 1px;
+}
+
 .result-name {
     font-family: var(--font-title);
     font-weight: 700;
