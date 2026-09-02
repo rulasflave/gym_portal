@@ -42,3 +42,9 @@ def test_admin_dashboard_uses_admin_shell(app, client):
     assert b'admin-sidebar' in resp.data
     assert b'id="adminMenuToggle"' in resp.data
     assert b'admin.css' in resp.data
+
+def test_admin_dashboard_shows_stats(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/dashboard')
+    assert b'Total Clientes' in resp.data
+    assert b'admin-stats' in resp.data
