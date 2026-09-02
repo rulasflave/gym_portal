@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=3">
 </head>
 <body>
 <div class="hub">
@@ -69,6 +69,9 @@
     <div class="hub-main">
         <header class="hub-header">
             <div>
+                <button class="hamburger-btn" id="mobileMenuToggle" type="button" aria-label="Abrir menú">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                </button>
                 <h1 class="hello">Bienvenido, {{ current_user.nombre_completo }} 👋</h1>
                 <p class="hello-sub">Cada entrenamiento te acerca a tu mejor versión.</p>
             </div>
@@ -183,6 +186,10 @@ $(function(){
     });
     $('#userChip').on('click', function(e){ e.stopPropagation(); $('#userDropdown').toggle(); });
     $(document).on('click', function(e){ if(!$(e.target).closest('#userChip').length){ $('#userDropdown').hide(); } });
+    $('#mobileMenuToggle').on('click', function(e){ e.stopPropagation(); $('.sidebar-menu').toggleClass('open'); });
+    $('.sidebar-menu').on('click', function(e){ e.stopPropagation(); });
+    $('.sidebar-menu .menu-item').on('click', function(){ $('.sidebar-menu').removeClass('open'); });
+    $(document).on('click', function(e){ if(!$(e.target).closest('.sidebar-menu').length && !$(e.target).closest('#mobileMenuToggle').length){ $('.sidebar-menu').removeClass('open'); } });
     $('#perfilFoto').on('change', function(){
         var file = this.files && this.files[0];
         if (!file) return;

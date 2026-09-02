@@ -92,3 +92,21 @@ def test_dashboard_shows_empresa_org_card(app, client):
     resp = client.get('/vitelas/portal/dashboard')
     assert resp.status_code == 200
     assert b'Axis' in resp.data
+
+
+def test_dashboard_has_mobile_hamburger(app, client):
+    _login_dashboard(app, client, num='V907', nombre='Movil User')
+    resp = client.get('/vitelas/portal/dashboard')
+    assert resp.status_code == 200
+    assert b'id="mobileMenuToggle"' in resp.data
+    assert b'hamburger-btn' in resp.data
+
+
+def test_dashboard_has_mobile_drawer_logic(app, client):
+    _login_dashboard(app, client, num='V908', nombre='Movil Drawer')
+    resp = client.get('/vitelas/portal/dashboard')
+    assert resp.status_code == 200
+    decoded = resp.data.decode('utf-8')
+    assert "toggleClass('open')" in decoded
+    assert "removeClass('open')" in decoded
+    assert b'sidebar-menu' in resp.data
