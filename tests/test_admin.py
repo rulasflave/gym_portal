@@ -48,3 +48,22 @@ def test_admin_dashboard_shows_stats(app, client):
     resp = client.get('/vitelas/admin/dashboard')
     assert b'Total Clientes' in resp.data
     assert b'admin-stats' in resp.data
+
+def test_admin_clientes_lists_table(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from extensions import db
+        from models.cliente import Cliente
+        from werkzeug.security import generate_password_hash
+        if not Cliente.query.first():
+            cliente = Cliente(
+                numero_registro='V001',
+                nombre_completo='Cliente Test',
+                usuario_login='cliente1',
+                password_hash=generate_password_hash('test123'),
+            )
+            db.session.add(cliente)
+            db.session.commit()
+    resp = client.get('/vitelas/admin/clientes')
+    assert b'admin-table' in resp.data
+    assert b'admin-search' in resp.data

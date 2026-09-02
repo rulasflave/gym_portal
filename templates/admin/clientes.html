@@ -1,110 +1,91 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Gestionar Clientes - Admin{% endblock %}
+{% block title %}Gestionar Clientes - Vitellas Hub{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-users me-2" style="color: #f5c518;"></i>Clientes
-            </h2>
-            <a href="{{ url_for('admin.nuevo_cliente') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Nuevo Cliente
-            </a>
-        </div>
-    </div>
+{% block page_title %}Clientes{% endblock %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        <i class="fas fa-info-circle me-2"></i>{{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="card fade-in">
-        <div class="card-body p-4">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-camera me-2"></i>Foto</th>
-                            <th><i class="fas fa-id-card me-2"></i>Registro</th>
-                            <th><i class="fas fa-user me-2"></i>Nombre</th>
-                            <th><i class="fas fa-building me-2"></i>Empresa</th>
-                            <th><i class="fas fa-phone me-2"></i>Teléfono</th>
-                            <th><i class="fas fa-crown me-2"></i>Membresía</th>
-                            <th><i class="fas fa-circle me-2"></i>Estado</th>
-                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cliente in clientes %}
-                        <tr>
-                            <td>
-                                {% if cliente.foto_data %}
-                                <img src="{{ url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) }}" 
-                                     alt="Foto" class="rounded-circle" 
-                                     style="width: 40px; height: 40px; object-fit: cover;">
-                                {% elif cliente.foto_url %}
-                                <img src="{{ url_for('static', filename='uploads/' + cliente.foto_url) }}" 
-                                     alt="Foto" class="rounded-circle" 
-                                     style="width: 40px; height: 40px; object-fit: cover;">
-                                {% else %}
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px; background-color: #f5c518; color: #1a1a1a;">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                {% endif %}
-                            </td>
-                            <td><span class="fw-bold">{{ cliente.numero_registro }}</span></td>
-                            <td>{{ cliente.nombre_completo }}</td>
-                            <td>
-                                {% if cliente.empresa %}
-                                <span class="badge" style="background-color: #f5c518; color: #1a1a1a;">{{ cliente.empresa }}</span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ cliente.telefono }}</td>
-                            <td>{{ cliente.tipo_membresia }}</td>
-                            <td>
-                                <span class="badge {% if cliente.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
-                                    {{ cliente.estado_membresia|upper }}
-                                </span>
-                                {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
-                                <br><small class="text-muted">{{ cliente.dias_para_vencer }} días</small>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}" 
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit me-1"></i>Editar
-                                </a>
-                                <a href="{{ url_for('admin.cliente_qr', id_cliente=cliente.id_cliente) }}" 
-                                   class="btn btn-sm btn-outline-secondary" title="Ver QR">
-                                    <i class="fas fa-qrcode"></i>
-                                </a>
-                                <form method="POST" action="{{ url_for('admin.enviar_recordatorio', id_cliente=cliente.id_cliente) }}" style="display:inline">
-                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('¿Enviar recordatorio de Telegram a {{ cliente.nickname or cliente.nombre_completo }}?')">
-                                        <i class="fab fa-telegram me-1"></i>Recordatorio
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ url_for('admin.eliminar_cliente', id_cliente=cliente.id_cliente) }}" style="display:inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar a {{ cliente.nombre_completo }}? Esta acción no se puede deshacer.')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+{% block admin_content %}
+<div class="admin-toolbar">
+    <div class="admin-subtitle">{{ clientes|length }} registros</div>
+    <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_cliente') }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Cliente
+    </a>
 </div>
+
+<input class="admin-search" type="text" id="adminSearch" placeholder="Buscar por nombre, registro o teléfono…" aria-label="Buscar clientes">
+
+<div class="admin-card" style="overflow-x:auto;">
+    {% if clientes %}
+    <table class="admin-table" id="adminClientesTable">
+        <thead>
+            <tr>
+                <th>Registro</th>
+                <th>Cliente</th>
+                <th>Empresa</th>
+                <th>Teléfono</th>
+                <th>Membresía</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr data-search="{{ cliente.numero_registro }} {{ cliente.nombre_completo }} {{ cliente.telefono or '' }}">
+                <td style="font-weight:600;">{{ cliente.numero_registro }}</td>
+                <td>{{ cliente.nombre_completo }}</td>
+                <td>{% if cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+                <td>{{ cliente.telefono }}</td>
+                <td>{{ cliente.tipo_membresia }}</td>
+                <td>
+                    {% if cliente.is_membresia_activa %}
+                    <span class="admin-chip admin-chip-success">{{ cliente.estado_membresia|upper }}</span>
+                    {% else %}
+                    <span class="admin-chip admin-chip-danger">{{ cliente.estado_membresia|upper }}</span>
+                    {% endif %}
+                    {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
+                    <div style="color: var(--text-secondary); font-size:12px;">{{ cliente.dias_para_vencer }} días</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+                        </a>
+                        <a class="admin-icon-btn" title="Ver QR" href="{{ url_for('admin.cliente_qr', id_cliente=cliente.id_cliente) }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.enviar_recordatorio', id_cliente=cliente.id_cliente) }}" style="display:inline">
+                            <button type="submit" class="admin-icon-btn" title="Enviar recordatorio Telegram" onclick="return confirm('¿Enviar recordatorio de Telegram a {{ cliente.nickname or cliente.nombre_completo }}?')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin.eliminar_cliente', id_cliente=cliente.id_cliente) }}" style="display:inline">
+                            <button type="submit" class="admin-icon-btn" title="Eliminar" onclick="return confirm('¿Eliminar a {{ cliente.nombre_completo }}? Esta acción no se puede deshacer.')" style="color: var(--danger);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="admin-empty">No hay clientes registrados</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    $('#adminSearch').on('input', function(){
+        var q = this.value.toLowerCase();
+        $('#adminClientesTable tbody tr').each(function(){
+            $(this).toggle(this.getAttribute('data-search').toLowerCase().indexOf(q) !== -1);
+        });
+    });
+});
+</script>
 {% endblock %}
