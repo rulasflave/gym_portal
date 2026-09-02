@@ -287,25 +287,30 @@ def test_perfil_actualizar_foto_uploads(app, client):
         assert cliente.foto_mime == 'image/png'
 
 
-def test_perfil_actualizar_quitar_foto(app, client):
+def test_perfil_actualizar_nueva_foto_reemplaza_actual(app, client):
     import io
     _login_cliente(app, client, 'V104')
 
-    png = b'\x89PNG\r\n\x1a\n' + b'y' * 100
+    foto_a = b'\x89PNG\r\n\x1a\n' + b'a' * 100
     r1 = client.post('/vitelas/portal/perfil/actualizar', data={
         'nombre_completo': 'Con Foto',
-        'foto': (io.BytesIO(png), 'foto.png')
+        'foto': (io.BytesIO(foto_a), 'foto_a.png')
     }, content_type='multipart/form-data', follow_redirects=True)
     assert r1.status_code == 200
 
-    response = client.post('/vitelas/portal/perfil/actualizar', data={
-        'nombre_completo': 'Sin Foto',
-        'quitar_foto': '1'
-    }, follow_redirects=True)
-    assert response.status_code == 200
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V104').one()
+        assert cliente.foto_data == foto_a
+        assert cliente.foto_mime == 'image/png'
+
+    foto_b = b'\x89PNG\r\n\x1a\n' + b'b' * 100
+    r2 = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Con Foto',
+        'foto': (io.BytesIO(foto_b), 'foto_b.png')
+    }, content_type='multipart/form-data', follow_redirects=True)
+    assert r2.status_code == 200
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V104').one()
-        assert cliente.foto_data is None
-        assert cliente.foto_mime is None
-        assert cliente.foto_url is None
+        assert cliente.foto_data == foto_b
+        assert cliente.foto_mime == 'image/png'

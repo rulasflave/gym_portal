@@ -362,7 +362,6 @@ body {
 }
 .m-input:focus { outline: none; border-color: var(--accent); }
 .m-textarea { resize: vertical; }
-.m-check { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
 .modal-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 .btn-save {
     background: var(--accent);

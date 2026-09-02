@@ -75,11 +75,6 @@ def perfil_actualizar():
     else:
         current_user.fecha_nacimiento = None
 
-    if request.form.get('quitar_foto'):
-        current_user.foto_data = None
-        current_user.foto_mime = None
-        current_user.foto_url = None
-
     if 'foto' in request.files and request.files['foto'].filename:
         foto_url, foto_data, foto_mime = save_photo(request.files['foto'])
         if foto_data:

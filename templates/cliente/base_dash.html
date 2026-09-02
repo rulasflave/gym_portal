@@ -165,9 +165,6 @@
                 <div class="field field-full">
                     <span class="m-label">Foto</span>
                     <input class="m-input" type="file" name="foto" id="perfilFoto" accept="image/png,image/jpeg,image/gif">
-                    {% if current_user.foto_data or current_user.foto_url %}
-                    <label class="m-check"><input type="checkbox" name="quitar_foto" value="1"> Quitar foto actual</label>
-                    {% endif %}
                 </div>
             </div>
             <div class="modal-actions">
