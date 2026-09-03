@@ -127,3 +127,9 @@ def test_admin_noticias_lists_table(app, client):
             db.session.commit()
     resp = client.get('/vitelas/admin/noticias')
     assert b'admin-table' in resp.data
+
+def test_admin_noticia_form_renders(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/noticias/nueva')
+    assert b'admin-textarea' in resp.data
+    assert b'contenido' in resp.data
