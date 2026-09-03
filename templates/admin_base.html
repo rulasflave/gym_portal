@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=4">
 </head>
 <body>
     <div class="admin-hub">
@@ -70,7 +70,11 @@
             </div>
 
             <footer class="admin-footer">
-                <img src="{{ url_for('static', filename='assets/images/logos_nbroken_HUB.svg') }}" alt="nbroken Hub">
+                <div class="admin-powered-by">
+                    <span class="admin-powered-icon"><img src="{{ url_for('static', filename='assets/images/logos_nbroken_HUB.svg') }}" alt="nBroken Hub"></span>
+                    <span class="admin-powered-text">Powered by</span>
+                    <span class="admin-powered-brand">nBroken Hub</span>
+                </div>
             </footer>
         </main>
     </div>

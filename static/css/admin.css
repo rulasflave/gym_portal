@@ -415,8 +415,32 @@ body {
     background: var(--sidebar);
 }
 
-.admin-footer img {
-    max-height: 24px;
+.admin-powered-by {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+}
+
+.admin-powered-by .admin-powered-icon {
+    display: flex;
+    align-items: center;
+}
+
+.admin-powered-by .admin-powered-icon img {
+    height: 20px;
+    width: auto;
+    display: block;
+}
+
+.admin-powered-by .admin-powered-text {
+    color: var(--text-secondary);
+}
+
+.admin-powered-by .admin-powered-brand {
+    color: var(--accent);
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
