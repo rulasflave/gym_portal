@@ -86,8 +86,12 @@ body {
 }
 
 .admin-logo img {
-    max-width: 100%;
+    width: 70%;
     height: auto;
+    display: block;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .admin-sidebar-menu {
