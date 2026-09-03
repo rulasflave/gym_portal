@@ -109,3 +109,9 @@ def test_admin_pagos_lists_table(app, client):
             db.session.commit()
     resp = client.get('/vitelas/admin/pagos')
     assert b'admin-table' in resp.data
+
+def test_admin_pago_form_renders(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/pagos/nuevo')
+    assert b'admin-select' in resp.data
+    assert b'metodo_pago' in resp.data

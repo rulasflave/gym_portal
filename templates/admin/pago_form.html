@@ -1,105 +1,63 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}{{ 'Editar' if pago else 'Nuevo' }} Pago - Admin{% endblock %}
+{% block title %}{{ 'Editar' if pago else 'Nuevo' }} Pago - Vitellas Hub{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-money-bill-wave me-2" style="color: #f5c518;"></i>{{ 'Editar' if pago else 'Registrar' }} Pago
-            </h2>
+{% block page_title %}{{ 'Editar' if pago else 'Registrar' }} Pago{% endblock %}
+
+{% block admin_content %}
+{% if pago %}
+<div class="admin-flash admin-flash-error">Nota: Al editar un pago no se actualizan las fechas de membresía automáticamente.</div>
+{% endif %}
+
+<div class="admin-card" style="max-width:680px;">
+    <form method="POST">
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="id_cliente">Cliente</label>
+            <select class="admin-select" id="id_cliente" name="id_cliente" required>
+                <option value="">Seleccionar cliente...</option>
+                {% for cliente in clientes %}
+                <option value="{{ cliente.id_cliente }}" {{ 'selected' if pago and pago.id_cliente == cliente.id_cliente }}>
+                    {{ cliente.numero_registro }} - {{ cliente.nombre_completo }}{% if cliente.empresa %} ({{ cliente.empresa }}){% endif %}
+                </option>
+                {% endfor %}
+            </select>
         </div>
-    </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        <i class="fas fa-info-circle me-2"></i>{{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    {% if pago %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>Nota: Al editar un pago no se actualizan las fechas de membresía automáticamente.
-    </div>
-    {% endif %}
-
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card fade-in">
-                <div class="card-body p-4">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="id_cliente" class="form-label">
-                                <i class="fas fa-user me-2"></i>Cliente
-                            </label>
-                            <select class="form-select" id="id_cliente" name="id_cliente" required>
-                                <option value="">Seleccionar cliente...</option>
-                                {% for cliente in clientes %}
-                                <option value="{{ cliente.id_cliente }}" {{ 'selected' if pago and pago.id_cliente == cliente.id_cliente }}>
-                                    {{ cliente.numero_registro }} - {{ cliente.nombre_completo }}{% if cliente.empresa %} ({{ cliente.empresa }}){% endif %}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="monto" class="form-label">
-                                    <i class="fas fa-dollar-sign me-2"></i>Monto ($)
-                                </label>
-                                <input type="number" class="form-control" id="monto" name="monto" 
-                                       step="0.01" min="0" placeholder="0.00" required
-                                       value="{{ pago.monto if pago else '' }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="fecha_pago" class="form-label">
-                                    <i class="fas fa-calendar me-2"></i>Fecha de Pago
-                                </label>
-                                <input type="date" class="form-control" id="fecha_pago" name="fecha_pago" 
-                                       value="{{ pago.fecha_pago.strftime('%Y-%m-%d') if pago else today }}" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="metodo_pago" class="form-label">
-                                <i class="fas fa-wallet me-2"></i>Método de Pago
-                            </label>
-                            <select class="form-select" id="metodo_pago" name="metodo_pago" required>
-                                <option value="">Seleccionar método...</option>
-                                <option value="Efectivo" {{ 'selected' if pago and pago.metodo_pago == 'Efectivo' }}>Efectivo</option>
-                                <option value="Transferencia" {{ 'selected' if pago and pago.metodo_pago == 'Transferencia' }}>Transferencia</option>
-                                <option value="Tarjeta" {{ 'selected' if pago and pago.metodo_pago == 'Tarjeta' }}>Tarjeta</option>
-                                <option value="Otro" {{ 'selected' if pago and pago.metodo_pago == 'Otro' }}>Otro</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="concepto" class="form-label">
-                                <i class="fas fa-tag me-2"></i>Concepto
-                            </label>
-                            <input type="text" class="form-control" id="concepto" name="concepto" 
-                                   placeholder="Ej: Membresía mensual, Clase especial..." required
-                                   value="{{ pago.concepto if pago else '' }}">
-                        </div>
-
-                        <hr>
-                        <div class="d-flex gap-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>{{ 'Actualizar' if pago else 'Registrar' }} Pago
-                            </button>
-                            <a href="{{ url_for('admin.pagos') }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Cancelar
-                            </a>
-                        </div>
-                    </form>
-                </div>
+        <div class="admin-form-grid">
+            <div>
+                <label class="admin-label" for="monto">Monto ($)</label>
+                <input class="admin-input" type="number" id="monto" name="monto" step="0.01" min="0" placeholder="0.00" required
+                       value="{{ pago.monto if pago else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="fecha_pago">Fecha de Pago</label>
+                <input class="admin-input" type="date" id="fecha_pago" name="fecha_pago"
+                       value="{{ pago.fecha_pago.strftime('%Y-%m-%d') if pago else today }}" required>
             </div>
         </div>
-    </div>
+
+        <div style="margin-top:16px;">
+            <label class="admin-label" for="metodo_pago">Método de Pago</label>
+            <select class="admin-select" id="metodo_pago" name="metodo_pago" required>
+                <option value="">Seleccionar método...</option>
+                <option value="Efectivo" {{ 'selected' if pago and pago.metodo_pago == 'Efectivo' }}>Efectivo</option>
+                <option value="Transferencia" {{ 'selected' if pago and pago.metodo_pago == 'Transferencia' }}>Transferencia</option>
+                <option value="Tarjeta" {{ 'selected' if pago and pago.metodo_pago == 'Tarjeta' }}>Tarjeta</option>
+                <option value="Otro" {{ 'selected' if pago and pago.metodo_pago == 'Otro' }}>Otro</option>
+            </select>
+        </div>
+
+        <div style="margin-top:16px;">
+            <label class="admin-label" for="concepto">Concepto</label>
+            <input class="admin-input" type="text" id="concepto" name="concepto"
+                   placeholder="Ej: Membresía mensual, Clase especial..." required
+                   value="{{ pago.concepto if pago else '' }}">
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:20px;">
+            <button type="submit" class="admin-btn admin-btn-primary">{{ 'Actualizar' if pago else 'Registrar' }} Pago</button>
+            <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.pagos') }}">Cancelar</a>
+        </div>
+    </form>
 </div>
 {% endblock %}
