@@ -47,8 +47,28 @@ def dashboard():
 @login_required
 @admin_required
 def clientes():
-    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
-    return render_template('admin/clientes.html', clientes=clientes)
+    from services.table_pagination import paginate, is_ajax
+    q = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    query = Cliente.query.order_by(Cliente.numero_registro)
+    if q:
+        like = f'%{q}%'
+        query = query.filter(db.or_(
+            Cliente.numero_registro.ilike(like),
+            Cliente.nombre_completo.ilike(like),
+            Cliente.nickname.ilike(like),
+            Cliente.telefono.ilike(like),
+        ))
+    total, total_pages, clientes = paginate(query, page=page)
+
+    if is_ajax():
+        from flask import jsonify
+        rows_html = render_template('admin/_table_rows.html', clientes=clientes)
+        return jsonify(html=rows_html, total=total, total_pages=total_pages, page=page)
+
+    return render_template('admin/clientes.html',
+                           clientes=clientes, total=total,
+                           total_pages=total_pages, page=page, q=q)
 
 def save_photo(file):
     if file and file.filename and allowed_file(file.filename):

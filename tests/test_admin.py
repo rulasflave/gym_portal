@@ -169,3 +169,57 @@ def test_admin_configuracion_renders(app, client):
     resp = client.get('/vitelas/admin/configuracion-recordatorios')
     assert b'dias_antes' in resp.data
     assert b'admin-textarea' in resp.data
+
+def test_clientes_has_pagination_controls(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/clientes')
+    assert b'admin-search' in resp.data
+    assert b'id="adminTableBody"' in resp.data
+    assert b'data-total' in resp.data
+
+def test_clientes_search_ajax(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from models.cliente import Cliente
+        from werkzeug.security import generate_password_hash
+        for i in range(1, 26):
+            c = Cliente(
+                numero_registro=f'V{i:03d}',
+                nombre_completo=f'Cliente {i}',
+                nickname='ElToro' if i == 1 else None,
+                telefono=f'555000{i:03d}',
+                usuario_login=f'v{i}',
+                password_hash=generate_password_hash('x'),
+            )
+            db.session.add(c)
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes?q=V002', headers={'X-Requested-With': 'XMLHttpRequest'})
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['total'] == 1
+    assert data['total_pages'] == 1
+    assert b'V002' in data['html'].encode()
+    assert b'V001' not in data['html'].encode()
+
+def test_clientes_pagination_ajax(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from models.cliente import Cliente
+        from werkzeug.security import generate_password_hash
+        for i in range(1, 26):
+            c = Cliente(
+                numero_registro=f'V{i:03d}',
+                nombre_completo=f'Cliente {i}',
+                usuario_login=f'v{i}',
+                password_hash=generate_password_hash('x'),
+            )
+            db.session.add(c)
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes?page=2', headers={'X-Requested-With': 'XMLHttpRequest'})
+    data = resp.get_json()
+    assert data['total'] == 25
+    assert data['total_pages'] == 2   # 25/20 -> ceil = 2
+    assert data['page'] == 2
+    # Página 2 en PER_PAGE=20: filas 21-25 (V021..V025)
+    assert b'V021' in data['html'].encode()
+    assert b'V011' not in data['html'].encode()

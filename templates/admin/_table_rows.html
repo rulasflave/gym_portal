@@ -1,0 +1,43 @@
+{% for cliente in clientes %}
+<tr>
+    <td style="font-weight:600;">{{ cliente.numero_registro }}</td>
+    <td>{{ cliente.nombre_completo }}</td>
+    <td>{% if cliente.nickname %}<span class="admin-chip admin-chip-neutral">{{ cliente.nickname }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+    <td>{% if cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+    <td>{{ cliente.telefono }}</td>
+    <td>{{ cliente.tipo_membresia }}</td>
+    <td>
+        {% if cliente.is_membresia_activa %}
+        <span class="admin-chip admin-chip-success">{{ cliente.estado_membresia|upper }}</span>
+        {% else %}
+        <span class="admin-chip admin-chip-danger">{{ cliente.estado_membresia|upper }}</span>
+        {% endif %}
+        {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
+        <div style="color: var(--text-secondary); font-size:12px;">{{ cliente.dias_para_vencer }} días</div>
+        {% endif %}
+        {% if cliente.dias_vencido is not none %}
+        <div style="color: var(--danger); font-size:12px; font-weight:600;">{{ cliente.dias_vencido }} días vencido</div>
+        {% endif %}
+    </td>
+    <td>
+        <div class="admin-actions">
+            <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+            </a>
+            <a class="admin-icon-btn" title="Ver QR" href="{{ url_for('admin.cliente_qr', id_cliente=cliente.id_cliente) }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </a>
+            <form method="POST" action="{{ url_for('admin.enviar_recordatorio', id_cliente=cliente.id_cliente) }}" style="display:inline">
+                <button type="submit" class="admin-icon-btn" title="Enviar recordatorio Telegram" onclick="return confirm('¿Enviar recordatorio de Telegram a {{ cliente.nickname or cliente.nombre_completo }}?')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.eliminar_cliente', id_cliente=cliente.id_cliente) }}" style="display:inline">
+                <button type="submit" class="admin-icon-btn" title="Eliminar" onclick="return confirm('¿Eliminar a {{ cliente.nombre_completo }}? Esta acción no se puede deshacer.')" style="color: var(--danger);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </form>
+        </div>
+    </td>
+</tr>
+{% endfor %}
