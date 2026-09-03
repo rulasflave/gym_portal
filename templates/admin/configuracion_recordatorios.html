@@ -28,8 +28,15 @@
             <small style="color: var(--text-secondary);">Variables: <code>{nombre}</code>, <code>{tipo}</code>, <code>{días}</code>, <code>{fecha}</code></small>
         </div>
 
+        <div style="margin-top:16px;">
+            <label class="admin-label">Chat IDs de Telegram</label>
+            <input class="admin-input" type="text" name="chat_ids" value="{{ config.chat_ids or '' }}"
+                   placeholder="Ej: 123456789, 987654321 (varios separados por coma)">
+            <small style="color: var(--text-secondary);">Dejar vacío para usar la variable TELEGRAM_CHAT_ID del entorno</small>
+        </div>
+
         <div class="admin-flash admin-flash-success" style="margin-top:16px;">
-            <strong>Telegram:</strong> Los recordatorios se envían al chat ID configurado en las variables de entorno.
+            <strong>Telegram:</strong> Los recordatorios se envían a los Chat IDs de arriba; si el campo está vacío, se usa la variable TELEGRAM_CHAT_ID del entorno.
         </div>
 
         <div style="margin-top:16px;">

@@ -270,3 +270,21 @@ def test_noticias_search_ajax(app, client):
     data = resp.get_json()
     assert data['total'] == 1
     assert b'Promo navide' in data['html'].encode()
+
+
+def test_config_recordatorios_saves_chat_ids(app, client):
+    _login_admin(client, app)
+    resp = client.post('/vitelas/admin/configuracion-recordatorios', data={
+        'dias_antes': '3', 'horario_envio': '09:00', 'activo': 'on',
+        'mensaje_recordatorio': 'Hola {nombre}', 'chat_ids': '111,222'
+    })
+    assert resp.status_code == 302
+    with app.app_context():
+        from models.configuracion_recordatorio import ConfiguracionRecordatorio
+        cfg = ConfiguracionRecordatorio.get_config()
+        assert cfg.chat_ids == '111,222'
+
+def test_config_recordatorios_form_shows_chat_ids_field(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/configuracion-recordatorios')
+    assert b'Chat IDs' in resp.data
