@@ -100,3 +100,35 @@ def test_membresia_vencida_por_fecha(app):
 
         assert cliente.is_membresia_activa is False
         assert cliente.dias_para_vencer == 0
+
+
+def test_dias_vencido_property(app):
+    with app.app_context():
+        cliente_vencido = Cliente(
+            numero_registro='007',
+            nombre_completo='Vencido Días',
+            usuario_login='vdias',
+            password_hash='hash5',
+            fecha_inicio_membresia=date.today() - timedelta(days=40),
+            fecha_fin_membresia=date.today() - timedelta(days=6)
+        )
+        cliente_activo = Cliente(
+            numero_registro='008',
+            nombre_completo='Activo Días',
+            usuario_login='adias',
+            password_hash='hash6',
+            fecha_inicio_membresia=date.today() - timedelta(days=5),
+            fecha_fin_membresia=date.today() + timedelta(days=15)
+        )
+        cliente_sin_fecha = Cliente(
+            numero_registro='009',
+            nombre_completo='Sin Fecha',
+            usuario_login='sfecha',
+            password_hash='hash7'
+        )
+        db.session.add_all([cliente_vencido, cliente_activo, cliente_sin_fecha])
+        db.session.commit()
+
+        assert cliente_vencido.dias_vencido == 6
+        assert cliente_activo.dias_vencido is None
+        assert cliente_sin_fecha.dias_vencido is None

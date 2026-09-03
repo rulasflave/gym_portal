@@ -68,6 +68,30 @@ def test_admin_clientes_lists_table(app, client):
     assert b'admin-table' in resp.data
     assert b'admin-search' in resp.data
 
+def test_admin_clientes_shows_apodo_y_dias_vencido(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from extensions import db
+        from datetime import date, timedelta
+        from models.cliente import Cliente
+        from werkzeug.security import generate_password_hash
+        if not Cliente.query.first():
+            cliente = Cliente(
+                numero_registro='V010',
+                nombre_completo='Cliente Apodo',
+                nickname='ElToro',
+                usuario_login='apodo',
+                password_hash=generate_password_hash('test123'),
+                fecha_inicio_membresia=date.today() - timedelta(days=40),
+                fecha_fin_membresia=date.today() - timedelta(days=6),
+            )
+            db.session.add(cliente)
+            db.session.commit()
+    resp = client.get('/vitelas/admin/clientes')
+    assert b'Apodo' in resp.data
+    assert b'ElToro' in resp.data
+    assert b'd\xc3\xadas vencido' in resp.data
+
 def test_admin_cliente_form_renders(app, client):
     _login_admin(client, app)
     resp = client.get('/vitelas/admin/clientes/nuevo')

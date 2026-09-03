@@ -13,7 +13,7 @@
     </a>
 </div>
 
-<input class="admin-search" type="text" id="adminSearch" placeholder="Buscar por nombre, registro o teléfono…" aria-label="Buscar clientes">
+<input class="admin-search" type="text" id="adminSearch" placeholder="Buscar por nombre, apodo, registro o teléfono…" aria-label="Buscar clientes" style="display:block; width:400px; max-width:100%; margin:0 auto 24px;">
 
 <div class="admin-card" style="overflow-x:auto;">
     {% if clientes %}
@@ -22,6 +22,7 @@
             <tr>
                 <th>Registro</th>
                 <th>Cliente</th>
+                <th>Apodo</th>
                 <th>Empresa</th>
                 <th>Teléfono</th>
                 <th>Membresía</th>
@@ -31,9 +32,10 @@
         </thead>
         <tbody>
             {% for cliente in clientes %}
-            <tr data-search="{{ cliente.numero_registro }} {{ cliente.nombre_completo }} {{ cliente.telefono or '' }}">
+            <tr data-search="{{ cliente.numero_registro }} {{ cliente.nombre_completo }} {{ cliente.nickname or '' }} {{ cliente.telefono or '' }}">
                 <td style="font-weight:600;">{{ cliente.numero_registro }}</td>
                 <td>{{ cliente.nombre_completo }}</td>
+                <td>{% if cliente.nickname %}<span class="admin-chip admin-chip-neutral">{{ cliente.nickname }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
                 <td>{% if cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
                 <td>{{ cliente.telefono }}</td>
                 <td>{{ cliente.tipo_membresia }}</td>
@@ -45,6 +47,9 @@
                     {% endif %}
                     {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
                     <div style="color: var(--text-secondary); font-size:12px;">{{ cliente.dias_para_vencer }} días</div>
+                    {% endif %}
+                    {% if cliente.dias_vencido is not none %}
+                    <div style="color: var(--danger); font-size:12px; font-weight:600;">{{ cliente.dias_vencido }} días vencido</div>
                     {% endif %}
                 </td>
                 <td>

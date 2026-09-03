@@ -59,6 +59,13 @@ class Cliente(UserMixin, db.Model):
         delta = self.fecha_fin_membresia - date.today()
         return max(0, delta.days)
 
+    @property
+    def dias_vencido(self):
+        if self.estado_membresia != 'vencida':
+            return None
+        delta = date.today() - self.fecha_fin_membresia
+        return max(0, delta.days)
+
     def get_id(self):
         return f"cliente-{self.id_cliente}"
 
