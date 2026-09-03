@@ -67,3 +67,9 @@ def test_admin_clientes_lists_table(app, client):
     resp = client.get('/vitelas/admin/clientes')
     assert b'admin-table' in resp.data
     assert b'admin-search' in resp.data
+
+def test_admin_cliente_form_renders(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/clientes/nuevo')
+    assert b'admin-form-grid' in resp.data
+    assert b'nombre_completo' in resp.data

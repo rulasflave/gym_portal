@@ -1,167 +1,120 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente - Admin{% endblock %}
+{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente - Vitellas Hub{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-user-edit me-2" style="color: #f5c518;"></i>
-                {{ 'Editar' if cliente else 'Nuevo' }} Cliente
-            </h2>
+{% block page_title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <form method="POST" enctype="multipart/form-data">
+        {% if cliente and (cliente.foto_data or cliente.foto_url) %}
+        <div style="text-align:center; margin-bottom:18px;">
+            <img src="{{ url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) if cliente.foto_data else url_for('static', filename='uploads/' + cliente.foto_url) }}"
+                 alt="Foto de {{ cliente.nombre_completo }}"
+                 style="width:110px; height:110px; object-fit:cover; border-radius:50%; border:3px solid var(--accent);">
         </div>
-    </div>
+        {% endif %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        <i class="fas fa-info-circle me-2"></i>{{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="foto">Foto del Cliente</label>
+            <input class="admin-input" type="file" id="foto" name="foto" accept="image/*">
+            <small style="color: var(--text-secondary); font-size:12px;">PNG, JPG, GIF · máx 5MB</small>
+        </div>
 
-    <div class="card fade-in">
-        <div class="card-body p-4">
-            <form method="POST" enctype="multipart/form-data">
-                {% if cliente and cliente.foto_data %}
-                <div class="text-center mb-4">
-                    <img src="{{ url_for('admin.foto_cliente', id_cliente=cliente.id_cliente) }}" 
-                         alt="Foto de {{ cliente.nombre_completo }}"
-                         class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f5c518;">
-                </div>
-                {% elif cliente and cliente.foto_url %}
-                <div class="text-center mb-4">
-                    <img src="{{ url_for('static', filename='uploads/' + cliente.foto_url) }}" 
-                         alt="Foto de {{ cliente.nombre_completo }}"
-                         class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f5c518;">
-                </div>
-                {% endif %}
+        <div class="admin-form-grid">
+            <div>
+                <label class="admin-label" for="numero_registro">Número de Registro</label>
+                <input class="admin-input" type="text" id="numero_registro" name="numero_registro"
+                       value="{{ cliente.numero_registro if cliente else next_registro }}" readonly required>
+                <small style="color: var(--text-secondary); font-size:12px;">Código automático</small>
+            </div>
+            <div>
+                <label class="admin-label" for="nombre_completo">Nombre Completo</label>
+                <input class="admin-input" type="text" id="nombre_completo" name="nombre_completo"
+                       value="{{ cliente.nombre_completo if cliente else '' }}" required>
+            </div>
+            <div>
+                <label class="admin-label" for="nickname">Nickname</label>
+                <input class="admin-input" type="text" id="nickname" name="nickname"
+                       value="{{ cliente.nickname if cliente else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="telefono">Teléfono</label>
+                <input class="admin-input" type="text" id="telefono" name="telefono"
+                       value="{{ cliente.telefono if cliente else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="email">Email</label>
+                <input class="admin-input" type="email" id="email" name="email"
+                       value="{{ cliente.email if cliente else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="fecha_nacimiento">Fecha de Nacimiento</label>
+                <input class="admin-input" type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+                       value="{{ cliente.fecha_nacimiento.strftime('%Y-%m-%d') if cliente and cliente.fecha_nacimiento else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="contacto_emergencia">Contacto de Emergencia</label>
+                <input class="admin-input" type="text" id="contacto_emergencia" name="contacto_emergencia"
+                       value="{{ cliente.contacto_emergencia if cliente else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="empresa">Empresa</label>
+                <select class="admin-select" id="empresa" name="empresa">
+                    <option value="">Seleccionar empresa...</option>
+                    <option value="Axis" {{ 'selected' if cliente and cliente.empresa == 'Axis' }}>Axis</option>
+                    <option value="Box" {{ 'selected' if cliente and cliente.empresa == 'Box' }}>Box</option>
+                </select>
+            </div>
+            <div>
+                <label class="admin-label" for="tipo_membresia">Tipo de Membresía</label>
+                <select class="admin-select" id="tipo_membresia" name="tipo_membresia">
+                    <option value="Normal" {{ 'selected' if cliente and cliente.tipo_membresia == 'Normal' }}>Normal</option>
+                    <option value="Beca" {{ 'selected' if cliente and cliente.tipo_membresia == 'Beca' }}>Beca</option>
+                    <option value="Programa" {{ 'selected' if cliente and cliente.tipo_membresia == 'Programa' }}>Programa</option>
+                    <option value="Visita" {{ 'selected' if cliente and cliente.tipo_membresia == 'Visita' }}>Visita</option>
+                </select>
+            </div>
+        </div>
 
-                <div class="mb-4">
-                    <label for="foto" class="form-label">
-                        <i class="fas fa-camera me-2"></i>Foto del Cliente
-                    </label>
-                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
-                    <small class="text-muted">Formatos: PNG, JPG, GIF. Máximo 5MB.</small>
-                </div>
+        <div style="margin-top:16px;">
+            <label class="admin-label" for="lesiones_medicas">Lesiones/Médico</label>
+            <textarea class="admin-textarea" id="lesiones_medicas" name="lesiones_medicas" rows="2"
+                      placeholder="Describa lesiones o condiciones médicas">{{ cliente.lesiones_medicas if cliente else '' }}</textarea>
+        </div>
 
-                <hr>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="numero_registro" class="form-label">Número de Registro</label>
-                        <input type="text" class="form-control" id="numero_registro" name="numero_registro" 
-                               value="{{ cliente.numero_registro if cliente else next_registro }}" 
-                               readonly required>
-                        <small class="text-muted">Código automático</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="nombre_completo" class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" 
-                               value="{{ cliente.nombre_completo if cliente else '' }}" required>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="nickname" class="form-label">Nickname</label>
-                        <input type="text" class="form-control" id="nickname" name="nickname" 
-                               value="{{ cliente.nickname if cliente else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="telefono" name="telefono" 
-                               value="{{ cliente.telefono if cliente else '' }}">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" 
-                               value="{{ cliente.email if cliente else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" 
-                               value="{{ cliente.fecha_nacimiento.strftime('%Y-%m-%d') if cliente and cliente.fecha_nacimiento else '' }}">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="contacto_emergencia" class="form-label">Contacto de Emergencia</label>
-                        <input type="text" class="form-control" id="contacto_emergencia" name="contacto_emergencia" 
-                               value="{{ cliente.contacto_emergencia if cliente else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="empresa" class="form-label">Empresa</label>
-                        <select class="form-select" id="empresa" name="empresa">
-                            <option value="">Seleccionar empresa...</option>
-                            <option value="Axis" {{ 'selected' if cliente and cliente.empresa == 'Axis' }}>Axis</option>
-                            <option value="Box" {{ 'selected' if cliente and cliente.empresa == 'Box' }}>Box</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="tipo_membresia" class="form-label">Tipo de Membresía</label>
-                        <select class="form-select" id="tipo_membresia" name="tipo_membresia">
-                            <option value="Normal" {{ 'selected' if cliente and cliente.tipo_membresia == 'Normal' }}>Normal</option>
-                            <option value="Beca" {{ 'selected' if cliente and cliente.tipo_membresia == 'Beca' }}>Beca</option>
-                            <option value="Programa" {{ 'selected' if cliente and cliente.tipo_membresia == 'Programa' }}>Programa</option>
-                            <option value="Visita" {{ 'selected' if cliente and cliente.tipo_membresia == 'Visita' }}>Visita</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="lesiones_medicas" class="form-label">Lesiones/Médico</label>
-                    <textarea class="form-control" id="lesiones_medicas" name="lesiones_medicas" rows="2"
-                              placeholder="Describa lesiones o condiciones médicas">{{ cliente.lesiones_medicas if cliente else '' }}</textarea>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="fecha_inicio" class="form-label">Fecha Inicio Membresía</label>
-                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" 
-                               value="{{ cliente.fecha_inicio_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_inicio_membresia else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="fecha_fin" class="form-label">Fecha Fin Membresía</label>
-                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" 
-                               value="{{ cliente.fecha_fin_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_fin_membresia else '' }}">
-                    </div>
-                    {% if cliente %}
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Estado (automático)</label>
-                        <div class="form-control" style="background-color: #f8f9fa;">
-                            <span class="badge {% if cliente.is_membresia_activa %}bg-success{% else %}bg-danger{% endif %}">
-                                {{ cliente.estado_membresia|upper }}
-                            </span>
-                            {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
-                            <small class="text-muted d-block mt-1">{{ cliente.dias_para_vencer }} días restantes</small>
-                            {% endif %}
-                        </div>
-                    </div>
+        <div class="admin-form-grid" style="margin-top:16px;">
+            <div>
+                <label class="admin-label" for="fecha_inicio">Fecha Inicio Membresía</label>
+                <input class="admin-input" type="date" id="fecha_inicio" name="fecha_inicio"
+                       value="{{ cliente.fecha_inicio_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_inicio_membresia else '' }}">
+            </div>
+            <div>
+                <label class="admin-label" for="fecha_fin">Fecha Fin Membresía</label>
+                <input class="admin-input" type="date" id="fecha_fin" name="fecha_fin"
+                       value="{{ cliente.fecha_fin_membresia.strftime('%Y-%m-%d') if cliente and cliente.fecha_fin_membresia else '' }}">
+            </div>
+            {% if cliente %}
+            <div>
+                <label class="admin-label">Estado (automático)</label>
+                <div>
+                    {% if cliente.is_membresia_activa %}
+                    <span class="admin-chip admin-chip-success">{{ cliente.estado_membresia|upper }}</span>
+                    {% else %}
+                    <span class="admin-chip admin-chip-danger">{{ cliente.estado_membresia|upper }}</span>
+                    {% endif %}
+                    {% if cliente.dias_para_vencer is not none and cliente.is_membresia_activa %}
+                    <small style="color: var(--text-secondary); display:block; margin-top:4px;">{{ cliente.dias_para_vencer }} días restantes</small>
                     {% endif %}
                 </div>
-
-                <hr>
-                <div class="d-flex gap-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Guardar
-                    </button>
-                    <a href="{{ url_for('admin.clientes') }}" class="btn btn-secondary">
-                        <i class="fas fa-times me-2"></i>Cancelar
-                    </a>
-                </div>
-            </form>
+            </div>
+            {% endif %}
         </div>
-    </div>
+
+        <div style="display:flex; gap:12px; margin-top:20px;">
+            <button type="submit" class="admin-btn admin-btn-primary">Guardar</button>
+            <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.clientes') }}">Cancelar</a>
+        </div>
+    </form>
 </div>
 {% endblock %}
