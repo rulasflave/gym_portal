@@ -301,3 +301,8 @@ body {
         font-size: 16px;
     }
 }
+
+/* Asegura que el numero de registro se vea en mayusculas */
+.uppercase-input {
+    text-transform: uppercase;
+}

@@ -10,17 +10,17 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form.get('usuario')
+        usuario = request.form.get('usuario', '').strip()
         password = request.form.get('password')
         
-        cliente = Cliente.query.filter_by(usuario_login=usuario).first()
+        cliente = Cliente.query.filter_by(usuario_login=usuario.upper()).first()
         if cliente and check_password_hash(cliente.password_hash, password):
             login_user(cliente)
             if cliente.primer_login:
                 return redirect(url_for('cliente.cambiar_password'))
             return redirect(url_for('cliente.dashboard'))
         
-        admin = Admin.query.filter_by(email=usuario).first()
+        admin = Admin.query.filter_by(email=usuario.lower()).first()
         if admin and check_password_hash(admin.password_hash, password):
             login_user(admin)
             return redirect(url_for('admin.dashboard'))
