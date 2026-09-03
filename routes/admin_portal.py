@@ -290,8 +290,18 @@ def eliminar_pago(id_pago):
 @login_required
 @admin_required
 def noticias():
-    noticias = Noticia.query.order_by(Noticia.fecha_publicacion.desc()).all()
-    return render_template('admin/noticias.html', noticias=noticias)
+    from services.table_pagination import paginate, is_ajax
+    q = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    query = Noticia.query.order_by(Noticia.fecha_publicacion.desc())
+    if q:
+        query = query.filter(Noticia.titulo.ilike(f'%{q}%'))
+    total, total_pages, noticias = paginate(query, page=page)
+    if is_ajax():
+        return jsonify(html=render_template('admin/_noticia_rows.html', noticias=noticias),
+                       total=total, total_pages=total_pages, page=page)
+    return render_template('admin/noticias.html', noticias=noticias, total=total,
+                           total_pages=total_pages, page=page, q=q)
 
 @admin_bp.route('/noticias/nueva', methods=['GET', 'POST'])
 @login_required

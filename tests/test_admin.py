@@ -251,3 +251,22 @@ def test_pagos_search_ajax(app, client):
     data = resp.get_json()
     assert data['total'] == 1
     assert b'Mensualidad octubre' in data['html'].encode()
+
+def test_noticias_has_search_and_pagination(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/noticias')
+    assert b'admin-search' in resp.data
+    assert b'adminTableBody' in resp.data
+
+def test_noticias_search_ajax(app, client):
+    _login_admin(client, app)
+    from models.noticia import Noticia
+    with app.app_context():
+        db.session.add(Noticia(titulo='Promo navideña', contenido='50% de descuento'))
+        db.session.add(Noticia(titulo='Cierre por mantenimiento', contenido='Reapertura pronto'))
+        db.session.commit()
+    resp = client.get('/vitelas/admin/noticias?q=navide', headers={'X-Requested-With': 'XMLHttpRequest'})
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['total'] == 1
+    assert b'Promo navide' in data['html'].encode()

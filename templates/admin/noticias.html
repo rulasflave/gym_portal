@@ -6,49 +6,39 @@
 
 {% block admin_content %}
 <div class="admin-toolbar">
-    <div class="admin-subtitle">Avisos y novedades para los clientes</div>
+    <div class="admin-subtitle" id="adminResultCount">{{ total }} registros</div>
     <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nueva_noticia') }}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nueva Noticia
     </a>
 </div>
 
+<input class="admin-search" type="text" id="adminSearch" placeholder="Buscar por título…"
+       aria-label="Buscar noticias" style="display:block; width:400px; max-width:100%; margin:0 auto 24px;" value="{{ q }}">
+
 <div class="admin-card" style="overflow-x:auto;">
-    {% if noticias %}
+    {% if not noticias %}
+    <div class="admin-empty">No hay noticias publicadas</div>
+    {% endif %}
     <table class="admin-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th>ID</th><th>Título</th><th>Fecha</th><th>Estado</th><th>Acciones</th>
             </tr>
         </thead>
-        <tbody>
-            {% for noticia in noticias %}
-            <tr>
-                <td>{{ noticia.id_noticia }}</td>
-                <td>{{ noticia.titulo }}</td>
-                <td>{{ noticia.fecha_publicacion.strftime('%d/%m/%Y') }}</td>
-                <td>
-                    {% if noticia.activa %}
-                    <span class="admin-chip admin-chip-success">Activa</span>
-                    {% else %}
-                    <span class="admin-chip admin-chip-danger">Inactiva</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_noticia', id_noticia=noticia.id_noticia) }}">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
+        <tbody id="adminTableBody" data-total="{{ total }}" data-total-pages="{{ total_pages }}" data-page="{{ page }}">
+            {% include 'admin/_noticia_rows.html' %}
         </tbody>
     </table>
-    {% else %}
-    <div class="admin-empty">No hay noticias publicadas</div>
-    {% endif %}
 </div>
+
+<div class="admin-pagination" id="adminPagination" style="display:flex; gap:10px; align-items:center; justify-content:center; margin-top:16px;">
+    <button class="admin-btn admin-btn-secondary" data-page="{{ page-1 }}" {{ 'disabled' if page <= 1 }}>← Anterior</button>
+    <span style="color: var(--text-secondary);" id="adminPageInfo">Página {{ page }} de {{ total_pages }}</span>
+    <button class="admin-btn admin-btn-secondary" data-page="{{ page+1 }}" {{ 'disabled' if page >= total_pages }}>Siguiente →</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_table.js') }}"></script>
 {% endblock %}
