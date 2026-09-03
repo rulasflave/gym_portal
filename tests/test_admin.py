@@ -115,3 +115,15 @@ def test_admin_pago_form_renders(app, client):
     resp = client.get('/vitelas/admin/pagos/nuevo')
     assert b'admin-select' in resp.data
     assert b'metodo_pago' in resp.data
+
+def test_admin_noticias_lists_table(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from extensions import db
+        from models.noticia import Noticia
+        if not Noticia.query.first():
+            noticia = Noticia(titulo='Noticia Test', contenido='Contenido de prueba')
+            db.session.add(noticia)
+            db.session.commit()
+    resp = client.get('/vitelas/admin/noticias')
+    assert b'admin-table' in resp.data
