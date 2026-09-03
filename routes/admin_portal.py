@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response, jsonify
 from flask_login import login_required, current_user
 from models.cliente import Cliente
 from models.asistencia import Asistencia
@@ -62,7 +62,6 @@ def clientes():
     total, total_pages, clientes = paginate(query, page=page)
 
     if is_ajax():
-        from flask import jsonify
         rows_html = render_template('admin/_table_rows.html', clientes=clientes)
         return jsonify(html=rows_html, total=total, total_pages=total_pages, page=page)
 
