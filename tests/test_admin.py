@@ -161,8 +161,9 @@ def test_admin_noticia_form_renders(app, client):
 def test_admin_reportes_renders(app, client):
     _login_admin(client, app)
     resp = client.get('/vitelas/admin/reportes')
-    assert b'admin-card-grid' in resp.data
-    assert b'Descargar PDF' in resp.data
+    assert b'admin-table' in resp.data
+    assert b'Reporte de Clientes' in resp.data
+    assert b'Reporte de Pagos' in resp.data
 
 def test_admin_configuracion_renders(app, client):
     _login_admin(client, app)
@@ -288,3 +289,12 @@ def test_config_recordatorios_form_shows_chat_ids_field(app, client):
     _login_admin(client, app)
     resp = client.get('/vitelas/admin/configuracion-recordatorios')
     assert b'Chat IDs' in resp.data
+
+def test_reportes_table(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/reportes')
+    assert b'admin-table' in resp.data
+    assert b'Reporte de Clientes' in resp.data
+    assert b'Reporte de Pagos' in resp.data
+    assert b'reporte_clientes_pdf' in resp.data or b'clientes/pdf' in resp.data
+    assert b'reporte_pagos_excel' in resp.data or b'pagos/excel' in resp.data
