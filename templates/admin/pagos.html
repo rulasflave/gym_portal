@@ -1,88 +1,64 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Pagos - Admin{% endblock %}
+{% block title %}Pagos - Vitellas Hub{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-money-bill-wave me-2" style="color: #f5c518;"></i>Pagos
-            </h2>
-            <a href="{{ url_for('admin.nuevo_pago') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Registrar Pago
-            </a>
-        </div>
+{% block page_title %}Pagos{% endblock %}
+
+{% block admin_content %}
+<div class="admin-toolbar">
+    <div class="admin-subtitle">Historial de pagos</div>
+    <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_pago') }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registrar Pago
+    </a>
+</div>
+
+<div class="admin-card" style="overflow-x:auto;">
+    {% if pagos %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Empresa</th>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pago in pagos %}
+            <tr>
+                <td>{{ pago.id_pago }}</td>
+                <td>{{ pago.cliente.numero_registro }} - {{ pago.cliente.nombre_completo if pago.cliente else 'N/A' }}</td>
+                <td>{% if pago.cliente and pago.cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ pago.cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+                <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                <td>{{ pago.concepto }}</td>
+                <td style="color: var(--success); font-weight:700;">${{ "%.2f"|format(pago.monto) }}</td>
+                <td>{{ pago.metodo_pago }}</td>
+                <td>
+                    <div class="admin-actions">
+                        <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_pago', id_pago=pago.id_pago) }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.eliminar_pago', id_pago=pago.id_pago) }}" style="display:inline">
+                            <button type="submit" class="admin-icon-btn" title="Eliminar" onclick="return confirm('¿Eliminar pago de ${{ "%.2f"|format(pago.monto) }}?')" style="color: var(--danger);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="admin-empty">
+        No hay pagos registrados.
+        <div style="margin-top:12px;"><a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_pago') }}">Registrar primer pago</a></div>
     </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        <i class="fas fa-info-circle me-2"></i>{{ message }}
-    </div>
-    {% endfor %}
     {% endif %}
-    {% endwith %}
-
-    <div class="card fade-in">
-        <div class="card-body p-4">
-            {% if pagos %}
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-hashtag me-2"></i>ID</th>
-                            <th><i class="fas fa-user me-2"></i>Cliente</th>
-                            <th><i class="fas fa-building me-2"></i>Empresa</th>
-                            <th><i class="fas fa-calendar me-2"></i>Fecha</th>
-                            <th><i class="fas fa-tag me-2"></i>Concepto</th>
-                            <th><i class="fas fa-dollar-sign me-2"></i>Monto</th>
-                            <th><i class="fas fa-wallet me-2"></i>Método</th>
-                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pago in pagos %}
-                        <tr>
-                            <td>{{ pago.id_pago }}</td>
-                            <td>{{ pago.cliente.numero_registro }} - {{ pago.cliente.nombre_completo if pago.cliente else 'N/A' }}</td>
-                            <td>
-                                {% if pago.cliente and pago.cliente.empresa %}
-                                <span class="badge" style="background-color: #f5c518; color: #1a1a1a;">{{ pago.cliente.empresa }}</span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ pago.concepto }}</td>
-                            <td class="fw-bold" style="color: #28a745;">${{ "%.2f"|format(pago.monto) }}</td>
-                            <td>{{ pago.metodo_pago }}</td>
-                            <td>
-                                <a href="{{ url_for('admin.editar_pago', id_pago=pago.id_pago) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form method="POST" action="{{ url_for('admin.eliminar_pago', id_pago=pago.id_pago) }}" style="display:inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar pago de ${{ "%.2f"|format(pago.monto) }}?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-receipt fa-3x mb-3" style="color: #ccc;"></i>
-                <p class="text-muted">No hay pagos registrados</p>
-                <a href="{{ url_for('admin.nuevo_pago') }}" class="btn btn-primary mt-3">
-                    <i class="fas fa-plus me-2"></i>Registrar primer pago
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </div>
 {% endblock %}

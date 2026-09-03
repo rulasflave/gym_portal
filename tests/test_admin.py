@@ -89,3 +89,23 @@ def test_admin_cliente_qr_renders(app, client):
     resp = client.get(f'/vitelas/admin/clientes/{cl.id_cliente}/qr')
     assert b'admin-qr-box' in resp.data
     assert b'qr-image' in resp.data
+
+def test_admin_pagos_lists_table(app, client):
+    _login_admin(client, app)
+    with app.app_context():
+        from extensions import db
+        from models.cliente import Cliente
+        from models.pago import Pago
+        from werkzeug.security import generate_password_hash
+        from datetime import date
+        if not Pago.query.first():
+            cliente = Cliente(numero_registro='V003', nombre_completo='Cliente Pago',
+                              usuario_login='pago1', password_hash=generate_password_hash('test123'))
+            db.session.add(cliente)
+            db.session.commit()
+            pago = Pago(id_cliente=cliente.id_cliente, monto=100.0,
+                        fecha_pago=date.today(), concepto='Membresía', metodo_pago='Efectivo')
+            db.session.add(pago)
+            db.session.commit()
+    resp = client.get('/vitelas/admin/pagos')
+    assert b'admin-table' in resp.data
