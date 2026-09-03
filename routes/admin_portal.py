@@ -8,10 +8,12 @@ from models.configuracion_recordatorio import ConfiguracionRecordatorio
 from models.recordatorio_enviado import RecordatorioEnviado
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
+from PIL import Image
 from services.qr_service import generate_qr_code
 from services.notification_service import send_telegram
 from extensions import db
 from datetime import datetime, timedelta
+import io
 import os
 
 admin_bp = Blueprint('admin', __name__)
@@ -71,10 +73,17 @@ def clientes():
 
 def save_photo(file):
     if file and file.filename and allowed_file(file.filename):
-        data = file.read()
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        mime = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif'}.get(ext, 'image/jpeg')
-        return None, data, mime
+        try:
+            im = Image.open(file)
+            im.thumbnail((300, 300))
+            if im.mode in ('RGBA', 'LA', 'P'):
+                im = im.convert('RGB')
+            buf = io.BytesIO()
+            im.save(buf, format='JPEG', quality=80, optimize=True)
+            buf.seek(0)
+            return None, buf.read(), 'image/jpeg'
+        except Exception:
+            return None, None, None
     return None, None, None
 
 @admin_bp.route('/foto/<int:id_cliente>')

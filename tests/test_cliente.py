@@ -1,4 +1,5 @@
 import pytest
+from PIL import Image
 from datetime import date, datetime, timezone
 from werkzeug.security import generate_password_hash
 from extensions import db
@@ -270,47 +271,76 @@ def test_perfil_actualizar_no_cambia_campos_admin(app, client):
         assert cliente.fecha_fin_membresia != date(2099, 12, 31)
 
 
+def _imagen_upload(f1):
+    from io import BytesIO
+    img = Image.new('RGB', (1200, 900), (200, 40, 40))
+    img.save(f1, format='PNG')
+    f1.seek(0)
+    return (f1, 'foto.png')
+
+
 def test_perfil_actualizar_foto_uploads(app, client):
     import io
     _login_cliente(app, client, 'V103')
 
-    png = b'\x89PNG\r\n\x1a\n' + b'x' * 100
+    png = _imagen_upload(io.BytesIO())
     response = client.post('/vitelas/portal/perfil/actualizar', data={
         'nombre_completo': 'Foto User',
-        'foto': (io.BytesIO(png), 'foto.png')
+        'foto': png
     }, content_type='multipart/form-data', follow_redirects=True)
     assert response.status_code == 200
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V103').one()
         assert cliente.foto_data is not None
-        assert cliente.foto_mime == 'image/png'
+        assert cliente.foto_mime == 'image/jpeg'
+
+
+def test_perfil_foto_redimensiona_y_pesa_menos_al_subir(app, client):
+    import io
+    _login_cliente(app, client, 'V105')
+
+    original = io.BytesIO()
+    Image.new('RGB', (1200, 900), (200, 40, 40)).save(original, format='PNG')
+    tamano_original = len(original.getbuffer())
+    original.seek(0)
+
+    client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'Opt User',
+        'foto': (original, 'foto.png')
+    }, content_type='multipart/form-data', follow_redirects=True)
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(usuario_login='V105').one()
+        assert cliente.foto_mime == 'image/jpeg'
+        assert len(cliente.foto_data) < tamano_original
+        img = Image.open(io.BytesIO(cliente.foto_data))
+        assert img.width <= 300 and img.height <= 300
+        assert img.format == 'JPEG'
 
 
 def test_perfil_actualizar_nueva_foto_reemplaza_actual(app, client):
     import io
     _login_cliente(app, client, 'V104')
 
-    foto_a = b'\x89PNG\r\n\x1a\n' + b'a' * 100
     r1 = client.post('/vitelas/portal/perfil/actualizar', data={
         'nombre_completo': 'Con Foto',
-        'foto': (io.BytesIO(foto_a), 'foto_a.png')
+        'foto': _imagen_upload(io.BytesIO())
     }, content_type='multipart/form-data', follow_redirects=True)
     assert r1.status_code == 200
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V104').one()
-        assert cliente.foto_data == foto_a
-        assert cliente.foto_mime == 'image/png'
+        assert cliente.foto_data is not None
+        assert cliente.foto_mime == 'image/jpeg'
 
-    foto_b = b'\x89PNG\r\n\x1a\n' + b'b' * 100
     r2 = client.post('/vitelas/portal/perfil/actualizar', data={
         'nombre_completo': 'Con Foto',
-        'foto': (io.BytesIO(foto_b), 'foto_b.png')
+        'foto': _imagen_upload(io.BytesIO())
     }, content_type='multipart/form-data', follow_redirects=True)
     assert r2.status_code == 200
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V104').one()
-        assert cliente.foto_data == foto_b
-        assert cliente.foto_mime == 'image/png'
+        assert cliente.foto_data is not None
+        assert cliente.foto_mime == 'image/jpeg'
