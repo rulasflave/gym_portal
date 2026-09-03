@@ -73,3 +73,19 @@ def test_admin_cliente_form_renders(app, client):
     resp = client.get('/vitelas/admin/clientes/nuevo')
     assert b'admin-form-grid' in resp.data
     assert b'nombre_completo' in resp.data
+
+def test_admin_cliente_qr_renders(app, client):
+    _login_admin(client, app)
+    from models.cliente import Cliente
+    from werkzeug.security import generate_password_hash
+    with app.app_context():
+        from extensions import db
+        if not Cliente.query.first():
+            cl = Cliente(numero_registro='V002', nombre_completo='QR User',
+                         usuario_login='qruser', password_hash=generate_password_hash('test123'))
+            db.session.add(cl)
+            db.session.commit()
+        cl = Cliente.query.first()
+    resp = client.get(f'/vitelas/admin/clientes/{cl.id_cliente}/qr')
+    assert b'admin-qr-box' in resp.data
+    assert b'qr-image' in resp.data
