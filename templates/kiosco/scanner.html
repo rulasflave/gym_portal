@@ -265,7 +265,7 @@
             function volverAlInicio() {
                 if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
                 $('#confettiWrap').empty();
-                $('#result-view').html('').removeClass('show').hide();
+                $('#result-view').html('').removeClass('show').removeAttr('style');
                 $('#manual-entry').show();
                 $('#validar-btn').prop('disabled', false).text('Validar');
                 $('#codigo-input').val('').focus();
