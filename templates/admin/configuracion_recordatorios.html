@@ -1,60 +1,40 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 {% block title %}Configuración de Recordatorios{% endblock %}
-{% block content %}
-<div class="container mt-4">
-    <h2><i class="fas fa-cog me-2"></i>Configuración de Recordatorios</h2>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="card">
-        <div class="card-body">
-            <form method="POST">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Días antes del vencimiento</label>
-                        <input type="number" name="dias_antes" class="form-control"
-                               value="{{ config.dias_antes }}" min="1" max="30">
-                        <small class="text-muted">Enviar recordatorio X días antes de vencer</small>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Horario de envío</label>
-                        <input type="time" name="horario_envio" class="form-control"
-                               value="{{ config.horario_envio }}">
-                        <small class="text-muted">Hora diaria de envío automático</small>
-                    </div>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" name="activo" class="form-check-input"
-                           {{ 'checked' if config.activo }}>
-                    <label class="form-check-label">Envío automático activo</label>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Mensaje de recordatorio</label>
-                    <textarea name="mensaje_recordatorio" class="form-control" rows="4">{{ config.mensaje_recordatorio }}</textarea>
-                    <small class="text-muted">
-                        Variables disponibles: <code>{nombre}</code>, <code>{tipo}</code>, <code>{días}</code>, <code>{fecha}</code>
-                    </small>
-                </div>
-
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Telegram:</strong> Los recordatorios se envían al chat ID configurado en las variables de entorno.
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i>Guardar configuración
-                </button>
-            </form>
+{% block page_title %}Configuración de Recordatorios{% endblock %}
+{% block admin_content %}
+<div class="admin-card" style="max-width:680px;">
+    <form method="POST">
+        <div class="admin-form-grid">
+            <div>
+                <label class="admin-label">Días antes del vencimiento</label>
+                <input class="admin-input" type="number" name="dias_antes" value="{{ config.dias_antes }}" min="1" max="30">
+                <small style="color: var(--text-secondary);">Enviar recordatorio X días antes de vencer</small>
+            </div>
+            <div>
+                <label class="admin-label">Horario de envío</label>
+                <input class="admin-input" type="time" name="horario_envio" value="{{ config.horario_envio }}">
+                <small style="color: var(--text-secondary);">Hora diaria de envío automático</small>
+            </div>
         </div>
-    </div>
+
+        <div style="margin-top:16px; display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" name="activo" {{ 'checked' if config.activo }}>
+            <label class="admin-label" style="margin:0;">Envío automático activo</label>
+        </div>
+
+        <div style="margin-top:16px;">
+            <label class="admin-label">Mensaje de recordatorio</label>
+            <textarea class="admin-textarea" name="mensaje_recordatorio" rows="4">{{ config.mensaje_recordatorio }}</textarea>
+            <small style="color: var(--text-secondary);">Variables: <code>{nombre}</code>, <code>{tipo}</code>, <code>{días}</code>, <code>{fecha}</code></small>
+        </div>
+
+        <div class="admin-flash admin-flash-success" style="margin-top:16px;">
+            <strong>Telegram:</strong> Los recordatorios se envían al chat ID configurado en las variables de entorno.
+        </div>
+
+        <div style="margin-top:16px;">
+            <button type="submit" class="admin-btn admin-btn-primary">Guardar configuración</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
