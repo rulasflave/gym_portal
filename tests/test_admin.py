@@ -223,3 +223,31 @@ def test_clientes_pagination_ajax(app, client):
     # Página 2 en PER_PAGE=20: filas 21-25 (V021..V025)
     assert b'V021' in data['html'].encode()
     assert b'V011' not in data['html'].encode()
+
+def test_pagos_has_search_and_pagination(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/pagos')
+    assert b'admin-search' in resp.data
+    assert b'adminTableBody' in resp.data
+    assert b'data-total' in resp.data
+
+def test_pagos_search_ajax(app, client):
+    _login_admin(client, app)
+    from models.cliente import Cliente
+    from models.pago import Pago
+    from werkzeug.security import generate_password_hash
+    from datetime import date, timedelta
+    with app.app_context():
+        c = Cliente(
+            numero_registro='V001', nombre_completo='Cliente Uno',
+            usuario_login='v1', password_hash=generate_password_hash('x'))
+        db.session.add(c)
+        db.session.flush()
+        db.session.add(Pago(id_cliente=c.id_cliente, monto=100, fecha_pago=date.today(),
+                            concepto='Mensualidad octubre', metodo_pago='Efectivo'))
+        db.session.commit()
+    resp = client.get('/vitelas/admin/pagos?q=Mensualidad octubre', headers={'X-Requested-With': 'XMLHttpRequest'})
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['total'] == 1
+    assert b'Mensualidad octubre' in data['html'].encode()

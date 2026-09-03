@@ -209,8 +209,24 @@ def editar_cliente(id_cliente):
 @login_required
 @admin_required
 def pagos():
-    pagos = Pago.query.order_by(Pago.fecha_pago.desc()).all()
-    return render_template('admin/pagos.html', pagos=pagos)
+    from services.table_pagination import paginate, is_ajax
+    q = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    query = Pago.query.join(Cliente, Pago.id_cliente == Cliente.id_cliente).order_by(Pago.fecha_pago.desc())
+    if q:
+        like = f'%{q}%'
+        query = query.filter(db.or_(
+            Cliente.numero_registro.ilike(like),
+            Cliente.nombre_completo.ilike(like),
+            Pago.concepto.ilike(like),
+            Pago.metodo_pago.ilike(like),
+        ))
+    total, total_pages, pagos = paginate(query, page=page)
+    if is_ajax():
+        return jsonify(html=render_template('admin/_pago_rows.html', pagos=pagos),
+                       total=total, total_pages=total_pages, page=page)
+    return render_template('admin/pagos.html', pagos=pagos, total=total,
+                           total_pages=total_pages, page=page, q=q)
 
 @admin_bp.route('/pagos/nuevo', methods=['GET', 'POST'])
 @login_required

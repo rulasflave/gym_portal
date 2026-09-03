@@ -6,59 +6,40 @@
 
 {% block admin_content %}
 <div class="admin-toolbar">
-    <div class="admin-subtitle">Historial de pagos</div>
+    <div class="admin-subtitle" id="adminResultCount">{{ total }} registros</div>
     <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_pago') }}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Registrar Pago
     </a>
 </div>
 
+<input class="admin-search" type="text" id="adminSearch" placeholder="Buscar por cliente, concepto o método…"
+       aria-label="Buscar pagos" style="display:block; width:400px; max-width:100%; margin:0 auto 24px;" value="{{ q }}">
+
 <div class="admin-card" style="overflow-x:auto;">
-    {% if pagos %}
+    {% if not pagos %}
+    <div class="admin-empty">No hay pagos registrados</div>
+    {% endif %}
     <table class="admin-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Empresa</th>
-                <th>Fecha</th>
-                <th>Concepto</th>
-                <th>Monto</th>
-                <th>Método</th>
-                <th>Acciones</th>
+                <th>ID</th><th>Cliente</th><th>Empresa</th><th>Fecha</th>
+                <th>Concepto</th><th>Monto</th><th>Método</th><th>Acciones</th>
             </tr>
         </thead>
-        <tbody>
-            {% for pago in pagos %}
-            <tr>
-                <td>{{ pago.id_pago }}</td>
-                <td>{{ pago.cliente.numero_registro }} - {{ pago.cliente.nombre_completo if pago.cliente else 'N/A' }}</td>
-                <td>{% if pago.cliente and pago.cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ pago.cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
-                <td>{{ pago.fecha_pago.strftime('%d/%m/%Y') }}</td>
-                <td>{{ pago.concepto }}</td>
-                <td style="color: var(--success); font-weight:700;">${{ "%.2f"|format(pago.monto) }}</td>
-                <td>{{ pago.metodo_pago }}</td>
-                <td>
-                    <div class="admin-actions">
-                        <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_pago', id_pago=pago.id_pago) }}">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                        </a>
-                        <form method="POST" action="{{ url_for('admin.eliminar_pago', id_pago=pago.id_pago) }}" style="display:inline">
-                            <button type="submit" class="admin-icon-btn" title="Eliminar" onclick="return confirm('¿Eliminar pago de ${{ "%.2f"|format(pago.monto) }}?')" style="color: var(--danger);">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
+        <tbody id="adminTableBody" data-total="{{ total }}" data-total-pages="{{ total_pages }}" data-page="{{ page }}">
+            {% include 'admin/_pago_rows.html' %}
         </tbody>
     </table>
-    {% else %}
-    <div class="admin-empty">
-        No hay pagos registrados.
-        <div style="margin-top:12px;"><a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_pago') }}">Registrar primer pago</a></div>
-    </div>
-    {% endif %}
 </div>
+
+<div class="admin-pagination" id="adminPagination" style="display:flex; gap:10px; align-items:center; justify-content:center; margin-top:16px;">
+    <button class="admin-btn admin-btn-secondary" data-page="{{ page-1 }}" {{ 'disabled' if page <= 1 }}>← Anterior</button>
+    <span style="color: var(--text-secondary);" id="adminPageInfo">Página {{ page }} de {{ total_pages }}</span>
+    <button class="admin-btn admin-btn-secondary" data-page="{{ page+1 }}" {{ 'disabled' if page >= total_pages }}>Siguiente →</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_table.js') }}"></script>
 {% endblock %}
