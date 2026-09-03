@@ -133,3 +133,9 @@ def test_admin_noticia_form_renders(app, client):
     resp = client.get('/vitelas/admin/noticias/nueva')
     assert b'admin-textarea' in resp.data
     assert b'contenido' in resp.data
+
+def test_admin_reportes_renders(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/reportes')
+    assert b'admin-card-grid' in resp.data
+    assert b'Descargar PDF' in resp.data

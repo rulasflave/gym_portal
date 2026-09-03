@@ -1,56 +1,28 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Reportes - Admin{% endblock %}
+{% block title %}Reportes - Vitellas Hub{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold" style="color: #1a1a1a;">
-                <i class="fas fa-chart-bar me-2" style="color: #f5c518;"></i>Reportes
-            </h2>
+{% block page_title %}Reportes{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card-grid">
+    <div class="admin-card" style="text-align:center;">
+        <div style="width:42px;height:42px;border-radius:10px;background:#200f12;color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
+        <div style="color:var(--text); font-weight:600;">Reporte de Clientes</div>
+        <div class="admin-subtitle" style="margin:6px 0 14px;">Exportar lista completa de clientes</div>
+        <a class="admin-btn admin-btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;" href="{{ url_for('admin.reporte_clientes_pdf') }}">Descargar PDF</a>
+        <a class="admin-btn admin-btn-secondary" style="width:100%; justify-content:center; color:var(--success);" href="{{ url_for('admin.reporte_clientes_excel') }}">Descargar Excel</a>
     </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card fade-in h-100">
-                <div class="card-header text-center">
-                    <i class="fas fa-file-pdf fa-2x mb-2" style="color: #f5c518;"></i>
-                    <h5 class="mb-0">Reporte de Clientes</h5>
-                </div>
-                <div class="card-body text-center">
-                    <p class="text-muted">Exportar lista completa de clientes</p>
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="{{ url_for('admin.reporte_clientes_pdf') }}" class="btn btn-primary">
-                            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
-                        </a>
-                        <a href="{{ url_for('admin.reporte_clientes_excel') }}" class="btn btn-success">
-                            <i class="fas fa-file-excel me-2"></i>Descargar Excel
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <div class="admin-card" style="text-align:center;">
+        <div style="width:42px;height:42px;border-radius:10px;background:#10231a;color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card fade-in h-100">
-                <div class="card-header text-center">
-                    <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #f5c518;"></i>
-                    <h5 class="mb-0">Reporte de Pagos</h5>
-                </div>
-                <div class="card-body text-center">
-                    <p class="text-muted">Exportar historial de pagos</p>
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="{{ url_for('admin.reporte_pagos_pdf') }}" class="btn btn-primary">
-                            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
-                        </a>
-                        <a href="{{ url_for('admin.reporte_pagos_excel') }}" class="btn btn-success">
-                            <i class="fas fa-file-excel me-2"></i>Descargar Excel
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div style="color:var(--text); font-weight:600;">Reporte de Pagos</div>
+        <div class="admin-subtitle" style="margin:6px 0 14px;">Exportar historial de pagos</div>
+        <a class="admin-btn admin-btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;" href="{{ url_for('admin.reporte_pagos_pdf') }}">Descargar PDF</a>
+        <a class="admin-btn admin-btn-secondary" style="width:100%; justify-content:center; color:var(--success);" href="{{ url_for('admin.reporte_pagos_excel') }}">Descargar Excel</a>
     </div>
 </div>
 {% endblock %}
