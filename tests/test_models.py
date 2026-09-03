@@ -132,3 +132,13 @@ def test_dias_vencido_property(app):
         assert cliente_vencido.dias_vencido == 6
         assert cliente_activo.dias_vencido is None
         assert cliente_sin_fecha.dias_vencido is None
+
+
+def test_chat_ids_persisted(app):
+    with app.app_context():
+        from models.configuracion_recordatorio import ConfiguracionRecordatorio
+        config = ConfiguracionRecordatorio.get_config()
+        config.chat_ids = '111,222'
+        db.session.commit()
+        cfg2 = ConfiguracionRecordatorio.get_config()
+        assert cfg2.chat_ids == '111,222'

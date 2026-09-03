@@ -64,6 +64,23 @@ def migrate_config_column(app):
                 db.session.rollback()
             except Exception:
                 pass
+        try:
+            result = db.session.execute(db.text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='configuracion_recordatorio' AND column_name='chat_ids'"
+            ))
+            if not result.fetchone():
+                db.session.execute(db.text(
+                    "ALTER TABLE configuracion_recordatorio ADD COLUMN chat_ids TEXT"
+                ))
+                db.session.commit()
+                print("Migrated: added chat_ids column to configuracion_recordatorio")
+        except Exception as e:
+            print(f"Migration chat_ids skip: {e}")
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)

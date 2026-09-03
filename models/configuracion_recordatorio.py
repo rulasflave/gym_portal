@@ -12,6 +12,7 @@ class ConfiguracionRecordatorio(db.Model):
         '¡Hola {nombre}! 💪 Tu membresía {tipo} vence en {días} días '
         '({fecha}). ¡Renueva pronto para seguir entrenando!'
     ))
+    chat_ids = db.Column(db.Text, nullable=True)
 
     @classmethod
     def get_config(cls):
