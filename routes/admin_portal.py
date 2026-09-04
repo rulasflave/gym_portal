@@ -91,6 +91,20 @@ def save_photo(file):
             return None, None, None
     return None, None, None
 
+
+def resize_image_to_base64(file, max_size=1200):
+    if not file or not file.filename:
+        return None
+    try:
+        im = Image.open(file).convert('RGB')
+        im.thumbnail((max_size, max_size))
+        buf = io.BytesIO()
+        im.save(buf, format='JPEG', quality=80, optimize=True)
+        raw = buf.getvalue()
+        return 'data:image/jpeg;base64,' + base64.b64encode(raw).decode('ascii')
+    except Exception:
+        return None
+
 @admin_bp.route('/foto/<int:id_cliente>')
 def foto_cliente(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
@@ -499,19 +513,17 @@ def enviar_recordatorio(id_cliente):
 @admin_required
 def nuevo_mensaje():
     from services.mensajeria import crear_mensaje
+    from services.sanitizer import sanitize_html
     if request.method == 'POST':
         id_cliente = int(request.form.get('id_cliente'))
         asunto = request.form.get('asunto', '').strip()
         cuerpo = request.form.get('cuerpo', '').strip()
         cliente = Cliente.query.get_or_404(id_cliente)
-        imagen_data = imagen_mime = None
-        if 'imagen' in request.files and request.files['imagen'].filename:
-            _, imagen_data, imagen_mime = save_photo(request.files['imagen'])
         if not asunto:
             flash('El asunto es obligatorio', 'error')
             return redirect(url_for('admin.nuevo_mensaje'))
-        crear_mensaje(cliente.id_cliente, asunto, cuerpo or '<p></p>',
-                      es_automatico=False, imagen_data=imagen_data, imagen_mime=imagen_mime)
+        crear_mensaje(cliente.id_cliente, asunto, sanitize_html(cuerpo) or '<p></p>',
+                      es_automatico=False)
         db.session.commit()
         flash(f'Mensaje enviado a {cliente.nombre_completo}', 'success')
         return redirect(url_for('admin.mensajes'))
