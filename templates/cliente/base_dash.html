@@ -139,7 +139,7 @@
             <div class="modal-form-grid">
                 <div class="field">
                     <span class="m-label">Nombre completo *</span>
-                    <input class="m-input" type="text" name="nombre_completo" value="{{ current_user.nombre_completo }}" required>
+                    <input class="m-input" type="text" name="nombre_completo" value="{{ current_user.nombre_completo }}" readonly disabled>
                 </div>
                 <div class="field">
                     <span class="m-label">Nickname</span>
@@ -155,7 +155,7 @@
                 </div>
                 <div class="field">
                     <span class="m-label">Fecha de nacimiento</span>
-                    <input class="m-input" type="date" name="fecha_nacimiento" value="{{ current_user.fecha_nacimiento.strftime('%Y-%m-%d') if current_user.fecha_nacimiento else '' }}">
+                    <input class="m-input" type="date" name="fecha_nacimiento" value="{{ current_user.fecha_nacimiento.strftime('%Y-%m-%d') if current_user.fecha_nacimiento else '' }}" readonly disabled>
                 </div>
                 <div class="field">
                     <span class="m-label">Contacto de emergencia</span>

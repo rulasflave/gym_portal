@@ -117,3 +117,43 @@ def test_dashboard_objetivo_mensual_es_24(app, client):
     resp = client.get('/vitelas/portal/dashboard')
     assert resp.status_code == 200
     assert b'/24' in resp.data
+
+
+def test_perfil_nombre_y_fecha_no_editables(app, client):
+    _login_dashboard(app, client, num='V911', nombre='Bloqueo User')
+    resp = client.get('/vitelas/portal/dashboard')
+    assert resp.status_code == 200
+    data = resp.data
+    idx_name = data.find(b'name="nombre_completo"')
+    idx_date = data.find(b'name="fecha_nacimiento"')
+    assert idx_name != -1
+    assert idx_date != -1
+    nombre_tag = data[idx_name - 160:idx_name + 120]
+    fecha_tag = data[idx_date - 160:idx_date + 120]
+    assert b'readonly' in nombre_tag
+    assert b'disabled' in nombre_tag
+    assert b'readonly' in fecha_tag
+    assert b'disabled' in fecha_tag
+
+
+def test_perfil_actualizar_no_cambia_nombre_ni_fecha(app, client):
+    _login_dashboard(app, client, num='V912', nombre='Original Name')
+    with app.app_context():
+        c = Cliente.query.filter_by(numero_registro='V912').first()
+        c.fecha_nacimiento = date(1995, 5, 5)
+        c.nickname = 'Snicker'
+        c.telefono = '111111'
+        db.session.commit()
+    resp = client.post('/vitelas/portal/perfil/actualizar', data={
+        'nombre_completo': 'HACKED NAME',
+        'fecha_nacimiento': '2000-01-01',
+        'nickname': 'NuevoNick',
+        'telefono': '222222',
+    }, follow_redirects=True)
+    assert resp.status_code == 200
+    with app.app_context():
+        c = Cliente.query.filter_by(numero_registro='V912').first()
+        assert c.nombre_completo == 'Original Name'
+        assert c.fecha_nacimiento == date(1995, 5, 5)
+        assert c.nickname == 'NuevoNick'
+        assert c.telefono == '222222'

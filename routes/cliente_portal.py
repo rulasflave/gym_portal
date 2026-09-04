@@ -53,27 +53,11 @@ def perfil():
 @cliente_bp.route('/perfil/actualizar', methods=['POST'])
 @login_required
 def perfil_actualizar():
-    nombre_completo = request.form.get('nombre_completo', '').strip()
-    if not nombre_completo:
-        flash('El nombre completo es obligatorio', 'error')
-        return redirect(url_for('cliente.dashboard'))
-
-    current_user.nombre_completo = nombre_completo
     current_user.nickname = request.form.get('nickname', '').strip() or None
     current_user.telefono = request.form.get('telefono', '').strip() or None
     current_user.email = request.form.get('email', '').strip() or None
     current_user.contacto_emergencia = request.form.get('contacto_emergencia', '').strip() or None
     current_user.lesiones_medicas = request.form.get('lesiones_medicas', '').strip() or None
-
-    fecha_nacimiento = request.form.get('fecha_nacimiento', '').strip()
-    if fecha_nacimiento:
-        try:
-            current_user.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
-        except ValueError:
-            flash('Formato de fecha inválido', 'error')
-            return redirect(url_for('cliente.dashboard'))
-    else:
-        current_user.fecha_nacimiento = None
 
     if 'foto' in request.files and request.files['foto'].filename:
         foto_url, foto_data, foto_mime = save_photo(request.files['foto'])
