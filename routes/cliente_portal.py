@@ -24,7 +24,7 @@ def dashboard():
         Asistencia.fecha_hora_entrada < inicio_siguiente
     ).count()
 
-    objetivo_mensual = 16  # default; configurable más adelante
+    objetivo_mensual = 24  # 24 asistencias = 100% del objetivo mensual
     pct_donut = round(min(100, asistencias_del_mes / objetivo_mensual * 100))
 
     visitas = Asistencia.query.filter_by(id_cliente=current_user.id_cliente)\

@@ -110,3 +110,10 @@ def test_dashboard_has_mobile_drawer_logic(app, client):
     assert "toggleClass('open')" in decoded
     assert "removeClass('open')" in decoded
     assert b'sidebar-menu' in resp.data
+
+
+def test_dashboard_objetivo_mensual_es_24(app, client):
+    _login_dashboard(app, client, num='V910', nombre='Objetivo User')
+    resp = client.get('/vitelas/portal/dashboard')
+    assert resp.status_code == 200
+    assert b'/24' in resp.data
