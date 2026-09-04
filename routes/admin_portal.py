@@ -644,23 +644,4 @@ def rechazar_solicitud(id_solicitud):
     return redirect(url_for('admin.solicitudes'))
 
 
-@admin_bp.route('/pagos/cargar', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def cargar_pago():
-    if request.method == 'POST':
-        id_cliente = request.form.get('id_cliente')
-        monto = request.form.get('monto', '').strip()
-        cliente = Cliente.query.get_or_404(int(id_cliente))
-        _, vo_data, vo_mime = save_photo(request.files.get('voucher'))
-        ctx = {'mime': vo_mime, 'data': base64.b64encode(vo_data).decode('ascii')} if vo_data else {}
-        if monto:
-            ctx['monto'] = monto
-        SolicitudValidacion.cancelar_pendiente(cliente.id_cliente, 'pago')
-        db.session.add(SolicitudValidacion(
-            id_cliente=cliente.id_cliente, tipo='pago', estado='pendiente', contexto=json.dumps(ctx)))
-        db.session.commit()
-        flash(f'Pago cargado para {cliente.nombre_completo}. Revisa la central para autorizarlo.', 'success')
-        return redirect(url_for('admin.solicitudes'))
-    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
-    return render_template('admin/cargar_pago.html', clientes=clientes)
+

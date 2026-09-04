@@ -2,7 +2,10 @@
 {% block title %}Pagos · Vitellas Hub{% endblock %}
 {% block content %}
 <div class="card">
-  <span class="card-title">MIS PAGOS</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span class="card-title">MIS PAGOS</span>
+    <a href="{{ url_for('cliente.pagos_cargar') }}" style="padding:8px 14px;background:#B11A1A;color:#fff;border:none;border-radius:6px;text-decoration:none;">+ Cargar pago</a>
+  </div>
   <div style="overflow-x:auto;">
     <table style="width:100%;border-collapse:collapse;font-size:14px;">
       <thead>

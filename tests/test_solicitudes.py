@@ -106,14 +106,19 @@ def test_subir_foto_crea_solicitud_pendiente(app, client):
         assert s.estado == 'pendiente'
 
 
-def test_cargar_pago_crea_solicitud_voucher(app, client):
+def test_cliente_carga_pago_crea_solicitud(app, client):
+    import io
+    from PIL import Image
     cid = _cliente(app, num='V605')
-    _login_admin(app, client, email='soladmin2@test.com')
-    r = client.post('/vitelas/admin/pagos/cargar', data={
-        'id_cliente': str(cid),
-        'monto': '500',
-    })
-    assert r.status_code in (302, 200)
+    client.post('/vitelas/login', data={'usuario': 'V605', 'password': 'test123'})
+    f1 = io.BytesIO()
+    img = Image.new('RGB', (800, 600), (20, 120, 200))
+    img.save(f1, format='PNG')
+    f1.seek(0)
+    r = client.post('/vitelas/portal/pagos/cargar',
+                    data={'monto': '500', 'voucher': (f1, 'voucher.png')},
+                    content_type='multipart/form-data', follow_redirects=True)
+    assert r.status_code == 200
     with app.app_context():
         s = SolicitudValidacion.pendiente_para(cid, 'pago')
         assert s is not None

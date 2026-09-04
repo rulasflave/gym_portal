@@ -1,0 +1,25 @@
+{% extends "cliente/base_dash.html" %}
+{% block title %}Cargar Pago · Vitellas Hub{% endblock %}
+{% block content %}
+<div class="card">
+  <span class="card-title">CARGAR PAGO</span>
+  <div style="max-width:560px;">
+    <form method="POST" enctype="multipart/form-data">
+      <div style="margin-bottom:16px;">
+        <label style="color:#8E8E8E;font-size:13px;">Monto (opcional)</label>
+        <input type="text" name="monto" inputmode="decimal"
+               placeholder="Ej: 500" style="width:100%;padding:10px;">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="color:#8E8E8E;font-size:13px;">Comprobante (voucher)</label>
+        <input type="file" name="voucher" accept="image/png,image/jpeg,image/gif"
+               style="display:block;margin-top:6px;" required>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:16px;">
+        <button type="submit" style="padding:10px 18px;background:#B11A1A;color:#fff;border:none;border-radius:6px;">Enviar pago</button>
+        <a href="{{ url_for('cliente.pagos') }}" style="padding:10px 18px;background:#2b2b2b;color:#fff;border:none;border-radius:6px;">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

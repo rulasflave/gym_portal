@@ -98,6 +98,28 @@ def pagos():
         .order_by(Pago.fecha_pago.desc()).all()
     return render_template('cliente/pagos.html', pagos=pagos)
 
+
+@cliente_bp.route('/pagos/cargar', methods=['GET', 'POST'])
+@login_required
+def pagos_cargar():
+    if request.method == 'POST':
+        monto = request.form.get('monto', '').strip()
+        _, vo_data, vo_mime = save_photo(request.files.get('voucher'))
+        ctx = {'mime': vo_mime, 'data': base64.b64encode(vo_data).decode('ascii')} if vo_data else {}
+        if monto:
+            ctx['monto'] = monto
+        if not vo_data:
+            flash('Adjunta una foto del comprobante de pago', 'error')
+            return render_template('cliente/pagos_cargar.html')
+        SolicitudValidacion.cancelar_pendiente(current_user.id_cliente, 'pago')
+        db.session.add(SolicitudValidacion(
+            id_cliente=current_user.id_cliente, tipo='pago',
+            estado='pendiente', contexto=json.dumps(ctx)))
+        db.session.commit()
+        flash('Pago enviado. A la espera de aprobación', 'success')
+        return redirect(url_for('cliente.pagos'))
+    return render_template('cliente/pagos_cargar.html')
+
 @cliente_bp.route('/noticias')
 @login_required
 def noticias():
