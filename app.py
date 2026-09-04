@@ -81,6 +81,23 @@ def migrate_config_column(app):
                 db.session.rollback()
             except Exception:
                 pass
+        try:
+            result = db.session.execute(db.text(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name='clientes' AND column_name='horario'"
+            ))
+            if not result.fetchone():
+                db.session.execute(db.text(
+                    "ALTER TABLE clientes ADD COLUMN horario VARCHAR(20)"
+                ))
+                db.session.commit()
+                print("Migrated: added horario column to clientes")
+        except Exception as e:
+            print(f"Migration horario skip: {e}")
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)
