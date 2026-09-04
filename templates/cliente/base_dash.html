@@ -80,25 +80,27 @@
                 <p class="hello-sub">Cada entrenamiento te acerca a tu mejor versión.</p>
             </div>
             <div class="header-right">
-                <button class="icon-btn" type="button" id="inboxToggle" aria-label="Correo">
+                <div class="inbox-wrap">
+                    <button class="icon-btn" type="button" id="inboxToggle" aria-label="Correo">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     {% if mensajes_no_leidos %}
                     <span class="notif-badge" id="inboxBadge">{{ mensajes_no_leidos }}</span>
                     {% endif %}
-                </button>
-                <div class="inbox-popover" id="inboxPopover" hidden>
-                    <div class="inbox-popover-head">Mensajes</div>
-                    <ul class="inbox-popover-list">
-                        {% for m in mensajes_recientes %}
-                        <li><a href="{{ url_for('cliente.bandeja', abrir=m.id_mensaje) }}">
-                            <div class="inbox-subj">{{ m.asunto }}</div>
-                            <div class="inbox-brief">{{ m.cuerpo|striptags|truncate(40) }}</div>
-                        </a></li>
-                        {% else %}
-                        <li class="inbox-empty">Sin mensajes</li>
-                        {% endfor %}
-                    </ul>
-                    <a class="inbox-popover-footer" href="{{ url_for('cliente.bandeja') }}">Ver bandeja completa</a>
+                    </button>
+                    <div class="inbox-popover" id="inboxPopover" hidden>
+                        <div class="inbox-popover-head">Mensajes</div>
+                        <ul class="inbox-popover-list">
+                            {% for m in mensajes_recientes %}
+                            <li><a href="{{ url_for('cliente.bandeja', abrir=m.id_mensaje) }}">
+                                <div class="inbox-subj">{{ m.asunto }}</div>
+                                <div class="inbox-brief">{{ m.cuerpo|striptags|truncate(40) }}</div>
+                            </a></li>
+                            {% else %}
+                            <li class="inbox-empty">Sin mensajes</li>
+                            {% endfor %}
+                        </ul>
+                        <a class="inbox-popover-footer" href="{{ url_for('cliente.bandeja') }}">Ver bandeja completa</a>
+                    </div>
                 </div>
                 <div class="user-chip" id="userChip">
                     {% if current_user.foto_data or current_user.foto_url %}
