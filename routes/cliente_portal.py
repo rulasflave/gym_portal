@@ -4,10 +4,13 @@ from flask_login import login_required, current_user
 from models.asistencia import Asistencia
 from models.pago import Pago
 from models.noticia import Noticia
+from models.solicitud_validacion import SolicitudValidacion
 from werkzeug.security import generate_password_hash
 from services.qr_service import generate_qr_code
 from routes.admin_portal import save_photo
 from extensions import db
+import base64
+import json
 
 cliente_bp = Blueprint('cliente', __name__)
 
@@ -60,11 +63,14 @@ def perfil_actualizar():
     current_user.lesiones_medicas = request.form.get('lesiones_medicas', '').strip() or None
 
     if 'foto' in request.files and request.files['foto'].filename:
-        foto_url, foto_data, foto_mime = save_photo(request.files['foto'])
+        _, foto_data, foto_mime = save_photo(request.files['foto'])
         if foto_data:
-            current_user.foto_data = foto_data
-            current_user.foto_mime = foto_mime
-            current_user.foto_url = None
+            SolicitudValidacion.cancelar_pendiente(current_user.id_cliente, 'foto')
+            contexto = json.dumps({'mime': foto_mime, 'data': base64.b64encode(foto_data).decode('ascii')})
+            db.session.add(SolicitudValidacion(
+                id_cliente=current_user.id_cliente, tipo='foto',
+                estado='pendiente', contexto=contexto))
+            flash('Foto enviada, a la espera de aprobación', 'success')
 
     db.session.commit()
     flash('Tus datos fueron actualizados', 'success')

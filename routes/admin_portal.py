@@ -7,15 +7,19 @@ from models.noticia import Noticia
 from models.configuracion_recordatorio import ConfiguracionRecordatorio
 from models.recordatorio_enviado import RecordatorioEnviado
 from models.mensaje import Mensaje
+from models.solicitud_validacion import SolicitudValidacion
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
 from services.qr_service import generate_qr_code
 from services.notification_service import send_telegram
+from services.mensajeria import crear_mensaje
 from extensions import db
 from datetime import datetime, timedelta
 import io
 import os
+import base64
+import json
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -172,6 +176,7 @@ def eliminar_cliente(id_cliente):
         Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
         Pago.query.filter_by(id_cliente=cliente.id_cliente).delete()
         Mensaje.query.filter_by(id_cliente=cliente.id_cliente).delete()
+        SolicitudValidacion.query.filter_by(id_cliente=cliente.id_cliente).delete()
         db.session.flush()
         db.session.delete(cliente)
         db.session.commit()
@@ -530,3 +535,120 @@ def archivo_mensaje(id_mensaje):
     if not m.imagen_data:
         return ('', 404)
     return Response(m.imagen_data, mimetype=m.imagen_mime or 'image/jpeg')
+
+
+@admin_bp.route('/solicitudes')
+@login_required
+@admin_required
+def solicitudes():
+    pendientes = SolicitudValidacion.query.filter_by(estado='pendiente')\
+        .order_by(SolicitudValidacion.creado_en.desc()).all()
+    aprobadas = SolicitudValidacion.query.filter_by(estado='aprobado')\
+        .order_by(SolicitudValidacion.creado_en.desc()).all()
+    rechazadas = SolicitudValidacion.query.filter_by(estado='rechazado')\
+        .order_by(SolicitudValidacion.creado_en.desc()).all()
+    return render_template('admin/solicitudes.html',
+                           pendientes=pendientes, aprobadas=aprobadas,
+                           rechazadas=rechazadas)
+
+
+@admin_bp.route('/solicitudes/<int:id_solicitud>/archivo')
+def solicitud_archivo(id_solicitud):
+    s = SolicitudValidacion.query.get_or_404(id_solicitud)
+    try:
+        ctx = json.loads(s.contexto or '{}')
+    except (ValueError, TypeError):
+        ctx = {}
+    blob = ctx.get('data')
+    mime = ctx.get('mime', 'application/octet-stream')
+    if not blob:
+        return ('', 404)
+    try:
+        raw = base64.b64decode(blob)
+    except Exception:
+        return ('', 404)
+    return Response(raw, mimetype=mime)
+
+
+@admin_bp.route('/solicitudes/<int:id_solicitud>/aprobar', methods=['POST'])
+@login_required
+@admin_required
+def aprobar_solicitud(id_solicitud):
+    s = SolicitudValidacion.query.get_or_404(id_solicitud)
+    if s.estado != 'pendiente':
+        flash('La solicitud ya fue resuelta', 'error')
+        return redirect(url_for('admin.solicitudes'))
+    try:
+        ctx = json.loads(s.contexto or '{}')
+    except (ValueError, TypeError):
+        ctx = {}
+    if s.tipo == 'foto':
+        raw = base64.b64decode(ctx.get('data', '')) if ctx.get('data') else None
+        if not raw:
+            flash('La solicitud no tiene imagen válida', 'error')
+            return redirect(url_for('admin.solicitudes'))
+        s.cliente.foto_data = raw
+        s.cliente.foto_mime = ctx.get('mime', 'image/jpeg')
+        s.cliente.foto_url = None
+        crear_mensaje(s.id_cliente, 'Foto aprobada', '¡Tu foto fue aprobada ✅ Ya está actualizada en tu perfil!', es_automatico=True)
+        flash(f'Foto de {s.cliente.nombre_completo} aprobada', 'success')
+    elif s.tipo == 'pago':
+        fecha_pago = datetime.now().date()
+        base = s.cliente.fecha_fin_membresia if s.cliente.fecha_fin_membresia and s.cliente.fecha_fin_membresia > fecha_pago else fecha_pago
+        nuevo_fin = base + timedelta(days=30)
+        s.cliente.fecha_inicio_membresia = fecha_pago
+        s.cliente.fecha_fin_membresia = nuevo_fin
+        crear_mensaje(s.id_cliente, 'Pago aprobado',
+                      f'Tu pago fue aprobado ✅ Tu membrecía vence el {nuevo_fin.strftime("%d/%m/%Y")}.', es_automatico=True)
+        flash(f'Pago de {s.cliente.nombre_completo} aprobado. Membrecía vence {nuevo_fin.strftime("%d/%m/%Y")}', 'success')
+    else:
+        flash(f'Tipo de solicitud no soportado: {s.tipo}', 'error')
+        return redirect(url_for('admin.solicitudes'))
+    s.estado = 'aprobado'
+    s.resuelto_en = datetime.now()
+    db.session.commit()
+    return redirect(url_for('admin.solicitudes'))
+
+
+@admin_bp.route('/solicitudes/<int:id_solicitud>/rechazar', methods=['POST'])
+@login_required
+@admin_required
+def rechazar_solicitud(id_solicitud):
+    s = SolicitudValidacion.query.get_or_404(id_solicitud)
+    if s.estado != 'pendiente':
+        flash('La solicitud ya fue resuelta', 'error')
+        return redirect(url_for('admin.solicitudes'))
+    comentario = request.form.get('comentario', '').strip()
+    s.comentario_admin = comentario or None
+    s.estado = 'rechazado'
+    s.resuelto_en = datetime.now()
+    etiqueta = 'Foto' if s.tipo == 'foto' else ('Pago' if s.tipo == 'pago' else s.tipo)
+    cuerpo = f'Tu {etiqueta.lower()} fue rechazada.'
+    if comentario:
+        cuerpo += f' Motivo: {comentario}'
+    crear_mensaje(s.id_cliente, f'{etiqueta} rechazada', cuerpo, es_automatico=True)
+    db.session.commit()
+    flash(f'{etiqueta} de {s.cliente.nombre_completo} rechazada', 'warning')
+    return redirect(url_for('admin.solicitudes'))
+
+
+@admin_bp.route('/pagos/cargar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def cargar_pago():
+    if request.method == 'POST':
+        id_cliente = request.form.get('id_cliente')
+        monto = request.form.get('monto', '').strip()
+        cliente = Cliente.query.get_or_404(int(id_cliente))
+        _, vo_data, vo_mime = save_photo(request.files.get('voucher'))
+        ctx = {'mime': vo_mime, 'data': base64.b64encode(vo_data).decode('ascii')} if vo_data else {}
+        if monto:
+            ctx['monto'] = monto
+        SolicitudValidacion.cancelar_pendiente(cliente.id_cliente, 'pago')
+        db.session.add(SolicitudValidacion(
+            id_cliente=cliente.id_cliente, tipo='pago', estado='pendiente', contexto=json.dumps(ctx)))
+        db.session.commit()
+        flash(f'Pago cargado para {cliente.nombre_completo}. Revisa la central para autorizarlo.', 'success')
+        return redirect(url_for('admin.solicitudes'))
+    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
+    return render_template('admin/cargar_pago.html', clientes=clientes)

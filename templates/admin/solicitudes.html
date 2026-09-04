@@ -1,0 +1,87 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Central de Validación - Vitellas Hub{% endblock %}
+
+{% block page_title %}Central de Validación{% endblock %}
+
+{% block admin_content %}
+<div class="admin-toolbar">
+    <div class="admin-subtitle">Solicitudes de foto y pago pendientes de revisión</div>
+</div>
+
+<style>
+    .sol-tabs { display:flex; gap:8px; margin-bottom:20px; }
+    .sol-tab-btn {
+        border:1px solid var(--border, #334155); background:transparent; color:var(--text-secondary, #94a3b8);
+        padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.9rem;
+    }
+    .sol-tab-btn.active { background:var(--accent, #f5c518); color:#1a1a1a; border-color:transparent; }
+    .sol-tab-btn .badge {
+        background:var(--danger, #ef4444); color:#fff; border-radius:10px; padding:1px 7px; font-size:0.75rem; margin-left:6px;
+    }
+</style>
+
+<script>
+    function switchTab(name) {
+        document.querySelectorAll('.sol-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.sol-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).style.display = '';
+        document.querySelector('[data-tab="' + name + '"]').classList.add('active');
+    }
+</script>
+
+<div class="sol-tabs">
+    <button type="button" class="sol-tab-btn active" data-tab="pendientes" onclick="switchTab('pendientes')">
+        Pendientes <span class="badge">{{ pendientes|length }}</span>
+    </button>
+    <button type="button" class="sol-tab-btn" data-tab="aprobadas" onclick="switchTab('aprobadas')">Aprobadas</button>
+    <button type="button" class="sol-tab-btn" data-tab="rechazadas" onclick="switchTab('rechazadas')">Rechazadas</button>
+</div>
+
+{% macro fila_solicitud(s) %}
+<tr>
+    <td>{{ s.cliente.numero_registro }} - {{ s.cliente.nombre_completo }}</td>
+    <td>{{ 'Foto' if s.tipo == 'foto' else ('Pago' if s.tipo == 'pago' else s.tipo) }}</td>
+    <td>{{ s.creado_en.strftime('%d/%m/%Y %H:%M') if s.creado_en else '—' }}</td>
+    <td>
+        {% if s.contexto and '{' in s.contexto %}
+        <img src="{{ url_for('admin.solicitud_archivo', id_solicitud=s.id_solicitud) }}"
+             style="width:48px;height:48px;object-fit:cover;border-radius:6px;" alt="preview">
+        {% else %}—{% endif %}
+    </td>
+    <td>{{ s.comentario_admin or '—' }}</td>
+    <td>
+        {% if s.estado == 'pendiente' %}
+        <form method="POST" action="{{ url_for('admin.aprobar_solicitud', id_solicitud=s.id_solicitud) }}" style="display:inline">
+            <button type="submit" class="admin-btn admin-btn-primary">Aprobar</button>
+        </form>
+        <form method="POST" action="{{ url_for('admin.rechazar_solicitud', id_solicitud=s.id_solicitud) }}" style="display:inline">
+            <input class="admin-input" type="text" name="comentario" placeholder="Motivo (opcional)" style="max-width:130px;">
+            <button type="submit" class="admin-btn admin-btn-secondary">Rechazar</button>
+        </form>
+        {% else %}<span style="color:var(--text-secondary, #94a3b8);">—</span>{% endif %}
+    </td>
+</tr>
+{% endmacro %}
+
+<div class="admin-card" style="overflow-x:auto;">
+    <div id="tab-pendientes" class="sol-tab" style="display:'';">
+        <table class="admin-table">
+            <thead><tr><th>Cliente</th><th>Tipo</th><th>Fecha</th><th>Vista previa</th><th>Comentario</th><th>Acciones</th></tr></thead>
+            <tbody>{% for s in pendientes %}{{ fila_solicitud(s) }}{% else %}<tr><td colspan="6" class="admin-empty">No hay solicitudes pendientes</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+    <div id="tab-aprobadas" class="sol-tab" style="display:none;">
+        <table class="admin-table">
+            <thead><tr><th>Cliente</th><th>Tipo</th><th>Fecha</th><th>Vista previa</th><th>Comentario</th><th>Acciones</th></tr></thead>
+            <tbody>{% for s in aprobadas %}{{ fila_solicitud(s) }}{% else %}<tr><td colspan="6" class="admin-empty">Sin aprobadas</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+    <div id="tab-rechazadas" class="sol-tab" style="display:none;">
+        <table class="admin-table">
+            <thead><tr><th>Cliente</th><th>Tipo</th><th>Fecha</th><th>Vista previa</th><th>Comentario</th><th>Acciones</th></tr></thead>
+            <tbody>{% for s in rechazadas %}{{ fila_solicitud(s) }}{% else %}<tr><td colspan="6" class="admin-empty">Sin rechazadas</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 from extensions import db
 from models.cliente import Cliente
 from models.asistencia import Asistencia
+from models.solicitud_validacion import SolicitudValidacion
 
 
 def test_dashboard_requires_login(client):
@@ -289,8 +290,10 @@ def test_perfil_actualizar_foto_uploads(app, client):
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V103').one()
-        assert cliente.foto_data is not None
-        assert cliente.foto_mime == 'image/jpeg'
+        assert cliente.foto_data is None
+        s = SolicitudValidacion.pendiente_para(cliente.id_cliente, 'foto')
+        assert s is not None
+        assert s.estado == 'pendiente'
 
 
 def test_perfil_foto_redimensiona_y_pesa_menos_al_subir(app, client):
@@ -309,9 +312,15 @@ def test_perfil_foto_redimensiona_y_pesa_menos_al_subir(app, client):
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V105').one()
-        assert cliente.foto_mime == 'image/jpeg'
-        assert len(cliente.foto_data) < tamano_original
-        img = Image.open(io.BytesIO(cliente.foto_data))
+        assert cliente.foto_data is None
+        s = SolicitudValidacion.pendiente_para(cliente.id_cliente, 'foto')
+        assert s is not None
+        import base64, json
+        ctx = json.loads(s.contexto)
+        assert ctx.get('mime') == 'image/jpeg'
+        data = base64.b64decode(ctx['data'])
+        assert len(data) < tamano_original
+        img = Image.open(io.BytesIO(data))
         assert img.width <= 300 and img.height <= 300
         assert img.format == 'JPEG'
 
@@ -328,8 +337,10 @@ def test_perfil_actualizar_nueva_foto_reemplaza_actual(app, client):
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V104').one()
-        assert cliente.foto_data is not None
-        assert cliente.foto_mime == 'image/jpeg'
+        assert cliente.foto_data is None
+        s = SolicitudValidacion.pendiente_para(cliente.id_cliente, 'foto')
+        assert s is not None
+        assert s.estado == 'pendiente'
 
     r2 = client.post('/vitelas/portal/perfil/actualizar', data={
         'nombre_completo': 'Con Foto',
@@ -339,5 +350,7 @@ def test_perfil_actualizar_nueva_foto_reemplaza_actual(app, client):
 
     with app.app_context():
         cliente = Cliente.query.filter_by(usuario_login='V104').one()
-        assert cliente.foto_data is not None
-        assert cliente.foto_mime == 'image/jpeg'
+        assert cliente.foto_data is None
+        pendientes = SolicitudValidacion.query.filter_by(
+            id_cliente=cliente.id_cliente, tipo='foto', estado='pendiente').count()
+        assert pendientes == 1

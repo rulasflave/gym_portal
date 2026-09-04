@@ -1,0 +1,33 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Cargar Pago - Vitellas Hub{% endblock %}
+
+{% block page_title %}Cargar Pago{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card" style="max-width:640px;">
+    <form method="POST" enctype="multipart/form-data">
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="id_cliente">Cliente</label>
+            <select class="admin-select" id="id_cliente" name="id_cliente" required>
+                <option value="">Seleccionar cliente...</option>
+                {% for c in clientes %}
+                <option value="{{ c.id_cliente }}">{{ c.numero_registro }} - {{ c.nombre_completo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="monto">Monto ($)</label>
+            <input class="admin-input" type="number" step="0.01" id="monto" name="monto" placeholder="0.00">
+        </div>
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="voucher">Voucher / comprobante</label>
+            <input class="admin-input" type="file" id="voucher" name="voucher" accept="image/png,image/jpeg,image/gif">
+        </div>
+        <div style="display:flex; gap:12px; margin-top:20px;">
+            <button type="submit" class="admin-btn admin-btn-primary">Guardar pago como pendiente</button>
+            <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.pagos') }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
