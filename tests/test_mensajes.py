@@ -88,3 +88,59 @@ def test_admin_crea_mensaje(app, client):
         assert m is not None
         assert m.asunto == 'Bienvenido'
         assert m.leido is False
+
+
+def test_bandeja_lista_no_muestra_cuerpo_completo(app, client):
+    cid = _cliente(app, num='V705')
+    cuerpo_largo = ('<p>párrafo de prueba con contenido extenso para la bandeja. ' * 30) + '</p>'
+    with app.app_context():
+        m = crear_mensaje(cid, 'DetalleLargo', cuerpo_largo)
+        db.session.commit()
+    client.post('/vitelas/login', data={'usuario': 'V705', 'password': 'test123'})
+    r = client.get('/vitelas/portal/bandeja')
+    assert r.status_code == 200
+    assert b'DetalleLargo' in r.data
+    assert (b'p\u00e1rrafo de prueba con contenido extenso para la bandeja. ' * 30) not in r.data
+
+
+def test_detalle_mensaje_marca_leido(app, client):
+    cid = _cliente(app, num='V706')
+    with app.app_context():
+        m = crear_mensaje(cid, 'AsuntoX', '<p>Cuerpo visible</p>')
+        db.session.commit()
+        mid = m.id_mensaje
+    client.post('/vitelas/login', data={'usuario': 'V706', 'password': 'test123'})
+    r = client.get(f'/vitelas/portal/mensajes/{mid}')
+    assert r.status_code == 200
+    assert b'Cuerpo visible' in r.data
+    with app.app_context():
+        from models.mensaje import Mensaje
+        assert Mensaje.query.get(mid).leido is True
+
+
+def test_eliminar_mensaje_propio(app, client):
+    cid = _cliente(app, num='V707')
+    with app.app_context():
+        m = crear_mensaje(cid, 'Borrame', '<p>x</p>')
+        db.session.commit()
+        mid = m.id_mensaje
+    client.post('/vitelas/login', data={'usuario': 'V707', 'password': 'test123'})
+    r = client.post(f'/vitelas/portal/mensajes/{mid}/eliminar', follow_redirects=True)
+    assert r.status_code == 200
+    with app.app_context():
+        from models.mensaje import Mensaje
+        assert Mensaje.query.get(mid) is None
+
+
+def test_eliminar_mensaje_ajeno_no_permitido(app, client):
+    cid1 = _cliente(app, num='V708')
+    cid2 = _cliente(app, num='V709')
+    with app.app_context():
+        m = crear_mensaje(cid1, 'Ajeno', '<p>x</p>')
+        db.session.commit()
+        mid = m.id_mensaje
+    client.post('/vitelas/login', data={'usuario': 'V709', 'password': 'test123'})
+    client.post(f'/vitelas/portal/mensajes/{mid}/eliminar', follow_redirects=True)
+    with app.app_context():
+        from models.mensaje import Mensaje
+        assert Mensaje.query.get(mid) is not None

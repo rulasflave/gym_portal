@@ -136,18 +136,7 @@ def bandeja():
     from models.mensaje import Mensaje
     mensajes = Mensaje.query.filter_by(id_cliente=current_user.id_cliente)\
         .order_by(Mensaje.creado_en.desc()).all()
-    abrir_id = request.args.get('abrir', type=int)
-    mensaje_abierto = None
-    if abrir_id:
-        mensaje_abierto = Mensaje.query.filter_by(
-            id_cliente=current_user.id_cliente, id_mensaje=abrir_id).first()
-    if mensaje_abierto is None and mensajes:
-        mensaje_abierto = mensajes[0]
-    if mensaje_abierto is not None and not mensaje_abierto.leido:
-        mensaje_abierto.leido = True
-        db.session.commit()
-    return render_template('cliente/bandeja.html',
-                           mensajes=mensajes, mensaje_abierto=mensaje_abierto)
+    return render_template('cliente/bandeja.html', mensajes=mensajes)
 
 
 @cliente_bp.route('/bandeja/<int:id_mensaje>/leer', methods=['POST'])
@@ -161,6 +150,30 @@ def marcar_leido(id_mensaje):
         m.leido = True
         db.session.commit()
     return {'no_leidos': no_leidos(current_user.id_cliente)}
+
+
+@cliente_bp.route('/mensajes/<int:id_mensaje>')
+@login_required
+def detalle_mensaje(id_mensaje):
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    if not m.leido:
+        m.leido = True
+        db.session.commit()
+    return render_template('cliente/mensaje_detalle.html', mensaje=m)
+
+
+@cliente_bp.route('/mensajes/<int:id_mensaje>/eliminar', methods=['POST'])
+@login_required
+def eliminar_mensaje(id_mensaje):
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    db.session.delete(m)
+    db.session.commit()
+    flash('Mensaje eliminado', 'success')
+    return redirect(url_for('cliente.bandeja'))
 
 
 @cliente_bp.route('/bandeja/<int:id_mensaje>/imagen')

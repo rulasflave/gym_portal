@@ -1,0 +1,21 @@
+{% extends "cliente/base_dash.html" %}
+{% block title %}{{ mensaje.asunto }} · Vitellas Hub{% endblock %}
+{% block content %}
+<div class="inbox-detail-page">
+  <div class="inbox-detail-nav">
+    <a class="inbox-back" href="{{ url_for('cliente.bandeja') }}">← Volver a la bandeja</a>
+  </div>
+  <div class="inbox-detail-card">
+    <h2 class="inbox-detail-subject">{{ mensaje.asunto }}</h2>
+    <div class="inbox-meta">Vitellas Hub · {{ mensaje.creado_en|localdt('%d %b %Y, %H:%M') if mensaje.creado_en else '' }}</div>
+    <div class="inbox-body">{{ mensaje.cuerpo|safe }}</div>
+    {% if mensaje.imagen_data %}
+    <img src="{{ url_for('cliente.mensaje_imagen', id_mensaje=mensaje.id_mensaje) }}" class="inbox-img" alt="adjunto">
+    {% endif %}
+    <form method="POST" action="{{ url_for('cliente.eliminar_mensaje', id_mensaje=mensaje.id_mensaje) }}"
+          onsubmit="return confirm('¿Eliminar este mensaje?');">
+      <button type="submit" class="inbox-delete">Eliminar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
