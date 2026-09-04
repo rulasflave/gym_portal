@@ -75,6 +75,15 @@
                     <option value="Visita" {{ 'selected' if cliente and cliente.tipo_membresia == 'Visita' }}>Visita</option>
                 </select>
             </div>
+            <div>
+                <label class="admin-label" for="horario">Horario</label>
+                <select class="admin-select" id="horario" name="horario">
+                    <option value="">Seleccionar horario...</option>
+                    <option value="Matutino" {{ 'selected' if cliente and cliente.horario == 'Matutino' }}>Matutino</option>
+                    <option value="Vespertino" {{ 'selected' if cliente and cliente.horario == 'Vespertino' }}>Vespertino</option>
+                    <option value="Nocturno" {{ 'selected' if cliente and cliente.horario == 'Nocturno' }}>Nocturno</option>
+                </select>
+            </div>
         </div>
 
         <div style="margin-top:16px;">

@@ -19,6 +19,7 @@ class Cliente(UserMixin, db.Model):
     contacto_emergencia = db.Column(db.String(100))
     lesiones_medicas = db.Column(db.Text)
     tipo_membresia = db.Column(db.String(20))
+    horario = db.Column(db.String(20))
     empresa = db.Column(db.String(20))
     fecha_inicio_membresia = db.Column(db.Date)
     fecha_fin_membresia = db.Column(db.Date)

@@ -97,6 +97,43 @@ def test_admin_cliente_form_renders(app, client):
     resp = client.get('/vitelas/admin/clientes/nuevo')
     assert b'admin-form-grid' in resp.data
     assert b'nombre_completo' in resp.data
+    assert b'horario' in resp.data
+
+def test_admin_nuevo_cliente_guarda_horario(app, client):
+    _login_admin(client, app)
+    from models.cliente import Cliente
+    from extensions import db
+    r = client.post('/vitelas/admin/clientes/nuevo', data={
+        'numero_registro': 'V090',
+        'nombre_completo': 'Horario Test',
+        'tipo_membresia': 'Normal',
+        'horario': 'Matutino',
+    })
+    assert r.status_code in (302, 200)
+    with app.app_context():
+        c = Cliente.query.filter_by(numero_registro='V090').first()
+        assert c is not None
+        assert c.horario == 'Matutino'
+
+def test_admin_editar_cliente_guarda_horario(app, client):
+    _login_admin(client, app)
+    from models.cliente import Cliente
+    from werkzeug.security import generate_password_hash
+    from extensions import db
+    with app.app_context():
+        c = Cliente(numero_registro='V091', nombre_completo='Edit Horario',
+                    usuario_login='V091', password_hash=generate_password_hash('test123'))
+        db.session.add(c)
+        db.session.commit()
+        cid = c.id_cliente
+    r = client.post(f'/vitelas/admin/clientes/{cid}/editar', data={
+        'nombre_completo': 'Edit Horario',
+        'horario': 'Nocturno',
+    })
+    assert r.status_code in (302, 200)
+    with app.app_context():
+        c = db.session.get(Cliente, cid)
+        assert c.horario == 'Nocturno'
 
 def test_admin_cliente_qr_renders(app, client):
     _login_admin(client, app)
