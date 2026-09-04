@@ -117,6 +117,27 @@ def create_app(config_class=Config):
     from services.timeutil import to_local
     app.jinja_env.filters['localdt'] = lambda dt, fmt: to_local(dt).strftime(fmt) if dt is not None else '—'
 
+    @app.context_processor
+    def inject_mensajes():
+        from flask_login import current_user
+        from services.mensajeria import no_leidos
+        from models.mensaje import Mensaje
+        if not hasattr(current_user, 'is_authenticated') or not current_user.is_authenticated:
+            return {}
+        if getattr(current_user, '__class__', None).__name__ != 'Cliente':
+            return {}
+        cid = int(current_user.get_id().split('-', 1)[1])
+        from models.cliente import Cliente
+        cliente = db.session.get(Cliente, cid)
+        if cliente is None:
+            return {}
+        recientes = Mensaje.query.filter_by(id_cliente=cid)\
+            .order_by(Mensaje.creado_en.desc()).limit(5).all()
+        return {
+            'mensajes_no_leidos': no_leidos(cid),
+            'mensajes_recientes': recientes,
+        }
+
     migrate_config_column(app)
 
     try:

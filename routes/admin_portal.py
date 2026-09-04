@@ -6,6 +6,7 @@ from models.pago import Pago
 from models.noticia import Noticia
 from models.configuracion_recordatorio import ConfiguracionRecordatorio
 from models.recordatorio_enviado import RecordatorioEnviado
+from models.mensaje import Mensaje
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -170,6 +171,7 @@ def eliminar_cliente(id_cliente):
         RecordatorioEnviado.query.filter_by(id_cliente=cliente.id_cliente).delete()
         Asistencia.query.filter_by(id_cliente=cliente.id_cliente).delete()
         Pago.query.filter_by(id_cliente=cliente.id_cliente).delete()
+        Mensaje.query.filter_by(id_cliente=cliente.id_cliente).delete()
         db.session.flush()
         db.session.delete(cliente)
         db.session.commit()
@@ -485,3 +487,46 @@ def enviar_recordatorio(id_cliente):
         flash(f'Error: {str(e)}', 'danger')
 
     return redirect(url_for('admin.clientes'))
+
+
+@admin_bp.route('/mensajes/nuevo', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def nuevo_mensaje():
+    from services.mensajeria import crear_mensaje
+    if request.method == 'POST':
+        id_cliente = int(request.form.get('id_cliente'))
+        asunto = request.form.get('asunto', '').strip()
+        cuerpo = request.form.get('cuerpo', '').strip()
+        cliente = Cliente.query.get_or_404(id_cliente)
+        imagen_data = imagen_mime = None
+        if 'imagen' in request.files and request.files['imagen'].filename:
+            _, imagen_data, imagen_mime = save_photo(request.files['imagen'])
+        if not asunto:
+            flash('El asunto es obligatorio', 'error')
+            return redirect(url_for('admin.nuevo_mensaje'))
+        crear_mensaje(cliente.id_cliente, asunto, cuerpo or '<p></p>',
+                      es_automatico=False, imagen_data=imagen_data, imagen_mime=imagen_mime)
+        db.session.commit()
+        flash(f'Mensaje enviado a {cliente.nombre_completo}', 'success')
+        return redirect(url_for('admin.mensajes'))
+    clientes = Cliente.query.order_by(Cliente.numero_registro).all()
+    return render_template('admin/nuevo_mensaje.html', clientes=clientes)
+
+
+@admin_bp.route('/mensajes')
+@login_required
+@admin_required
+def mensajes():
+    msgs = Mensaje.query.order_by(Mensaje.creado_en.desc()).limit(200).all()
+    return render_template('admin/mensajes.html', mensajes=msgs)
+
+
+@admin_bp.route('/mensajes/<int:id_mensaje>/imagen')
+@login_required
+@admin_required
+def archivo_mensaje(id_mensaje):
+    m = Mensaje.query.get_or_404(id_mensaje)
+    if not m.imagen_data:
+        return ('', 404)
+    return Response(m.imagen_data, mimetype=m.imagen_mime or 'image/jpeg')

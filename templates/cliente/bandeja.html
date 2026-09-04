@@ -1,0 +1,30 @@
+{% extends "cliente/base_dash.html" %}
+{% block title %}Bandeja · Vitellas Hub{% endblock %}
+{% block content %}
+<div class="inbox-page">
+  <div class="inbox-list">
+    <h3>Bandeja</h3>
+    {% for m in mensajes %}
+    <a class="inbox-row {{ 'read' if m.leido else 'unread' }}" href="{{ url_for('cliente.bandeja', abrir=m.id_mensaje) }}">
+      <div class="inbox-subj">{{ m.asunto }}</div>
+      <div class="inbox-brief">{{ m.cuerpo|striptags|truncate(50) }}</div>
+      <div class="inbox-date">{{ m.creado_en.strftime('%d %b %Y') if m.creado_en else '' }}</div>
+    </a>
+    {% else %}
+    <p class="inbox-empty">No tienes mensajes.</p>
+    {% endfor %}
+  </div>
+  <div class="inbox-detail">
+    {% if mensaje_abierto %}
+      <h2>{{ mensaje_abierto.asunto }}</h2>
+      <span class="inbox-meta">{{ mensaje_abierto.creado_en.strftime('%d %b %Y') if mensaje_abierto.creado_en else '' }}</span>
+      <div class="inbox-body">{{ mensaje_abierto.cuerpo|safe }}</div>
+      {% if mensaje_abierto.imagen_data %}
+      <img src="{{ url_for('cliente.mensaje_imagen', id_mensaje=mensaje_abierto.id_mensaje) }}" class="inbox-img" alt="adjunto">
+      {% endif %}
+    {% else %}
+      <p>Selecciona un mensaje.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

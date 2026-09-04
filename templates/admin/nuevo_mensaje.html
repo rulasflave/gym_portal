@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Nuevo Mensaje - Vitellas Hub{% endblock %}
+
+{% block page_title %}Nuevo Mensaje{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card" style="max-width:760px;">
+    <form method="POST" enctype="multipart/form-data" id="msgForm">
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="id_cliente">Cliente</label>
+            <select class="admin-select" id="id_cliente" name="id_cliente" required>
+                <option value="">Seleccionar cliente...</option>
+                {% for c in clientes %}
+                <option value="{{ c.id_cliente }}">{{ c.numero_registro }} - {{ c.nombre_completo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="asunto">Asunto</label>
+            <input class="admin-input" type="text" id="asunto" name="asunto" required>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label class="admin-label">Cuerpo</label>
+            <div class="rte-toolbar">
+                <button type="button" onclick="exec('bold')"><b>B</b></button>
+                <button type="button" onclick="exec('italic')"><i>I</i></button>
+                <button type="button" onclick="exec('underline')"><u>U</u></button>
+                <button type="button" onclick="exec('insertUnorderedList')">Lista</button>
+                <button type="button" onclick="exec('createLink')">Link</button>
+                <button type="button" onclick="exec('formatBlock','h3')">Título</button>
+            </div>
+            <div class="rte-area" id="rte" contenteditable="true"></div>
+            <textarea name="cuerpo" id="cuerpoHidden" hidden></textarea>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label class="admin-label" for="imagen">Imagen adjunta (opcional)</label>
+            <input type="file" id="imagen" name="imagen" accept="image/png,image/jpeg,image/gif">
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:20px;">
+            <button type="submit" class="admin-btn admin-btn-primary"><i class="fas fa-paper-plane me-2"></i>Enviar</button>
+            <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.mensajes') }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+<script>
+function exec(cmd, arg){
+    document.execCommand(cmd, false, arg);
+}
+document.getElementById('msgForm').addEventListener('submit', function(){
+    document.getElementById('cuerpoHidden').value = document.getElementById('rte').innerHTML;
+});
+</script>
+{% endblock %}

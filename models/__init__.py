@@ -5,5 +5,6 @@ from .noticia import Noticia
 from .admin import Admin
 from .configuracion_recordatorio import ConfiguracionRecordatorio
 from .recordatorio_enviado import RecordatorioEnviado
+from .mensaje import Mensaje
 
-__all__ = ['Cliente', 'Asistencia', 'Pago', 'Noticia', 'Admin', 'ConfiguracionRecordatorio', 'RecordatorioEnviado']
+__all__ = ['Cliente', 'Asistencia', 'Pago', 'Noticia', 'Admin', 'ConfiguracionRecordatorio', 'RecordatorioEnviado', 'Mensaje']

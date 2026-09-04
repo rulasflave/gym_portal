@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, Response
 from flask_login import login_required, current_user
 from models.asistencia import Asistencia
 from models.pago import Pago
@@ -122,3 +122,47 @@ def cambiar_password():
         return redirect(url_for('cliente.dashboard'))
 
     return render_template('cliente/cambiar_password.html')
+
+
+@cliente_bp.route('/bandeja')
+@login_required
+def bandeja():
+    from models.mensaje import Mensaje
+    mensajes = Mensaje.query.filter_by(id_cliente=current_user.id_cliente)\
+        .order_by(Mensaje.creado_en.desc()).all()
+    abrir_id = request.args.get('abrir', type=int)
+    mensaje_abierto = None
+    if abrir_id:
+        mensaje_abierto = Mensaje.query.filter_by(
+            id_cliente=current_user.id_cliente, id_mensaje=abrir_id).first()
+    if mensaje_abierto is None and mensajes:
+        mensaje_abierto = mensajes[0]
+    if mensaje_abierto is not None and not mensaje_abierto.leido:
+        mensaje_abierto.leido = True
+        db.session.commit()
+    return render_template('cliente/bandeja.html',
+                           mensajes=mensajes, mensaje_abierto=mensaje_abierto)
+
+
+@cliente_bp.route('/bandeja/<int:id_mensaje>/leer', methods=['POST'])
+@login_required
+def marcar_leido(id_mensaje):
+    from models.mensaje import Mensaje
+    from services.mensajeria import no_leidos
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first()
+    if m and not m.leido:
+        m.leido = True
+        db.session.commit()
+    return {'no_leidos': no_leidos(current_user.id_cliente)}
+
+
+@cliente_bp.route('/bandeja/<int:id_mensaje>/imagen')
+@login_required
+def mensaje_imagen(id_mensaje):
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    if not m.imagen_data:
+        return ('', 404)
+    return Response(m.imagen_data, mimetype=m.imagen_mime or 'image/jpeg')

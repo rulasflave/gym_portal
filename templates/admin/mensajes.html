@@ -1,0 +1,33 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Mensajes - Vitellas Hub{% endblock %}
+
+{% block page_title %}Mensajes{% endblock %}
+
+{% block admin_content %}
+<div class="admin-toolbar">
+    <div class="admin-subtitle">Mensajes enviados</div>
+    <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_mensaje') }}">Nuevo mensaje</a>
+</div>
+<div class="admin-card" style="overflow-x:auto;">
+    {% if not mensajes %}
+    <div class="admin-empty">Sin mensajes</div>
+    {% endif %}
+    <table class="admin-table">
+        <thead>
+            <tr><th>Cliente</th><th>Asunto</th><th>Fecha</th><th>Leído</th><th>Adjunto</th></tr>
+        </thead>
+        <tbody>
+            {% for m in mensajes %}
+            <tr>
+                <td>{{ m.cliente.numero_registro }} - {{ m.cliente.nombre_completo }}</td>
+                <td>{{ m.asunto }}</td>
+                <td>{{ m.creado_en.strftime('%d/%m/%Y %H:%M') if m.creado_en else '—' }}</td>
+                <td>{{ 'Sí' if m.leido else 'No' }}</td>
+                <td>{% if m.imagen_data %}<img src="{{ url_for('admin.archivo_mensaje', id_mensaje=m.id_mensaje) }}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;" alt="">{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

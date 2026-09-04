@@ -31,6 +31,7 @@ class Cliente(UserMixin, db.Model):
 
     asistencias = db.relationship('Asistencia', backref='cliente', lazy=True)
     pagos = db.relationship('Pago', backref='cliente', lazy=True)
+    mensajes = db.relationship('Mensaje', backref='cliente', lazy=True, cascade='all, delete-orphan')
 
     @property
     def is_membresia_activa(self):
