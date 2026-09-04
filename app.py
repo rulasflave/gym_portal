@@ -138,6 +138,16 @@ def create_app(config_class=Config):
             'mensajes_recientes': recientes,
         }
 
+    @app.context_processor
+    def inject_solicitudes_pendientes():
+        from flask_login import current_user
+        from models.solicitud_validacion import SolicitudValidacion
+        if not hasattr(current_user, 'is_authenticated') or not current_user.is_authenticated:
+            return {'solicitudes_pendientes': 0}
+        if getattr(current_user, '__class__', None).__name__ != 'Admin':
+            return {'solicitudes_pendientes': 0}
+        return {'solicitudes_pendientes': SolicitudValidacion.query.filter_by(estado='pendiente').count()}
+
     migrate_config_column(app)
 
     try:

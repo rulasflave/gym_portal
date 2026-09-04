@@ -118,3 +118,21 @@ def test_cargar_pago_crea_solicitud_voucher(app, client):
         s = SolicitudValidacion.pendiente_para(cid, 'pago')
         assert s is not None
         assert s.estado == 'pendiente'
+
+
+def test_menu_admin_badge_pendientes(app, client):
+    from models.admin import Admin
+    cid = _cliente(app, num='V606')
+    with app.app_context():
+        s = SolicitudValidacion(id_cliente=cid, tipo='foto', estado='pendiente', contexto='{}')
+        db.session.add(s)
+        db.session.commit()
+    with app.app_context():
+        a = Admin(nombre='Admin', email='solmenu@test.com',
+                  password_hash=generate_password_hash('adminpass'), rol='admin', activo=True)
+        db.session.add(a)
+        db.session.commit()
+    client.post('/vitelas/login', data={'usuario': 'solmenu@test.com', 'password': 'adminpass'})
+    resp = client.get('/vitelas/admin/dashboard')
+    assert b'mensajes' in resp.data.lower()
+    assert b'solicitudes' in resp.data.lower() or b'validaciones' in resp.data.lower()

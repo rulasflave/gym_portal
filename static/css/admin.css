@@ -123,6 +123,13 @@ body {
     font-weight: 700;
 }
 
+.menu-badge {
+    display: inline-block; min-width: 20px; height: 20px; line-height: 20px;
+    background: var(--danger, #ef4444); color: #fff; font-size: 0.7rem;
+    border-radius: 10px; text-align: center; margin-left: 6px; font-weight: 700;
+}
+.menu-badge:empty { display: none; }
+
 .admin-sidebar-motivation {
     margin-top: auto;
     color: var(--text-secondary);

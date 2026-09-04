@@ -30,6 +30,13 @@
                 <a class="menu-item {{ 'active' if request.endpoint == 'admin.noticias' }}" href="{{ url_for('admin.noticias') }}">
                     <i class="fas fa-newspaper"></i> Noticias
                 </a>
+                <a class="menu-item {{ 'active' if request.endpoint in ['admin.mensajes', 'admin.nuevo_mensaje'] }}" href="{{ url_for('admin.mensajes') }}">
+                    <i class="fas fa-envelope"></i> Mensajes
+                </a>
+                <a class="menu-item {{ 'active' if request.endpoint in ['admin.solicitudes', 'admin.aprobar_solicitud', 'admin.rechazar_solicitud'] }}" href="{{ url_for('admin.solicitudes') }}">
+                    <i class="fas fa-clipboard-check"></i> Validaciones
+                    {% if solicitudes_pendientes %}<span class="menu-badge">{{ solicitudes_pendientes }}</span>{% endif %}
+                </a>
                 <a class="menu-item {{ 'active' if request.endpoint == 'admin.reportes' }}" href="{{ url_for('admin.reportes') }}">
                     <i class="fas fa-chart-bar"></i> Reportes
                 </a>
