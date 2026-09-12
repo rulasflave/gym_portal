@@ -179,3 +179,35 @@ def test_pagos_sort_metodo_asc(app, client):
         db.session.commit()
     resp = client.get('/vitelas/admin/pagos?sort=metodo&dir=asc')
     assert resp.data.index(b'Efectivo') < resp.data.index(b'Tarjeta') < resp.data.index(b'Transferencia')
+
+
+def test_noticias_sort_fecha_asc(app, client):
+    from datetime import datetime, timedelta, timezone
+    from models.noticia import Noticia
+    _login_admin(app, client, email='admin-sort-n1@test.com')
+    now = datetime.now(timezone.utc)
+    with app.app_context():
+        db.session.add_all([
+            Noticia(titulo='Segunda', contenido='y', fecha_publicacion=now + timedelta(seconds=2)),
+            Noticia(titulo='Primera', contenido='x', fecha_publicacion=now),
+        ])
+        db.session.commit()
+    resp = client.get('/vitelas/admin/noticias?sort=fecha&dir=asc')
+    assert resp.status_code == 200
+    assert resp.data.index(b'Primera') < resp.data.index(b'Segunda')
+
+
+def test_noticias_sort_estado_desc(app, client):
+    from datetime import datetime, timezone
+    from models.noticia import Noticia
+    _login_admin(app, client, email='admin-sort-n2@test.com')
+    with app.app_context():
+        db.session.add_all([
+            Noticia(titulo='Inactiva Test', contenido='z', activa=False,
+                    fecha_publicacion=datetime.now(timezone.utc)),
+            Noticia(titulo='Activa Test', contenido='a', activa=True,
+                    fecha_publicacion=datetime.now(timezone.utc)),
+        ])
+        db.session.commit()
+    resp = client.get('/vitelas/admin/noticias?sort=estado&dir=desc')
+    assert resp.data.index(b'Activa') < resp.data.index(b'Inactiva')

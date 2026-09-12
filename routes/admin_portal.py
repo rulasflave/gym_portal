@@ -368,17 +368,37 @@ def eliminar_pago(id_pago):
 @admin_required
 def noticias():
     from services.table_pagination import paginate, is_ajax
+    from services.table_sorting import apply_sort
     q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
-    query = Noticia.query.order_by(Noticia.fecha_publicacion.desc())
+    sort = request.args.get('sort', '').strip()
+    sort_dir = request.args.get('dir', '').strip()
+
+    COLUMNS = {
+        'fecha': Noticia.fecha_publicacion,
+        'estado': lambda d: Noticia.activa.desc() if d == 'desc' else Noticia.activa.asc(),
+    }
+    active = sort in COLUMNS and sort_dir in ('asc', 'desc')
+    sort_active = sort if active else ''
+    sort_dir_active = sort_dir if active else ''
+
+    query = Noticia.query
+    if active:
+        query = apply_sort(query, sort, sort_dir, COLUMNS)
+    else:
+        query = query.order_by(Noticia.fecha_publicacion.desc())
     if q:
         query = query.filter(Noticia.titulo.ilike(f'%{q}%'))
     total, total_pages, noticias = paginate(query, page=page)
     if is_ajax():
-        return jsonify(html=render_template('admin/_noticia_rows.html', noticias=noticias),
-                       total=total, total_pages=total_pages, page=page)
+        return jsonify(
+            html=render_template('admin/_noticia_rows.html', noticias=noticias),
+            thead_html=render_template('admin/_noticias_thead.html',
+                                       sort=sort_active, dir=sort_dir_active, q=q),
+            total=total, total_pages=total_pages, page=page)
     return render_template('admin/noticias.html', noticias=noticias, total=total,
-                           total_pages=total_pages, page=page, q=q)
+                           total_pages=total_pages, page=page, q=q,
+                           sort=sort_active, dir=sort_dir_active)
 
 @admin_bp.route('/noticias/nueva', methods=['GET', 'POST'])
 @login_required

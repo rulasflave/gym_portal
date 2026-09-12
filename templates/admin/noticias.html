@@ -21,10 +21,8 @@
     <div class="admin-empty">No hay noticias publicadas</div>
     {% endif %}
     <table class="admin-table">
-        <thead>
-            <tr>
-                <th>ID</th><th>Título</th><th>Fecha</th><th>Estado</th><th>Acciones</th>
-            </tr>
+        <thead id="adminTableHead">
+            {% include 'admin/_noticias_thead.html' %}
         </thead>
         <tbody id="adminTableBody" data-total="{{ total }}" data-total-pages="{{ total_pages }}" data-page="{{ page }}">
             {% include 'admin/_noticia_rows.html' %}

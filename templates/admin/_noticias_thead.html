@@ -1,0 +1,8 @@
+{% from 'admin/_sortable_th.html' import th_sortable %}
+<tr>
+    <th>ID</th>
+    <th>Título</th>
+    {{ th_sortable('admin.noticias', 'fecha', 'Fecha', sort, dir, q) }}
+    {{ th_sortable('admin.noticias', 'estado', 'Estado', sort, dir, q) }}
+    <th>Acciones</th>
+</tr>
