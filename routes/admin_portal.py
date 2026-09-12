@@ -266,9 +266,26 @@ def editar_cliente(id_cliente):
 @admin_required
 def pagos():
     from services.table_pagination import paginate, is_ajax
+    from services.table_sorting import apply_sort
     q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
-    query = Pago.query.join(Cliente, Pago.id_cliente == Cliente.id_cliente).order_by(Pago.fecha_pago.desc())
+    sort = request.args.get('sort', '').strip()
+    sort_dir = request.args.get('dir', '').strip()
+
+    COLUMNS = {
+        'fecha': Pago.fecha_pago,
+        'monto': Pago.monto,
+        'metodo': Pago.metodo_pago,
+    }
+    active = sort in COLUMNS and sort_dir in ('asc', 'desc')
+    sort_active = sort if active else ''
+    sort_dir_active = sort_dir if active else ''
+
+    query = Pago.query.join(Cliente, Pago.id_cliente == Cliente.id_cliente)
+    if active:
+        query = apply_sort(query, sort, sort_dir, COLUMNS)
+    else:
+        query = query.order_by(Pago.fecha_pago.desc())
     if q:
         like = f'%{q}%'
         query = query.filter(db.or_(
@@ -279,10 +296,14 @@ def pagos():
         ))
     total, total_pages, pagos = paginate(query, page=page)
     if is_ajax():
-        return jsonify(html=render_template('admin/_pago_rows.html', pagos=pagos),
-                       total=total, total_pages=total_pages, page=page)
+        return jsonify(
+            html=render_template('admin/_pago_rows.html', pagos=pagos),
+            thead_html=render_template('admin/_pagos_thead.html',
+                                       sort=sort_active, dir=sort_dir_active, q=q),
+            total=total, total_pages=total_pages, page=page)
     return render_template('admin/pagos.html', pagos=pagos, total=total,
-                           total_pages=total_pages, page=page, q=q)
+                           total_pages=total_pages, page=page, q=q,
+                           sort=sort_active, dir=sort_dir_active)
 
 @admin_bp.route('/pagos/nuevo', methods=['GET', 'POST'])
 @login_required

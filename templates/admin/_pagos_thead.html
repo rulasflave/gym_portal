@@ -1,0 +1,11 @@
+{% from 'admin/_sortable_th.html' import th_sortable %}
+<tr>
+    <th>ID</th>
+    <th>Cliente</th>
+    <th>Empresa</th>
+    {{ th_sortable('admin.pagos', 'fecha', 'Fecha', sort, dir, q) }}
+    <th>Concepto</th>
+    {{ th_sortable('admin.pagos', 'monto', 'Monto', sort, dir, q) }}
+    {{ th_sortable('admin.pagos', 'metodo', 'Método', sort, dir, q) }}
+    <th>Acciones</th>
+</tr>

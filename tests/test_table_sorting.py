@@ -138,3 +138,44 @@ def test_clientes_sort_respected_in_pagination(app, client):
     # orden desc = V025..V001; pagina 2 (PER_PAGE=20) = filas 21-25 -> V005..V001
     assert resp.data.index(b'V005') < resp.data.index(b'V001')
     assert b'V006' not in resp.data
+
+
+def test_pagos_sort_monto_desc(app, client):
+    from datetime import date
+    from models.cliente import Cliente
+    from models.pago import Pago
+    _login_admin(app, client, email='admin-sort-p1@test.com')
+    with app.app_context():
+        c = Cliente(numero_registro='V100', nombre_completo='Pagos Sort',
+                    usuario_login='v100', password_hash=generate_password_hash('x'))
+        db.session.add(c)
+        db.session.flush()
+        db.session.add_all([
+            Pago(id_cliente=c.id_cliente, monto=100, fecha_pago=date(2026, 1, 1), metodo_pago='Efectivo'),
+            Pago(id_cliente=c.id_cliente, monto=300, fecha_pago=date(2026, 2, 1), metodo_pago='Tarjeta'),
+            Pago(id_cliente=c.id_cliente, monto=200, fecha_pago=date(2026, 3, 1), metodo_pago='Transferencia'),
+        ])
+        db.session.commit()
+    resp = client.get('/vitelas/admin/pagos?sort=monto&dir=desc')
+    assert resp.status_code == 200
+    assert resp.data.index(b'$300.00') < resp.data.index(b'$200.00') < resp.data.index(b'$100.00')
+
+
+def test_pagos_sort_metodo_asc(app, client):
+    from datetime import date
+    from models.cliente import Cliente
+    from models.pago import Pago
+    _login_admin(app, client, email='admin-sort-p2@test.com')
+    with app.app_context():
+        c = Cliente(numero_registro='V101', nombre_completo='Pagos Sort 2',
+                    usuario_login='v101', password_hash=generate_password_hash('x'))
+        db.session.add(c)
+        db.session.flush()
+        db.session.add_all([
+            Pago(id_cliente=c.id_cliente, monto=100, fecha_pago=date(2026, 1, 1), metodo_pago='Tarjeta'),
+            Pago(id_cliente=c.id_cliente, monto=200, fecha_pago=date(2026, 2, 1), metodo_pago='Efectivo'),
+            Pago(id_cliente=c.id_cliente, monto=300, fecha_pago=date(2026, 3, 1), metodo_pago='Transferencia'),
+        ])
+        db.session.commit()
+    resp = client.get('/vitelas/admin/pagos?sort=metodo&dir=asc')
+    assert resp.data.index(b'Efectivo') < resp.data.index(b'Tarjeta') < resp.data.index(b'Transferencia')
