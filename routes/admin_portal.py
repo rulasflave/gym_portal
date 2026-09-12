@@ -55,9 +55,29 @@ def dashboard():
 @admin_required
 def clientes():
     from services.table_pagination import paginate, is_ajax
+    from services.table_sorting import apply_sort
     q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
-    query = Cliente.query.order_by(Cliente.numero_registro)
+    sort = request.args.get('sort', '').strip()
+    sort_dir = request.args.get('dir', '').strip()
+
+    COLUMNS = {
+        'registro': Cliente.numero_registro,
+        'nombre': Cliente.nombre_completo,
+        'apodo': Cliente.nickname,
+        'estado': lambda d: (Cliente.fecha_fin_membresia.desc().nulls_last()
+                             if d == 'desc'
+                             else Cliente.fecha_fin_membresia.asc().nulls_last()),
+    }
+    active = sort in COLUMNS and sort_dir in ('asc', 'desc')
+    sort_active = sort if active else ''
+    sort_dir_active = sort_dir if active else ''
+
+    query = Cliente.query
+    if active:
+        query = apply_sort(query, sort, sort_dir, COLUMNS)
+    else:
+        query = query.order_by(Cliente.numero_registro)
     if q:
         like = f'%{q}%'
         query = query.filter(db.or_(
@@ -70,11 +90,15 @@ def clientes():
 
     if is_ajax():
         rows_html = render_template('admin/_table_rows.html', clientes=clientes)
-        return jsonify(html=rows_html, total=total, total_pages=total_pages, page=page)
+        thead_html = render_template('admin/_clientes_thead.html',
+                                     sort=sort_active, dir=sort_dir_active, q=q)
+        return jsonify(html=rows_html, thead_html=thead_html,
+                       total=total, total_pages=total_pages, page=page)
 
     return render_template('admin/clientes.html',
                            clientes=clientes, total=total,
-                           total_pages=total_pages, page=page, q=q)
+                           total_pages=total_pages, page=page, q=q,
+                           sort=sort_active, dir=sort_dir_active)
 
 def save_photo(file):
     if file and file.filename and allowed_file(file.filename):

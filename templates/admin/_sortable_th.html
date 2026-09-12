@@ -1,0 +1,15 @@
+{% macro th_sortable(endpoint, key, label, active_sort, active_dir, q) %}
+  {% set active = active_sort == key %}
+  {% if active and active_dir == 'asc' %}
+    {% set next_sort, next_dir = key, 'desc' %}
+  {% elif active %}
+    {% set next_sort, next_dir = none, none %}
+  {% else %}
+    {% set next_sort, next_dir = key, 'asc' %}
+  {% endif %}
+  <th class="th-sortable{% if active %} active{% endif %}"
+      data-sortable="1"
+      data-href="{{ url_for(endpoint, q=q, page=1, sort=next_sort, dir=next_dir) }}">
+    {{ label }}{% if active %}<span class="th-arrow">{{ '▲' if active_dir == 'asc' else '▼' }}</span>{% endif %}
+  </th>
+{% endmacro %}

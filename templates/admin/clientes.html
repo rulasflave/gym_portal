@@ -21,11 +21,8 @@
     <div class="admin-empty">No hay clientes registrados</div>
     {% endif %}
     <table class="admin-table">
-        <thead>
-            <tr>
-                <th>Registro</th><th>Cliente</th><th>Apodo</th><th>Empresa</th>
-                <th>Teléfono</th><th>Membresía</th><th>Estado</th><th>Acciones</th>
-            </tr>
+        <thead id="adminTableHead">
+            {% include 'admin/_clientes_thead.html' %}
         </thead>
         <tbody id="adminTableBody" data-total="{{ total }}" data-total-pages="{{ total_pages }}" data-page="{{ page }}">
             {% include 'admin/_table_rows.html' %}

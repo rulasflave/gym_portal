@@ -260,6 +260,19 @@ body {
     background: var(--card);
 }
 
+.th-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.th-sortable:hover,
+.th-sortable.active {
+    color: var(--accent);
+}
+.th-arrow {
+    margin-left: 4px;
+    font-size: 0.7rem;
+}
+
 .admin-chip {
     display: inline-block;
     padding: 4px 12px;
