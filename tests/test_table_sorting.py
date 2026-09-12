@@ -73,8 +73,8 @@ def test_clientes_sort_registro_desc(app, client):
 def test_clientes_sort_nombre_asc(app, client):
     _login_admin(app, client, email='admin-sort2@test.com')
     with app.app_context():
-        _mk_cliente('V003', 'Zac')
-        _mk_cliente('V001', 'Ana')
+        _mk_cliente('V003', 'Ana')
+        _mk_cliente('V001', 'Zac')
         _mk_cliente('V002', 'Bob')
         db.session.commit()
     resp = client.get('/vitelas/admin/clientes?sort=nombre&dir=asc')
