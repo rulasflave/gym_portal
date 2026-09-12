@@ -113,6 +113,30 @@ def test_admin_crea_mensaje_con_imagen_base64(app, client):
         assert 'Un aviso importante' in sanitize_html(m.cuerpo)
 
 
+def test_admin_crea_mensaje_con_imagen_grande_end_to_end(app, client):
+    import base64
+    import io
+    cid = _cliente(app, num='V711')
+    _login_admin(app, client, email='adminimg2@test.com')
+    with app.app_context():
+        from models.mensaje import Mensaje
+        b64 = base64.b64encode(b'x' * 180000).decode('ascii')
+        cuerpo = f'<p><img src="data:image/jpeg;base64,{b64}">Foto grande</p>'
+        r = client.post('/vitelas/admin/mensajes/nuevo', data={
+            'id_cliente': str(cid),
+            'asunto': 'ImgGrande',
+            'cuerpo': cuerpo,
+        })
+        assert r.status_code in (302, 200)
+        m = Mensaje.query.filter_by(id_cliente=cid).first()
+        assert m is not None
+        assert m.asunto == 'ImgGrande'
+        assert m.cuerpo == cuerpo
+    with app.app_context():
+        from services.sanitizer import sanitize_html
+        assert 'Foto grande' in sanitize_html(m.cuerpo)
+
+
 def test_bandeja_lista_no_muestra_cuerpo_completo(app, client):
     cid = _cliente(app, num='V705')
     cuerpo_largo = ('<p>párrafo de prueba con contenido extenso para la bandeja. ' * 30) + '</p>'
