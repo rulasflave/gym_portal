@@ -65,6 +65,7 @@ def clientes():
         'registro': Cliente.numero_registro,
         'nombre': Cliente.nombre_completo,
         'apodo': Cliente.nickname,
+        'vigencia': Cliente.fecha_inicio_membresia,
         'estado': lambda d: (Cliente.fecha_fin_membresia.desc().nulls_last()
                              if d == 'desc'
                              else Cliente.fecha_fin_membresia.asc().nulls_last()),

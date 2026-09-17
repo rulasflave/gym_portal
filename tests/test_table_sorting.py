@@ -211,3 +211,48 @@ def test_noticias_sort_estado_desc(app, client):
         db.session.commit()
     resp = client.get('/vitelas/admin/noticias?sort=estado&dir=desc')
     assert resp.data.index(b'Activa') < resp.data.index(b'Inactiva')
+
+
+def test_clientes_sort_vigencia_asc(app, client):
+    from datetime import date
+    _login_admin(app, client, email='admin-sort-v1@test.com')
+    with app.app_context():
+        _mk_cliente('V002', 'Bob', fecha_inicio_membresia=date(2026, 6, 1))
+        _mk_cliente('V001', 'Ana', fecha_inicio_membresia=date(2026, 2, 1))
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes?sort=vigencia&dir=asc')
+    assert resp.status_code == 200
+    assert resp.data.index(b'Ana') < resp.data.index(b'Bob')
+
+
+def test_clientes_sort_vigencia_desc(app, client):
+    from datetime import date
+    _login_admin(app, client, email='admin-sort-v2@test.com')
+    with app.app_context():
+        _mk_cliente('V002', 'Bob', fecha_inicio_membresia=date(2026, 6, 1))
+        _mk_cliente('V001', 'Ana', fecha_inicio_membresia=date(2026, 2, 1))
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes?sort=vigencia&dir=desc')
+    assert resp.status_code == 200
+    assert resp.data.index(b'Bob') < resp.data.index(b'Ana')
+
+
+def test_clientes_thead_orden_y_columnas_nuevas(app, client):
+    _login_admin(app, client, email='admin-sort-v3@test.com')
+    with app.app_context():
+        _mk_cliente('V001', 'Ana')
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes')
+    assert resp.status_code == 200
+    html = resp.data.decode('utf-8')
+    # El macro th_sortable renderiza el label seguido de \n  </th>,
+    # por lo que se acota a la seccion thead (fallback del brief)
+    thead = html[html.index('<thead'):html.index('</thead>')]
+    # Estado entre Cliente y Apodo
+    assert thead.index('Cliente') < thead.index('Estado') < thead.index('Apodo')
+    # Membresía eliminada del thead
+    assert 'Membres&#237;a' not in thead and 'Membresía' not in thead
+    # Fecha de Vigencia en lugar de Membresía
+    assert 'Fecha de Vigencia' in thead
+    # Cantidad a Pagar antes de Acciones
+    assert thead.index('Cantidad a Pagar') < thead.index('Acciones')
