@@ -69,6 +69,13 @@ class Cliente(UserMixin, db.Model):
         delta = date.today() - self.fecha_fin_membresia
         return max(0, delta.days)
 
+    @property
+    def primer_pago_monto(self):
+        pagos = sorted(self.pagos, key=lambda p: (p.fecha_pago or date.max, p.id_pago))
+        if not pagos:
+            return 0
+        return float(pagos[0].monto)
+
     def get_id(self):
         return f"cliente-{self.id_cliente}"
 

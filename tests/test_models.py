@@ -142,3 +142,27 @@ def test_chat_ids_persisted(app):
         db.session.commit()
         cfg2 = ConfiguracionRecordatorio.get_config()
         assert cfg2.chat_ids == '111,222'
+
+
+def test_primer_pago_monto_sin_pagos_es_0(app):
+    with app.app_context():
+        c = Cliente(numero_registro='020', nombre_completo='Sin Pagos',
+                    usuario_login='sinpago', password_hash='hashx')
+        db.session.add(c)
+        db.session.commit()
+        assert c.primer_pago_monto == 0
+
+
+def test_primer_pago_monto_usa_el_pago_mas_antiguo(app):
+    with app.app_context():
+        c = Cliente(numero_registro='021', nombre_completo='Con Pagos',
+                    usuario_login='conpago', password_hash='hashx')
+        db.session.add(c)
+        db.session.commit()
+        db.session.add_all([
+            Pago(id_cliente=c.id_cliente, monto=350.00, fecha_pago=date(2026, 5, 1)),
+            Pago(id_cliente=c.id_cliente, monto=120.00, fecha_pago=date(2026, 1, 1)),
+            Pago(id_cliente=c.id_cliente, monto=250.00, fecha_pago=date(2026, 3, 1)),
+        ])
+        db.session.commit()
+        assert c.primer_pago_monto == 120.00
