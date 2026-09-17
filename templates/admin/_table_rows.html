@@ -2,10 +2,6 @@
 <tr>
     <td style="font-weight:600;">{{ cliente.numero_registro }}</td>
     <td>{{ cliente.nombre_completo }}</td>
-    <td>{% if cliente.nickname %}<span class="admin-chip admin-chip-neutral">{{ cliente.nickname }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
-    <td>{% if cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
-    <td>{{ cliente.telefono }}</td>
-    <td>{{ cliente.tipo_membresia }}</td>
     <td>
         {% if cliente.is_membresia_activa %}
         <span class="admin-chip admin-chip-success">{{ cliente.estado_membresia|upper }}</span>
@@ -19,6 +15,11 @@
         <div style="color: var(--danger); font-size:12px; font-weight:600;">{{ cliente.dias_vencido }} días vencido</div>
         {% endif %}
     </td>
+    <td>{% if cliente.nickname %}<span class="admin-chip admin-chip-neutral">{{ cliente.nickname }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+    <td>{% if cliente.empresa %}<span class="admin-chip admin-chip-neutral">{{ cliente.empresa }}</span>{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+    <td>{{ cliente.telefono }}</td>
+    <td>{% if cliente.fecha_inicio_membresia %}{{ cliente.fecha_inicio_membresia.strftime('%d/%m/%Y') }}{% else %}<span style="color: var(--text-secondary);">—</span>{% endif %}</td>
+    <td>${{ "%.2f"|format(cliente.primer_pago_monto) }}</td>
     <td>
         <div class="admin-actions">
             <a class="admin-icon-btn" title="Editar" href="{{ url_for('admin.editar_cliente', id_cliente=cliente.id_cliente) }}">

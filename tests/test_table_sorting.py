@@ -256,3 +256,24 @@ def test_clientes_thead_orden_y_columnas_nuevas(app, client):
     assert 'Fecha de Vigencia' in thead
     # Cantidad a Pagar antes de Acciones
     assert thead.index('Cantidad a Pagar') < thead.index('Acciones')
+
+
+def test_clientes_rows_muestran_fecha_vigencia_y_cantidad(app, client):
+    from datetime import date
+    from models.pago import Pago
+    _login_admin(app, client, email='admin-sort-v4@test.com')
+    with app.app_context():
+        c = _mk_cliente('V001', 'Ana', fecha_inicio_membresia=date(2026, 2, 1))
+        db.session.add(Pago(id_cliente=c.id_cliente, monto=350.00, fecha_pago=date(2026, 5, 1)))
+        db.session.add(Pago(id_cliente=c.id_cliente, monto=120.00, fecha_pago=date(2026, 1, 10)))
+        db.session.commit()
+    resp = client.get('/vitelas/admin/clientes')
+    assert resp.status_code == 200
+    html = resp.data.decode('utf-8')
+    # Fecha de inicio en dd/mm/aaaa
+    assert '01/02/2026' in html
+    # Monto del primer pago ($120.00) con orden: fecha despues de Cliente y antes de Cantidad
+    assert '$120.00' in html
+    assert html.index('Ana') < html.index('01/02/2026') < html.index('$120.00')
+    # tipo_membresia ya no se muestra como celda
+    assert '<td>' not in html or 'Normal' not in html
