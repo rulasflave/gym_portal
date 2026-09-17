@@ -1,3 +1,4 @@
+from sqlalchemy.orm import selectinload
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response, jsonify
 from flask_login import login_required, current_user
 from models.cliente import Cliente
@@ -74,7 +75,7 @@ def clientes():
     sort_active = sort if active else ''
     sort_dir_active = sort_dir if active else ''
 
-    query = Cliente.query
+    query = Cliente.query.options(selectinload(Cliente.pagos))
     if active:
         query = apply_sort(query, sort, sort_dir, COLUMNS)
     else:
