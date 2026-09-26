@@ -6,7 +6,7 @@ from models.cliente import Cliente
 
 
 def test_login_page_loads(client):
-    response = client.get('/login')
+    response = client.get('/vitelas/login')
     assert response.status_code == 200
 
 
@@ -24,7 +24,7 @@ def test_login_with_valid_credentials(app, client):
         db.session.add(cliente)
         db.session.commit()
 
-    response = client.post('/login', data={
+    response = client.post('/vitelas/login', data={
         'usuario': 'V001',
         'password': 'test123'
     })
@@ -32,7 +32,7 @@ def test_login_with_valid_credentials(app, client):
 
 
 def test_login_with_invalid_credentials(client):
-    response = client.post('/login', data={
+    response = client.post('/vitelas/login', data={
         'usuario': 'invalid',
         'password': 'invalid'
     }, follow_redirects=True)

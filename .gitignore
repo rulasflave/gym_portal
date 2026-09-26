@@ -15,3 +15,5 @@ static/uploads/
 *.pdf
 *.xlsx
 !static/assets/images/IMG_4390.jpg
+!static/vitelas/**
+.superpowers/

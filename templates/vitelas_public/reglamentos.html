@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Reglamento interno y reglamento de boxeo de Vitelas Club.">
+  <title>Reglamentos del Club | Vitelas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='vitelas/assets/images/vitelas-logo.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vitelas/css/reglamentos.css') }}">
+</head>
+<body>
+  <header class="topbar"><div class="wrap nav"><a class="brand" href="{{ url_for('vitelas_public.index') }}"><img src="{{ url_for('static', filename='vitelas/assets/images/vitelas-logo.svg') }}" alt="Vitelas Club"><span>VITELAS CLUB</span></a><a class="back" href="{{ url_for('vitelas_public.index') }}">← Volver al inicio</a></div></header>
+  <main>
+    <section class="hero"><div class="wrap"><div class="eyebrow">Convivencia · Seguridad · Disciplina</div><h1>Reglamentos<br>del Club</h1><p class="lead">Estas reglas nos ayudan a mantener un espacio seguro, ordenado y respetuoso para todos. Al ingresar y participar en una clase aceptas cumplirlas y seguir las indicaciones del coach.</p><nav class="jump" aria-label="Ir a reglamento"><a class="btn primary" href="#interno">Reglamento interno</a><a class="btn" href="#boxeo">Reglamento de boxeo</a></nav></div></section>
+    <section class="content"><div class="wrap"><div class="rules-grid">
+      <article class="rules" id="interno"><div class="eyebrow">01 · Para todo el club</div><h2>Reglamento interno</h2><ol class="rule-list">
+        <li><span><strong>Respeto ante todo.</strong> Trata con respeto a alumnos, coaches, personal y visitantes. No se toleran agresiones, acoso, discriminación ni lenguaje ofensivo.</span></li>
+        <li><span><strong>Registra tu entrada.</strong> Toda visita o clase debe quedar registrada y la membresía o visita debe estar vigente antes de entrenar.</span></li>
+        <li><span><strong>Llega con tiempo.</strong> Procura estar listo antes de iniciar. Si llegas tarde, pregunta al coach si puedes integrarte sin interrumpir la sesión.</span></li>
+        <li><span><strong>Cuida el equipo.</strong> Usa cada implemento para su función, no lo arrojes sin necesidad y devuélvelo a su lugar al terminar.</span></li>
+        <li><span><strong>Higiene y orden.</strong> Usa ropa y calzado adecuados, limpia el equipo después de utilizarlo y mantén libres las áreas de paso.</span></li>
+        <li><span><strong>Sigue las indicaciones.</strong> Respeta el programa, las zonas de entrenamiento y las instrucciones de seguridad del coach.</span></li>
+        <li><span><strong>Informa tu estado físico.</strong> Comunica antes de entrenar cualquier lesión, enfermedad, embarazo, malestar o restricción que pueda afectar tu sesión.</span></li>
+        <li><span><strong>Cuida tus pertenencias.</strong> Mantén objetos personales fuera del área de entrenamiento. El club no puede responsabilizarse por artículos olvidados.</span></li>
+        <li><span><strong>Menores y acompañantes.</strong> Deben permanecer en las zonas indicadas y seguir en todo momento las instrucciones del personal.</span></li>
+        <li><span><strong>Fin de semana.</strong> Sábado y domingo el club permanece cerrado por actividades especiales. Consulta carreras, natación o barranca directamente con el coach Alex.</span></li>
+      </ol></article>
+      <article class="rules" id="boxeo"><div class="eyebrow">02 · Área de box</div><h2>Reglamento de boxeo</h2><ol class="rule-list">
+        <li><span><strong>Equipo adecuado.</strong> Usa vendas y guantes en buen estado. Para sparring son obligatorios protector bucal y el equipo que indique el coach.</span></li>
+        <li><span><strong>Calienta primero.</strong> No inicies costal, manoplas, ring o sparring sin calentamiento y autorización del coach.</span></li>
+        <li><span><strong>Sparring supervisado.</strong> Solo se realiza con autorización, pareja asignada y supervisión directa del coach.</span></li>
+        <li><span><strong>Controla la intensidad.</strong> La técnica y el aprendizaje están primero. Respeta el nivel, peso y experiencia de tu compañero.</span></li>
+        <li><span><strong>Detente a la señal.</strong> Cuando el coach o tu compañero diga “alto”, el intercambio termina de inmediato.</span></li>
+        <li><span><strong>No entrenes lesionado.</strong> Reporta golpes, mareos, dolor o cualquier síntoma. El coach puede detener tu participación por seguridad.</span></li>
+        <li><span><strong>Sin joyería.</strong> Retira relojes, anillos, pulseras, collares, aretes u objetos que puedan causar lesiones.</span></li>
+        <li><span><strong>Orden en el ring.</strong> No subas sin permiso. Mantén cuerdas, lona y zona de trabajo libres de botellas u objetos.</span></li>
+        <li><span><strong>Equipo limpio.</strong> Limpia guantes, protectores y material compartido después de usarlos. No compartas protector bucal.</span></li>
+        <li><span><strong>Juego limpio.</strong> Quedan prohibidos golpes intencionales fuera de la técnica indicada, conductas temerarias y cualquier acción que ponga en riesgo a otra persona.</span></li>
+      </ol></article>
+    </div><p class="notice">La participación en clases, ejercicios de contacto y actividades especiales está sujeta a la valoración e indicaciones del coach. El personal puede limitar o detener una actividad cuando exista un riesgo para el alumno o para terceros.</p><div class="cta"><div><h3>¿Tienes alguna duda?</h3><p>Consúltala con el coach Alex antes de iniciar tu entrenamiento.</p></div><a class="btn" href="https://wa.me/523332417006?text=Hola%2C%20tengo%20una%20duda%20sobre%20los%20reglamentos%20de%20Vitelas%20Club">Preguntar por WhatsApp</a></div></div></section>
+  </main>
+  <footer class="footer"><div class="wrap footer-row"><a href="{{ url_for('vitelas_public.index') }}"><img src="{{ url_for('static', filename='vitelas/assets/images/vitelas-logo.svg') }}" alt="Vitelas Club"></a><div class="footer-links"><a href="{{ url_for('vitelas_public.index') }}">Página principal</a><a href="https://www.instagram.com/vitelas_boxing?stkn=MWx4M3ZzNHp4dW91cg==">@vitelas_boxing</a><a href="https://maps.app.goo.gl/zEaKhK7LDqnn3XBCA?g_st=ic">Cómo llegar</a></div></div></footer>
+</body>
+</html>

@@ -27,12 +27,12 @@ def test_admin_dashboard_requires_admin_role(app, client):
         db.session.add(admin)
         db.session.commit()
         
-        client.post('/login', data={
+        client.post('/vitelas/login', data={
             'usuario': 'admin@test.com',
             'password': 'test123'
         })
     
-    response = client.get('/admin/dashboard')
+    response = client.get('/vitelas/admin/dashboard')
     assert response.status_code == 200
 
 def test_admin_dashboard_uses_admin_shell(app, client):

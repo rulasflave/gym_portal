@@ -9,7 +9,7 @@ from models.solicitud_validacion import SolicitudValidacion
 
 
 def test_dashboard_requires_login(client):
-    response = client.get('/portal/dashboard', follow_redirects=True)
+    response = client.get('/vitelas/portal/dashboard', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
@@ -29,18 +29,18 @@ def test_dashboard_loads_for_logged_in_user(app, client):
         db.session.add(cliente)
         db.session.commit()
 
-    client.post('/login', data={
+    client.post('/vitelas/login', data={
         'usuario': 'V001',
         'password': 'test123'
     })
 
-    response = client.get('/portal/dashboard')
+    response = client.get('/vitelas/portal/dashboard')
     assert response.status_code == 200
     assert b'Test User' in response.data
 
 
 def test_perfil_requires_login(client):
-    response = client.get('/portal/perfil', follow_redirects=True)
+    response = client.get('/vitelas/portal/perfil', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
@@ -60,18 +60,18 @@ def test_perfil_loads_for_logged_in_user(app, client):
         db.session.add(cliente)
         db.session.commit()
 
-    client.post('/login', data={
+    client.post('/vitelas/login', data={
         'usuario': 'V002',
         'password': 'test123'
     })
 
-    response = client.get('/portal/perfil')
+    response = client.get('/vitelas/portal/perfil', follow_redirects=True)
     assert response.status_code == 200
     assert b'Profile User' in response.data
 
 
 def test_asistencias_requires_login(client):
-    response = client.get('/portal/asistencias', follow_redirects=True)
+    response = client.get('/vitelas/portal/asistencias', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
@@ -108,19 +108,19 @@ def test_asistencias_hora_en_zona_local(app, client):
 
 
 def test_pagos_requires_login(client):
-    response = client.get('/portal/pagos', follow_redirects=True)
+    response = client.get('/vitelas/portal/pagos', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
 
 def test_noticias_requires_login(client):
-    response = client.get('/portal/noticias', follow_redirects=True)
+    response = client.get('/vitelas/portal/noticias', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
 
 def test_cambiar_password_requires_login(client):
-    response = client.get('/portal/cambiar-password', follow_redirects=True)
+    response = client.get('/vitelas/portal/cambiar-password', follow_redirects=True)
     assert response.status_code == 200
     assert b'Iniciar Sesi' in response.data
 
@@ -140,12 +140,12 @@ def test_cambiar_password_updates_password(app, client):
         db.session.add(cliente)
         db.session.commit()
 
-    client.post('/login', data={
+    client.post('/vitelas/login', data={
         'usuario': 'V003',
         'password': 'oldpass'
     })
 
-    response = client.post('/portal/cambiar-password', data={
+    response = client.post('/vitelas/portal/cambiar-password', data={
         'nueva_password': 'newpass',
         'confirmar_password': 'newpass'
     }, follow_redirects=True)
@@ -173,14 +173,14 @@ def test_cambiar_password_mismatch_flash(app, client):
         db.session.add(cliente)
         db.session.commit()
 
-    client.post('/login', data={
+    client.post('/vitelas/login', data={
         'usuario': 'V004',
         'password': 'test123'
     })
 
-    response = client.post('/portal/cambiar-password', data={
-        'nueva_password': 'pass1',
-        'confirmar_password': 'pass2'
+    response = client.post('/vitelas/portal/cambiar-password', data={
+        'nueva_password': 'passtest1',
+        'confirmar_password': 'passtest2'
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'no coinciden' in response.data
