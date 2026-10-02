@@ -13,7 +13,7 @@
     <form method="POST">
         <div style="margin-bottom:16px;">
             <label class="admin-label" for="id_cliente">Cliente</label>
-            <select class="admin-select" id="id_cliente" name="id_cliente" required>
+            <select class="admin-select" id="id_cliente" name="id_cliente" data-searchable required>
                 <option value="">Seleccionar cliente...</option>
                 {% for cliente in clientes %}
                 <option value="{{ cliente.id_cliente }}" {{ 'selected' if pago and pago.id_cliente == cliente.id_cliente }}>

@@ -9,7 +9,7 @@
     <form method="POST" id="msgForm">
         <div style="margin-bottom:16px;">
             <label class="admin-label" for="id_cliente">Cliente</label>
-            <select class="admin-select" id="id_cliente" name="id_cliente" required>
+            <select class="admin-select" id="id_cliente" name="id_cliente" data-searchable required>
                 <option value="">Seleccionar cliente...</option>
                 {% for c in clientes %}
                 <option value="{{ c.id_cliente }}">{{ c.numero_registro }} - {{ c.nombre_completo }}</option>

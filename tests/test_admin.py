@@ -177,6 +177,23 @@ def test_admin_pago_form_renders(app, client):
     assert b'admin-select' in resp.data
     assert b'metodo_pago' in resp.data
 
+def test_admin_pago_form_cliente_select_searchable(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/pagos/nuevo')
+    html = resp.data.decode()
+    select = html[html.index('<select'):html.index('</select>')]
+    assert 'data-searchable' in select
+    assert 'id_cliente' in select
+
+def test_admin_nuevo_mensaje_cliente_select_searchable(app, client):
+    _login_admin(client, app)
+    resp = client.get('/vitelas/admin/mensajes/nuevo')
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    select = html[html.index('<select'):html.index('</select>')]
+    assert 'data-searchable' in select
+    assert 'id_cliente' in select
+
 def test_admin_noticias_lists_table(app, client):
     _login_admin(client, app)
     with app.app_context():
