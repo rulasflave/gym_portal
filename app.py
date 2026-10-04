@@ -134,6 +134,9 @@ def create_app(config_class=Config):
     from routes.vitelas_public import vitelas_public_bp
     app.register_blueprint(vitelas_public_bp, url_prefix='/vitelas')
 
+    from routes.ax_public import ax_public_bp
+    app.register_blueprint(ax_public_bp, url_prefix='/ax')
+
     from services.timeutil import to_local
     app.jinja_env.filters['localdt'] = lambda dt, fmt: to_local(dt).strftime(fmt) if dt is not None else '—'
 
@@ -181,10 +184,6 @@ def create_app(config_class=Config):
     @app.route('/')
     def index():
         return render_template('home/index.html')
-
-    @app.route('/ax')
-    def ax():
-        return render_template('home/ax.html')
 
     @app.cli.command("init-db")
     def init_db_command():
