@@ -59,3 +59,34 @@ def test_home_renderiza_y_enlaza_ax(client):
 def test_home_sin_build_error_de_endpoint(client):
     resp = client.get('/')
     assert b'BuildError' not in resp.data
+
+
+def test_ax_css_urls_resuelven(client):
+    import os
+    css = client.get('/static/ax/css/index.css').data.decode()
+    base = 'css'
+    found = False
+    for m in re.finditer(r"url\(['\"]?(.*?)['\"]?\)", css):
+        ref = m.group(1)
+        if ref.startswith(('data:', 'http')):
+            continue
+        found = True
+        resolved = os.path.normpath(os.path.join(base, ref)).replace('\\', '/')
+        assert client.get(f'/static/ax/{resolved}').status_code == 200, \
+            f'{ref} -> {resolved}'
+    assert found, 'el CSS deberia tener al menos un url() local'
+
+
+def test_ax_tiene_secciones_runnfit_y_merch(client):
+    body = client.get('/ax/').data.decode()
+    assert 'runnfit-section' in body
+    assert 'merch-section' in body
+    assert 'RUNNFIT' in body
+    assert body.count('data-gallery>') == 7, 'deben ser 7 galerias de merch'
+
+
+def test_ax_galerias_merch_tienen_imagenes(client):
+    body = client.get('/ax/').data.decode()
+    for path in _srcs(body):
+        if path.startswith('/static/ax/assets/images/merch/'):
+            assert client.get(path).status_code == 200, f'{path} no resuelve'
