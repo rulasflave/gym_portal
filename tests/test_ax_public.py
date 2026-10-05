@@ -47,3 +47,15 @@ def test_ax_landing_no_enlaces_internos_rotos(client):
         for ref in _hrefs(html):
             if ref.startswith('/ax') or ref.startswith('/static'):
                 assert client.get(ref).status_code == 200, f'{ref} en {path}'
+
+
+def test_home_renderiza_y_enlaza_ax(client):
+    resp = client.get('/')
+    assert resp.status_code == 200
+    body = resp.data.decode()
+    assert 'href="/ax/"' in body, 'la home debe enlazar a /ax/'
+
+
+def test_home_sin_build_error_de_endpoint(client):
+    resp = client.get('/')
+    assert b'BuildError' not in resp.data
