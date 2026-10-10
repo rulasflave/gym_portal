@@ -84,14 +84,14 @@ def test_dashboard_excludes_prior_month_attendance(app, client):
 
 
 def test_dashboard_shows_empresa_org_card(app, client):
-    _login_dashboard(app, client, num='V906', nombre='Axis User')
+    _login_dashboard(app, client, num='V906', nombre='Box User')
     with app.app_context():
         c = Cliente.query.filter_by(numero_registro='V906').first()
-        c.empresa = 'Axis'
+        c.empresa = 'Box'
         db.session.commit()
     resp = client.get('/vitelas/portal/dashboard')
     assert resp.status_code == 200
-    assert b'Axis' in resp.data
+    assert b'Box' in resp.data
 
 
 def test_dashboard_has_mobile_hamburger(app, client):

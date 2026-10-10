@@ -40,3 +40,16 @@ def test_axis_dashboard_bloquea_box(app, client):
     _login(app, client, num='B001', nombre='Box User', empresa='Box')
     resp = client.get('/ax/portal/dashboard')
     assert resp.status_code == 404
+
+
+def test_login_cliente_box_redirige_a_portal_vitelas(app, client):
+    _login(app, client, num='BX1', nombre='Box Auth', empresa='Box')
+    resp = client.post('/vitelas/login', data={'usuario': 'BX1', 'password': 'test123'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/vitelas/portal/dashboard')
+
+
+def test_axis_cliente_bloqueado_en_portal_vitelas(app, client):
+    _login(app, client, num='AX9', nombre='Axis Bloqueado', empresa='Axis')
+    resp = client.get('/vitelas/portal/dashboard')
+    assert resp.status_code == 404

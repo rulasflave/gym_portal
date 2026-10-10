@@ -1,5 +1,6 @@
 from datetime import datetime, date
-from flask import Blueprint, render_template, redirect, url_for, request, flash, Response
+from functools import wraps
+from flask import Blueprint, render_template, redirect, url_for, request, flash, Response, abort
 from flask_login import login_required, current_user
 from models.asistencia import Asistencia
 from models.pago import Pago
@@ -7,6 +8,7 @@ from models.noticia import Noticia
 from models.solicitud_validacion import SolicitudValidacion
 from werkzeug.security import generate_password_hash
 from services.qr_service import generate_qr_code
+from services.branding import is_axis
 from routes.admin_portal import save_photo
 from extensions import db
 import base64
@@ -14,8 +16,19 @@ import json
 
 cliente_bp = Blueprint('cliente', __name__)
 
+
+def vitelas_required(view):
+    @wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if getattr(current_user, '__class__', None).__name__ == 'Cliente' \
+                and is_axis(current_user.empresa):
+            abort(404)
+        return view(*args, **kwargs)
+    return wrapped
+
 @cliente_bp.route('/dashboard')
-@login_required
+@vitelas_required
 def dashboard():
     hoy = date.today()
     inicio_mes = datetime(hoy.year, hoy.month, 1)
@@ -49,12 +62,12 @@ def dashboard():
         al_dia=al_dia)
 
 @cliente_bp.route('/perfil')
-@login_required
+@vitelas_required
 def perfil():
     return redirect(url_for('cliente.dashboard'))
 
 @cliente_bp.route('/perfil/actualizar', methods=['POST'])
-@login_required
+@vitelas_required
 def perfil_actualizar():
     current_user.nickname = request.form.get('nickname', '').strip() or None
     current_user.telefono = request.form.get('telefono', '').strip() or None
@@ -77,13 +90,13 @@ def perfil_actualizar():
     return redirect(url_for('cliente.dashboard'))
 
 @cliente_bp.route('/mi-qr')
-@login_required
+@vitelas_required
 def mi_qr():
     qr_data = generate_qr_code(current_user.numero_registro)
     return render_template('cliente/mi_qr.html', qr_data=qr_data)
 
 @cliente_bp.route('/asistencias')
-@login_required
+@vitelas_required
 def asistencias():
     page = max(1, request.args.get('page', 1, type=int) or 1)
     asistencias = Asistencia.query.filter_by(id_cliente=current_user.id_cliente)\
@@ -92,7 +105,7 @@ def asistencias():
     return render_template('cliente/asistencias.html', asistencias=asistencias)
 
 @cliente_bp.route('/pagos')
-@login_required
+@vitelas_required
 def pagos():
     pagos = Pago.query.filter_by(id_cliente=current_user.id_cliente)\
         .order_by(Pago.fecha_pago.desc()).all()
@@ -100,7 +113,7 @@ def pagos():
 
 
 @cliente_bp.route('/pagos/cargar', methods=['GET', 'POST'])
-@login_required
+@vitelas_required
 def pagos_cargar():
     if request.method == 'POST':
         monto = request.form.get('monto', '').strip()
@@ -121,14 +134,14 @@ def pagos_cargar():
     return render_template('cliente/pagos_cargar.html')
 
 @cliente_bp.route('/noticias')
-@login_required
+@vitelas_required
 def noticias():
     noticias = Noticia.query.filter_by(activa=True)\
         .order_by(Noticia.fecha_publicacion.desc()).all()
     return render_template('cliente/noticias.html', noticias=noticias)
 
 @cliente_bp.route('/cambiar-password', methods=['GET', 'POST'])
-@login_required
+@vitelas_required
 def cambiar_password():
     if request.method == 'POST':
         nueva_password = request.form.get('nueva_password', '')
@@ -153,7 +166,7 @@ def cambiar_password():
 
 
 @cliente_bp.route('/bandeja')
-@login_required
+@vitelas_required
 def bandeja():
     from models.mensaje import Mensaje
     mensajes = Mensaje.query.filter_by(id_cliente=current_user.id_cliente)\
@@ -162,7 +175,7 @@ def bandeja():
 
 
 @cliente_bp.route('/bandeja/<int:id_mensaje>/leer', methods=['POST'])
-@login_required
+@vitelas_required
 def marcar_leido(id_mensaje):
     from models.mensaje import Mensaje
     from services.mensajeria import no_leidos
@@ -175,7 +188,7 @@ def marcar_leido(id_mensaje):
 
 
 @cliente_bp.route('/mensajes/<int:id_mensaje>')
-@login_required
+@vitelas_required
 def detalle_mensaje(id_mensaje):
     from models.mensaje import Mensaje
     m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
@@ -187,7 +200,7 @@ def detalle_mensaje(id_mensaje):
 
 
 @cliente_bp.route('/mensajes/<int:id_mensaje>/eliminar', methods=['POST'])
-@login_required
+@vitelas_required
 def eliminar_mensaje(id_mensaje):
     from models.mensaje import Mensaje
     m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
@@ -199,7 +212,7 @@ def eliminar_mensaje(id_mensaje):
 
 
 @cliente_bp.route('/bandeja/<int:id_mensaje>/imagen')
-@login_required
+@vitelas_required
 def mensaje_imagen(id_mensaje):
     from models.mensaje import Mensaje
     m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,

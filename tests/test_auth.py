@@ -37,3 +37,17 @@ def test_login_with_invalid_credentials(client):
         'password': 'invalid'
     }, follow_redirects=True)
     assert response.status_code == 200
+
+
+def test_login_cliente_axis_redirige_a_portal_axis(app, client):
+    with app.app_context():
+        c = Cliente(
+            numero_registro='AUTH1', nombre_completo='Axis Auth',
+            usuario_login='AUTH1', empresa='Axis',
+            password_hash=generate_password_hash('test123'), primer_login=False,
+        )
+        db.session.add(c)
+        db.session.commit()
+    resp = client.post('/vitelas/login', data={'usuario': 'AUTH1', 'password': 'test123'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/ax/portal/dashboard')
