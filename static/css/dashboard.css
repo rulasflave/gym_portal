@@ -448,7 +448,7 @@ body {
 .notif-badge {
     position: absolute;
     top: -4px; right: -4px;
-    background: #FFC400; color: #1a1a1a;
+    background: var(--accent); color: #1a1a1a;
     border-radius: 50%; min-width: 16px; height: 16px;
     font-size: 10px; line-height: 16px; text-align: center;
 }
@@ -460,7 +460,7 @@ body {
 .inbox-subj { font-weight: 600; color: #fff; }
 .inbox-brief { font-size: 12px; color: #999; }
 .inbox-empty { padding: 10px; color: #666; }
-.inbox-popover-footer { display: block; padding: 10px; color: #FFC400; text-decoration: none; text-align: center; }
+.inbox-popover-footer { display: block; padding: 10px; color: var(--accent); text-decoration: none; text-align: center; }
 .inbox-page { display: block; background: #161616; border-radius: 12px; padding: 20px; }
 .inbox-list h3 { color: #fff; }
 .inbox-row { position: relative; display: block; padding: 14px 16px; text-decoration: none; border-radius: 10px; margin-bottom: 10px; border: 1px solid transparent; }

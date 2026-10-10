@@ -89,7 +89,7 @@ body {
 
 .login-divider {
     height: 3px;
-    background: #FFC400;
+    background: var(--accent);
     width: 100%;
 }
 
