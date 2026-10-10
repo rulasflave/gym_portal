@@ -98,6 +98,39 @@ def migrate_config_column(app):
                 db.session.rollback()
             except Exception:
                 pass
+        try:
+            def ensure_columns(table, cols):
+                existing = {row[0] for row in db.session.execute(
+                    db.text(
+                        "SELECT column_name FROM information_schema.columns "
+                        "WHERE table_name=:t"
+                    ), {'t': table})}
+                for name, ctype in cols:
+                    if name not in existing:
+                        db.session.execute(db.text(
+                            f"ALTER TABLE {table} ADD COLUMN {name} {ctype}"
+                        ))
+                db.session.commit()
+                print(f"Migrated: ensured {len(cols)} columns on {table}")
+
+            ensure_columns('clientes', [
+                ('wod_grace', 'VARCHAR(50)'), ('wod_filthy50', 'VARCHAR(50)'),
+                ('wod_fight_gone_bad', 'VARCHAR(50)'), ('wod_murph', 'VARCHAR(50)'),
+                ('wod_max_pull_ups', 'VARCHAR(50)'), ('wod_fran', 'VARCHAR(50)'),
+                ('wod_sprint_400m', 'VARCHAR(50)'), ('wod_helen', 'VARCHAR(50)'),
+                ('wod_run_5km', 'VARCHAR(50)'), ('lift_clean_jerk', 'VARCHAR(50)'),
+                ('lift_snatch', 'VARCHAR(50)'), ('lift_deadlift', 'VARCHAR(50)'),
+                ('lift_back_squat', 'VARCHAR(50)'), ('lift_bench_press', 'VARCHAR(50)'),
+                ('lift_overhead_squat', 'VARCHAR(50)'), ('atleta_box', 'VARCHAR(50)'),
+                ('atleta_peso', 'VARCHAR(50)'), ('atleta_estatura', 'VARCHAR(50)'),
+                ('atleta_talla_playera', 'VARCHAR(10)'), ('atleta_tipo_sangre', 'VARCHAR(5)'),
+            ])
+        except Exception as e:
+            print(f"Migration entrenamiento skip: {e}")
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)

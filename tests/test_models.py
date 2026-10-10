@@ -166,3 +166,15 @@ def test_primer_pago_monto_usa_el_pago_mas_antiguo(app):
         ])
         db.session.commit()
         assert c.primer_pago_monto == 120.00
+
+
+def test_cliente_tiene_columnas_de_entrenamiento():
+    c = Cliente(
+        numero_registro='ENT001', nombre_completo='Entrenador',
+        usuario_login='ENT001', password_hash='x', primer_login=False,
+        wod_grace='3:45', lift_clean_jerk='225', atleta_peso='85',
+        atleta_talla_playera='L', atleta_tipo_sangre='O+', atleta_box='AXIS',
+    )
+    assert c.wod_grace == '3:45'
+    assert c.lift_clean_jerk == '225'
+    assert c.atleta_talla_playera == 'L'
