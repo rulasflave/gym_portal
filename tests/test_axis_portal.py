@@ -104,3 +104,75 @@ def test_entrenamiento_vacio_guarda_none(app, client):
         c = Cliente.query.filter_by(usuario_login='AX102').one()
         assert c.wod_grace is None
         assert c.atleta_peso is None
+
+
+AXIS_PAGINAS = ['/ax/portal/mi-qr', '/ax/portal/asistencias', '/ax/portal/pagos',
+                '/ax/portal/noticias', '/ax/portal/cambiar-password', '/ax/portal/bandeja']
+
+
+def test_axis_paginas_cargan(app, client):
+    _login(app, client, num='AX200', nombre='Axis All', empresa='Axis')
+    for path in AXIS_PAGINAS:
+        r = client.get(path)
+        assert r.status_code == 200, path
+        body = r.data.decode()
+        assert '/ax/portal/' in body, f'{path} no enlaza rutas axis'
+        assert '/vitelas/portal/' not in body, f'{path} enlaza rutas vitelas'
+
+
+def test_axis_bandeja_leer_y_eliminar(app, client):
+    from models.mensaje import Mensaje
+    _login(app, client, num='AX201', nombre='Axis Msg', empresa='Axis')
+    with app.app_context():
+        c = Cliente.query.filter_by(usuario_login='AX201').one()
+        m = Mensaje(id_cliente=c.id_cliente, asunto='Hola', cuerpo='Cuerpo')
+        db.session.add(m)
+        db.session.commit()
+        mid = m.id_mensaje
+    assert client.post(f'/ax/portal/bandeja/{mid}/leer').status_code == 200
+    r = client.get(f'/ax/portal/mensajes/{mid}')
+    assert r.status_code == 200
+    client.post(f'/ax/portal/mensajes/{mid}/eliminar', follow_redirects=True)
+
+
+def test_ax_login_page_theme_axis(client):
+    resp = client.get('/ax/login')
+    assert resp.status_code == 200
+    assert b'axis-hybrid-logo' in resp.data
+    assert b'axis_login' not in resp.data  # no usa templates vitelas
+
+
+def test_ax_login_cliente_axis_redirige_a_axis(app, client):
+    _login(app, client, num='AXL1', nombre='Axis Login', empresa='Axis')
+    resp = client.post('/ax/login', data={'usuario': 'AXL1', 'password': 'test123'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/ax/portal/dashboard')
+
+
+def test_ax_login_cliente_box_redirige_a_vitelas(app, client):
+    _login(app, client, num='BXL1', nombre='Box Login', empresa='Box')
+    resp = client.post('/ax/login', data={'usuario': 'BXL1', 'password': 'test123'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/vitelas/portal/dashboard')
+
+
+def test_ax_login_primer_login_va_a_cambiar_password_axis(app, client):
+    with app.app_context():
+        c = Cliente(
+            numero_registro='AXL2', nombre_completo='Axis First',
+            usuario_login='AXL2', password_hash=generate_password_hash('test123'),
+            primer_login=True, empresa='Axis',
+        )
+        db.session.add(c)
+        db.session.commit()
+    resp = client.post('/ax/login', data={'usuario': 'AXL2', 'password': 'test123'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/ax/portal/cambiar-password')
+
+
+def test_ax_logout_redirige_a_ax_login(app, client):
+    _login(app, client, num='AXL3', nombre='Axis Logout', empresa='Axis')
+    client.post('/ax/login', data={'usuario': 'AXL3', 'password': 'test123'})
+    resp = client.get('/ax/logout')
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith('/ax/login')

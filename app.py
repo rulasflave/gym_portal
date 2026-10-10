@@ -161,6 +161,9 @@ def create_app(config_class=Config):
     from routes.axis_portal import axis_bp
     app.register_blueprint(axis_bp, url_prefix='/ax/portal')
 
+    from routes.ax_auth import ax_auth_bp
+    app.register_blueprint(ax_auth_bp, url_prefix='/ax')
+
     from routes.kiosco import kiosco_bp
     app.register_blueprint(kiosco_bp, url_prefix='/vitelas/kiosco')
 
