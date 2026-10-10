@@ -193,19 +193,25 @@ def nuevo_cliente():
         return redirect(url_for('admin.clientes'))
     
     all_clientes = Cliente.query.all()
-    max_num = 0
-    for c in all_clientes:
-        if c.numero_registro and c.numero_registro.upper().startswith('V'):
-            try:
-                num = int(c.numero_registro[1:])
+
+    def siguiente_registro(prefix):
+        max_num = 0
+        for c in all_clientes:
+            if c.numero_registro and c.numero_registro.upper().startswith(prefix):
+                try:
+                    num = int(c.numero_registro[1:])
+                except ValueError:
+                    continue
                 if num > max_num:
                     max_num = num
-            except ValueError:
-                pass
-    next_num = max_num + 1
-    next_registro = f"V{next_num:03d}"
-    
-    return render_template('admin/cliente_form.html', next_registro=next_registro)
+        return f"{prefix}{max_num + 1:03d}"
+
+    next_registro = siguiente_registro('V')
+    next_registro_a = siguiente_registro('A')
+
+    return render_template('admin/cliente_form.html',
+                           next_registro=next_registro,
+                           next_registro_a=next_registro_a)
 
 @admin_bp.route('/clientes/<int:id_cliente>/eliminar', methods=['POST'])
 @login_required

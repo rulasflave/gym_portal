@@ -358,3 +358,31 @@ def test_admin_bloqueado_en_portales_cliente(app, client):
     _login_admin(client, app)
     assert client.get('/vitelas/portal/dashboard').status_code == 404
     assert client.get('/ax/portal/dashboard').status_code == 404
+
+
+def test_nuevo_cliente_sugiere_registro_axis_con_continuidad(app, client):
+    from models.cliente import Cliente
+    _login_admin(client, app)
+    with app.app_context():
+        db.session.add(Cliente(
+            numero_registro='A001', nombre_completo='Axis Uno',
+            usuario_login='A001', password_hash=generate_password_hash('test123'),
+            empresa='Axis'))
+        db.session.commit()
+    body = client.get('/vitelas/admin/clientes/nuevo').data.decode()
+    assert 'A002' in body
+    assert 'V001' in body
+
+
+def test_nuevo_cliente_sugiere_registro_v_con_continuidad(app, client):
+    from models.cliente import Cliente
+    _login_admin(client, app)
+    with app.app_context():
+        db.session.add(Cliente(
+            numero_registro='V002', nombre_completo='Box Dos',
+            usuario_login='V002', password_hash=generate_password_hash('test123'),
+            empresa='Box'))
+        db.session.commit()
+    body = client.get('/vitelas/admin/clientes/nuevo').data.decode()
+    assert 'V003' in body
+    assert 'A001' in body
