@@ -1,0 +1,23 @@
+{% extends "axis/base_dash.html" %}
+{% block title %}Bandeja · Axis Hub{% endblock %}
+{% block content %}
+<div class="inbox-page">
+  <div class="inbox-list">
+    <h3 class="inbox-page-title">Bandeja</h3>
+    {% for m in mensajes %}
+    <a class="inbox-row {{ 'unread' if not m.leido else 'read' }}"
+       href="{{ url_for('axis.detalle_mensaje', id_mensaje=m.id_mensaje) }}">
+      <div class="inbox-topline">
+        <span class="inbox-from">AXIS Hub</span>
+        <span class="inbox-date">{{ m.creado_en|localdt('%d %b %Y') if m.creado_en else '' }}</span>
+      </div>
+      <div class="inbox-subj">{{ m.asunto }}</div>
+      <div class="inbox-brief">{{ m.cuerpo|striptags|truncate(70) }}</div>
+      {% if not m.leido %}<span class="inbox-dot" aria-label="no leído"></span>{% endif %}
+    </a>
+    {% else %}
+    <p class="inbox-empty">No tienes mensajes.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

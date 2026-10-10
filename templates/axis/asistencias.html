@@ -1,0 +1,33 @@
+{% extends "axis/base_dash.html" %}
+{% block title %}Asistencias · Axis Hub{% endblock %}
+{% block content %}
+<div class="card">
+  <span class="card-title">MIS ASISTENCIAS</span>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="color:#8E8E8E;border-bottom:1px solid #292929;text-align:left;">
+          <th style="padding:10px;">Fecha</th><th style="padding:10px;">Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in asistencias %}
+        <tr style="border-bottom:1px solid #1d1d1d;">
+          <td style="padding:12px 10px;">{{ a.fecha_hora_entrada|localdt('%d/%m/%Y') }}</td>
+          <td style="padding:12px 10px;">{{ a.fecha_hora_entrada|localdt('%I:%M %p') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2" style="padding:20px;text-align:center;color:#696969;">Sin asistencias</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if asistencias.has_prev or asistencias.has_next %}
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+    {% if asistencias.has_prev %}<a class="sub-btn" href="{{ url_for('axis.asistencias', page=asistencias.prev_num) }}">← Anterior</a>{% endif %}
+    <span class="card-pill" style="align-self:center;">Página {{ asistencias.page }} de {{ asistencias.pages }}</span>
+    {% if asistencias.has_next %}<a class="sub-btn" href="{{ url_for('axis.asistencias', page=asistencias.next_num) }}">Siguiente →</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

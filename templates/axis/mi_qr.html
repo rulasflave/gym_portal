@@ -1,0 +1,26 @@
+{% extends "axis/base_dash.html" %}
+{% block title %}Mi QR · Axis Hub{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px;margin:0 auto;">
+  <span class="card-title">TU ACCESO QR</span>
+  <span class="card-pill">Presenta este código en el kiosco de entrada</span>
+  <div style="background:#fff;padding:16px;border-radius:12px;align-self:center;">
+    <img src="{{ qr_data }}" alt="QR" style="width:240px;height:240px;">
+  </div>
+  <div style="text-align:center;">
+    <div class="card-num" style="font-size:20px;">{{ current_user.numero_registro }}</div>
+    <span class="card-pill">{{ current_user.nombre_completo }}</span>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:8px;">
+    <a class="sub-btn" onclick="downloadQR()" href="javascript:void(0)">Descargar QR</a>
+    <a class="sub-btn" onclick="printQR()" href="javascript:void(0)">Imprimir QR</a>
+  </div>
+</div>
+<style>@media print{ body *{visibility:hidden;} img[alt="QR"], img[alt="QR"] *{visibility:visible;} img[alt="QR"]{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);} }</style>
+{% endblock %}
+{% block scripts %}
+<script>
+function downloadQR(){ const a=document.createElement('a'); a.download='mi-qr-{{ current_user.numero_registro }}.png'; a.href=document.querySelector('img[alt="QR"]').src; a.click(); }
+function printQR(){ window.print(); }
+</script>
+{% endblock %}

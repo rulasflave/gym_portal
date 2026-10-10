@@ -1,0 +1,32 @@
+{% extends "axis/base_dash.html" %}
+{% block title %}Pagos · Axis Hub{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span class="card-title">MIS PAGOS</span>
+    <a href="{{ url_for('axis.pagos_cargar') }}" style="padding:8px 14px;background:#B11A1A;color:#fff;border:none;border-radius:6px;text-decoration:none;">+ Cargar pago</a>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="color:#8E8E8E;border-bottom:1px solid #292929;text-align:left;">
+          <th style="padding:10px;">Fecha</th><th style="padding:10px;">Concepto</th>
+          <th style="padding:10px;">Método</th><th style="padding:10px;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pagos %}
+        <tr style="border-bottom:1px solid #1d1d1d;">
+          <td style="padding:12px 10px;">{{ p.fecha_pago.strftime('%d/%m/%Y') if p.fecha_pago else '—' }}</td>
+          <td style="padding:12px 10px;">{{ p.concepto or '—' }}</td>
+          <td style="padding:12px 10px;">{{ p.metodo_pago or '—' }}</td>
+          <td style="padding:12px 10px;font-weight:600;">${{ p.monto }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="padding:20px;text-align:center;color:#696969;">Sin pagos registrados</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

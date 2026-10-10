@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from functools import wraps
-from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
+from flask import Blueprint, render_template, redirect, url_for, request, flash, Response, abort
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from models.asistencia import Asistencia
@@ -93,10 +93,6 @@ def perfil_actualizar():
     return redirect(url_for('axis.dashboard'))
 
 
-def _en_progreso(*args, **kwargs):
-    return redirect(url_for('axis.dashboard'))
-
-
 ENTRENAMIENTO_CAMPOS = [
     'wod_grace', 'wod_filthy50', 'wod_fight_gone_bad', 'wod_murph',
     'wod_max_pull_ups', 'wod_fran', 'wod_sprint_400m', 'wod_helen', 'wod_run_5km',
@@ -122,64 +118,135 @@ def entrenamiento():
 @axis_bp.route('/mi-qr')
 @axis_required
 def mi_qr():
-    return _en_progreso()
+    qr_data = generate_qr_code(current_user.numero_registro)
+    return render_template('axis/mi_qr.html', qr_data=qr_data)
 
 
 @axis_bp.route('/asistencias')
 @axis_required
 def asistencias():
-    return _en_progreso()
+    page = max(1, request.args.get('page', 1, type=int) or 1)
+    asistencias = Asistencia.query.filter_by(id_cliente=current_user.id_cliente)\
+        .order_by(Asistencia.fecha_hora_entrada.desc())\
+        .paginate(page=page, per_page=20)
+    return render_template('axis/asistencias.html', asistencias=asistencias)
 
 
 @axis_bp.route('/pagos')
 @axis_required
 def pagos():
-    return _en_progreso()
+    pagos = Pago.query.filter_by(id_cliente=current_user.id_cliente)\
+        .order_by(Pago.fecha_pago.desc()).all()
+    return render_template('axis/pagos.html', pagos=pagos)
 
 
 @axis_bp.route('/pagos/cargar', methods=['GET', 'POST'])
 @axis_required
 def pagos_cargar():
-    return _en_progreso()
+    if request.method == 'POST':
+        monto = request.form.get('monto', '').strip()
+        _, vo_data, vo_mime = save_photo(request.files.get('voucher'))
+        ctx = {'mime': vo_mime, 'data': base64.b64encode(vo_data).decode('ascii')} if vo_data else {}
+        if monto:
+            ctx['monto'] = monto
+        if not vo_data:
+            flash('Adjunta una foto del comprobante de pago', 'error')
+            return render_template('axis/pagos_cargar.html')
+        SolicitudValidacion.cancelar_pendiente(current_user.id_cliente, 'pago')
+        db.session.add(SolicitudValidacion(
+            id_cliente=current_user.id_cliente, tipo='pago',
+            estado='pendiente', contexto=json.dumps(ctx)))
+        db.session.commit()
+        flash('Pago enviado. A la espera de aprobación', 'success')
+        return redirect(url_for('axis.pagos'))
+    return render_template('axis/pagos_cargar.html')
 
 
 @axis_bp.route('/noticias')
 @axis_required
 def noticias():
-    return _en_progreso()
+    noticias = Noticia.query.filter_by(activa=True)\
+        .order_by(Noticia.fecha_publicacion.desc()).all()
+    return render_template('axis/noticias.html', noticias=noticias)
 
 
 @axis_bp.route('/cambiar-password', methods=['GET', 'POST'])
 @axis_required
 def cambiar_password():
-    return _en_progreso()
+    if request.method == 'POST':
+        nueva_password = request.form.get('nueva_password', '')
+        confirmar = request.form.get('confirmar_password', '')
+
+        if not nueva_password or len(nueva_password) < 6:
+            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+            return redirect(url_for('axis.cambiar_password'))
+
+        if nueva_password != confirmar:
+            flash('Las contraseñas no coinciden', 'error')
+            return redirect(url_for('axis.cambiar_password'))
+
+        current_user.password_hash = generate_password_hash(nueva_password)
+        current_user.primer_login = False
+        db.session.commit()
+
+        flash('Contraseña actualizada', 'success')
+        return redirect(url_for('axis.dashboard'))
+
+    return render_template('axis/cambiar_password.html')
 
 
 @axis_bp.route('/bandeja')
 @axis_required
 def bandeja():
-    return _en_progreso()
+    from models.mensaje import Mensaje
+    mensajes = Mensaje.query.filter_by(id_cliente=current_user.id_cliente)\
+        .order_by(Mensaje.creado_en.desc()).all()
+    return render_template('axis/bandeja.html', mensajes=mensajes)
 
 
 @axis_bp.route('/bandeja/<int:id_mensaje>/leer', methods=['POST'])
 @axis_required
 def marcar_leido(id_mensaje):
-    return _en_progreso()
+    from models.mensaje import Mensaje
+    from services.mensajeria import no_leidos
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first()
+    if m and not m.leido:
+        m.leido = True
+        db.session.commit()
+    return {'no_leidos': no_leidos(current_user.id_cliente)}
 
 
 @axis_bp.route('/mensajes/<int:id_mensaje>')
 @axis_required
 def detalle_mensaje(id_mensaje):
-    return _en_progreso()
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    if not m.leido:
+        m.leido = True
+        db.session.commit()
+    return render_template('axis/mensaje_detalle.html', mensaje=m)
 
 
 @axis_bp.route('/mensajes/<int:id_mensaje>/eliminar', methods=['POST'])
 @axis_required
 def eliminar_mensaje(id_mensaje):
-    return _en_progreso()
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    db.session.delete(m)
+    db.session.commit()
+    flash('Mensaje eliminado', 'success')
+    return redirect(url_for('axis.bandeja'))
 
 
 @axis_bp.route('/bandeja/<int:id_mensaje>/imagen')
 @axis_required
 def mensaje_imagen(id_mensaje):
-    return _en_progreso()
+    from models.mensaje import Mensaje
+    m = Mensaje.query.filter_by(id_cliente=current_user.id_cliente,
+                                id_mensaje=id_mensaje).first_or_404()
+    if not m.imagen_data:
+        return ('', 404)
+    return Response(m.imagen_data, mimetype=m.imagen_mime or 'image/jpeg')
