@@ -90,3 +90,8 @@ def test_ax_galerias_merch_tienen_imagenes(client):
     for path in _srcs(body):
         if path.startswith('/static/ax/assets/images/merch/'):
             assert client.get(path).status_code == 200, f'{path} no resuelve'
+
+def test_ax_landing_login_apunta_a_ax_login(client):
+    body = client.get('/ax/').data.decode()
+    assert 'https://nbroken.com/ax/login' in body
+    assert 'https://nbroken.com/login' not in body
