@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Axis Hub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=5">
+    {% if brand and brand.css %}<link rel="stylesheet" href="{{ url_for('static', filename=brand.css) }}?v=1">{% endif %}
+</head>
+<body>
+<div class="hub">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="hub-flashes">
+        {% for category, message in messages %}
+        <div class="hub-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <aside class="sidebar">
+        <div class="sidebar-logo-placeholder">
+            <img src="{{ url_for('static', filename=brand.logo) }}" alt="{{ brand.nombre }}">
+        </div>
+        <nav class="sidebar-menu">
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.dashboard' }}" href="{{ url_for('axis.dashboard') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Resumen
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.bandeja' }}" href="{{ url_for('axis.bandeja') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Bandeja
+            </a>
+            <a class="menu-item" href="#" data-toggle="perfil">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Mi Perfil
+            </a>
+            <a class="menu-item" href="#membresia">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 9 4-18 3 9h4"/></svg>
+                Membresía
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.entrenamiento' }}" href="{{ url_for('axis.entrenamiento') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11v11h-11z"/><path d="M2 9V6a2 2 0 0 1 2-2h3"/><path d="M22 9V6a2 2 0 0 0-2-2h-3"/><path d="M2 15v3a2 2 0 0 0 2 2h3"/><path d="M22 15v3a2 2 0 0 1-2 2h-3"/></svg>
+                Entrenamiento
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.asistencias' }}" href="{{ url_for('axis.asistencias') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                Asistencias
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.pagos' }}" href="{{ url_for('axis.pagos') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Pagos
+            </a>
+            <a class="menu-item" href="#clases">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Clases
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.mi_qr' }}" href="{{ url_for('axis.mi_qr') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                QR
+            </a>
+            <a class="menu-item {{ 'active' if request.endpoint == 'axis.cambiar_password' }}" href="{{ url_for('axis.cambiar_password') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Configuración
+            </a>
+        </nav>
+        <div class="sidebar-motivation">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h3l2 5 4-14 3 9h3l1 6"/></svg>
+            <span class="mot-title">Entrena. Mejora. Supérate.</span>
+            <span class="mot-sub">La disciplina de hoy es la victoria de mañana.</span>
+            <div class="sidebar-mot-bg"></div>
+        </div>
+    </aside>
+
+    <div class="hub-main">
+        <header class="hub-header">
+            <div>
+                <button class="hamburger-btn" id="mobileMenuToggle" type="button" aria-label="Abrir menú">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                </button>
+                <h1 class="hello">Bienvenido, {{ current_user.nombre_completo }} 👋</h1>
+                <p class="hello-sub">Cada entrenamiento te acerca a tu mejor versión.</p>
+            </div>
+            <div class="header-right">
+                <div class="inbox-wrap">
+                    <button class="icon-btn" type="button" id="inboxToggle" aria-label="Correo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    {% if mensajes_no_leidos %}
+                    <span class="notif-badge" id="inboxBadge">{{ mensajes_no_leidos }}</span>
+                    {% endif %}
+                    </button>
+                    <div class="inbox-popover" id="inboxPopover" hidden>
+                        <div class="inbox-popover-head">Mensajes</div>
+                        <ul class="inbox-popover-list">
+                            {% for m in mensajes_recientes %}
+                            <li><a href="{{ url_for('axis.bandeja', abrir=m.id_mensaje) }}">
+                                <div class="inbox-subj">{{ m.asunto }}</div>
+                                <div class="inbox-brief">{{ m.cuerpo|striptags|truncate(40) }}</div>
+                            </a></li>
+                            {% else %}
+                            <li class="inbox-empty">Sin mensajes</li>
+                            {% endfor %}
+                        </ul>
+                        <a class="inbox-popover-footer" href="{{ url_for('axis.bandeja') }}">Ver bandeja completa</a>
+                    </div>
+                </div>
+                <div class="user-chip" id="userChip">
+                    {% if current_user.foto_data or current_user.foto_url %}
+                    <img class="user-avatar" src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" alt="avatar">
+                    {% else %}
+                    <span class="user-avatar user-avatar-fallback">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    {% endif %}
+                    <div class="user-meta">
+                        <span class="user-name">{{ current_user.nombre_completo }}</span>
+                        <span class="user-since">Miembro desde {{ current_user.fecha_inicio_membresia.strftime('%b %Y') if current_user.fecha_inicio_membresia else '—' }}</span>
+                    </div>
+                    <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{{ url_for('axis.mi_qr') }}">Mi QR</a>
+                        <a href="{{ url_for('axis.cambiar_password') }}">Cambiar contraseña</a>
+                        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="hub-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="hub-footer">
+            <span class="powered-text">Powered by</span>
+            <span class="powered-brand">nbroken Hub</span>
+            <span class="powered-icon"><img src="{{ url_for('static', filename='assets/images/logos_nbroken_HUB.svg') }}" alt="nbroken Hub"></span>
+        </footer>
+    </div>
+</div>
+
+<div class="modal-overlay" id="perfilModal" hidden>
+    <div class="modal-box">
+        <button class="modal-close" data-close data-toggle="perfil" type="button" aria-label="Cerrar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="modal-head">
+            {% if current_user.foto_data or current_user.foto_url %}
+            <img class="modal-avatar" id="perfilAvatar" src="{{ url_for('admin.foto_cliente', id_cliente=current_user.id_cliente) }}" alt="foto">
+            {% else %}
+            <span class="modal-avatar modal-avatar-fallback" id="perfilAvatarFallback">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            {% endif %}
+            <div>
+                <h3 class="modal-name">{{ current_user.nombre_completo }}</h3>
+                <span class="modal-code">{{ current_user.numero_registro }}</span>
+            </div>
+        </div>
+        <form method="post" action="{{ url_for('axis.perfil_actualizar') }}" enctype="multipart/form-data">
+            <div class="modal-form-grid">
+                <div class="field">
+                    <span class="m-label">Nombre completo *</span>
+                    <input class="m-input" type="text" name="nombre_completo" value="{{ current_user.nombre_completo }}" readonly disabled>
+                </div>
+                <div class="field">
+                    <span class="m-label">Nickname</span>
+                    <input class="m-input" type="text" name="nickname" value="{{ current_user.nickname or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Teléfono</span>
+                    <input class="m-input" type="text" name="telefono" value="{{ current_user.telefono or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Email</span>
+                    <input class="m-input" type="email" name="email" value="{{ current_user.email or '' }}">
+                </div>
+                <div class="field">
+                    <span class="m-label">Fecha de nacimiento</span>
+                    <input class="m-input" type="date" name="fecha_nacimiento" value="{{ current_user.fecha_nacimiento.strftime('%Y-%m-%d') if current_user.fecha_nacimiento else '' }}" readonly disabled>
+                </div>
+                <div class="field">
+                    <span class="m-label">Contacto de emergencia</span>
+                    <input class="m-input" type="text" name="contacto_emergencia" value="{{ current_user.contacto_emergencia or '' }}">
+                </div>
+                <div class="field field-full">
+                    <span class="m-label">Lesiones / Médico</span>
+                    <textarea class="m-input m-textarea" name="lesiones_medicas" rows="2">{{ current_user.lesiones_medicas or '' }}</textarea>
+                </div>
+                <div class="field field-full">
+                    <span class="m-label">Foto</span>
+                    <input class="m-input" type="file" name="foto" id="perfilFoto" accept="image/png,image/jpeg,image/gif">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function(){
+    $('.menu-item[data-toggle="perfil"]').on('click', function(e){ e.preventDefault(); $('#perfilModal').removeAttr('hidden'); });
+    $('.modal-close, .modal-overlay').on('click', function(e){
+        if (e.target === this || $(this).is('.modal-close')) { $('#perfilModal').attr('hidden', ''); }
+    });
+    $('#userChip').on('click', function(e){ e.stopPropagation(); $('#userDropdown').toggle(); });
+    $(document).on('click', function(e){ if(!$(e.target).closest('#userChip').length){ $('#userDropdown').hide(); } });
+    $('#mobileMenuToggle').on('click', function(e){ e.stopPropagation(); $('.sidebar-menu').toggleClass('open'); });
+    $('#inboxToggle').on('click', function(e){
+        e.stopPropagation();
+        $('#inboxPopover').toggle();
+    });
+    $(document).on('click', function(e){
+        if (!$(e.target).closest('#inboxPopover').length && !$(e.target).closest('#inboxToggle').length) {
+            $('#inboxPopover').hide();
+        }
+    });
+    $('.sidebar-menu').on('click', function(e){ e.stopPropagation(); });
+    $('.sidebar-menu .menu-item').on('click', function(){ $('.sidebar-menu').removeClass('open'); });
+    $(document).on('click', function(e){ if(!$(e.target).closest('.sidebar-menu').length && !$(e.target).closest('#mobileMenuToggle').length){ $('.sidebar-menu').removeClass('open'); } });
+    $('#perfilFoto').on('change', function(){
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e){
+            var img = $('#perfilAvatar');
+            var fallback = $('#perfilAvatarFallback');
+            if (img.length) { img.attr('src', e.target.result); }
+            else if (fallback.length) {
+                fallback.replaceWith('<img class="modal-avatar" id="perfilAvatar" src="' + e.target.result + '" alt="foto">');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

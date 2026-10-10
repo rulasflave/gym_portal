@@ -158,6 +158,9 @@ def create_app(config_class=Config):
     app.register_blueprint(cliente_bp, url_prefix='/vitelas/portal')
     app.register_blueprint(admin_bp, url_prefix='/vitelas/admin')
 
+    from routes.axis_portal import axis_bp
+    app.register_blueprint(axis_bp, url_prefix='/ax/portal')
+
     from routes.kiosco import kiosco_bp
     app.register_blueprint(kiosco_bp, url_prefix='/vitelas/kiosco')
 
@@ -193,6 +196,16 @@ def create_app(config_class=Config):
             'mensajes_no_leidos': no_leidos(cid),
             'mensajes_recientes': recientes,
         }
+
+    @app.context_processor
+    def inject_brand():
+        from flask_login import current_user
+        from services.branding import get_brand
+        if not hasattr(current_user, 'is_authenticated') or not current_user.is_authenticated:
+            return {'brand': None}
+        if getattr(current_user, '__class__', None).__name__ != 'Cliente':
+            return {'brand': None}
+        return {'brand': get_brand(current_user.empresa)}
 
     @app.context_processor
     def inject_solicitudes_pendientes():
