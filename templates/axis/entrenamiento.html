@@ -1,0 +1,76 @@
+{% extends "axis/base_dash.html" %}
+{% block title %}Entrenamiento · Axis Hub{% endblock %}
+{% block content %}
+
+<form method="post" action="{{ url_for('axis.entrenamiento') }}">
+<div class="card" style="margin-bottom:22px;">
+  <span class="card-title">BENCHMARK WORKOUTS (WODs)</span>
+  <div class="modal-form-grid">
+    <div class="field"><span class="m-label">Grace</span>
+      <input class="m-input" name="wod_grace" value="{{ current_user.wod_grace or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Filthy 50</span>
+      <input class="m-input" name="wod_filthy50" value="{{ current_user.wod_filthy50 or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Fight Gone Bad</span>
+      <input class="m-input" name="wod_fight_gone_bad" value="{{ current_user.wod_fight_gone_bad or '' }}" placeholder="reps"></div>
+    <div class="field"><span class="m-label">Murph</span>
+      <input class="m-input" name="wod_murph" value="{{ current_user.wod_murph or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Max Pull ups</span>
+      <input class="m-input" name="wod_max_pull_ups" value="{{ current_user.wod_max_pull_ups or '' }}" placeholder="reps"></div>
+    <div class="field"><span class="m-label">Fran</span>
+      <input class="m-input" name="wod_fran" value="{{ current_user.wod_fran or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Sprint 400m</span>
+      <input class="m-input" name="wod_sprint_400m" value="{{ current_user.wod_sprint_400m or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Helen</span>
+      <input class="m-input" name="wod_helen" value="{{ current_user.wod_helen or '' }}" placeholder="mm:ss"></div>
+    <div class="field"><span class="m-label">Run 5km</span>
+      <input class="m-input" name="wod_run_5km" value="{{ current_user.wod_run_5km or '' }}" placeholder="mm:ss"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:22px;">
+  <span class="card-title">BENCHMARK LIFTS (Levantamientos)</span>
+  <div class="modal-form-grid">
+    <div class="field"><span class="m-label">Clean &amp; Jerk</span>
+      <input class="m-input" name="lift_clean_jerk" value="{{ current_user.lift_clean_jerk or '' }}" placeholder="lb"></div>
+    <div class="field"><span class="m-label">Snatch</span>
+      <input class="m-input" name="lift_snatch" value="{{ current_user.lift_snatch or '' }}" placeholder="lb"></div>
+    <div class="field"><span class="m-label">Deadlift</span>
+      <input class="m-input" name="lift_deadlift" value="{{ current_user.lift_deadlift or '' }}" placeholder="lb"></div>
+    <div class="field"><span class="m-label">Back Squat</span>
+      <input class="m-input" name="lift_back_squat" value="{{ current_user.lift_back_squat or '' }}" placeholder="lb"></div>
+    <div class="field"><span class="m-label">Bench Press</span>
+      <input class="m-input" name="lift_bench_press" value="{{ current_user.lift_bench_press or '' }}" placeholder="lb"></div>
+    <div class="field"><span class="m-label">Overhead Squat</span>
+      <input class="m-input" name="lift_overhead_squat" value="{{ current_user.lift_overhead_squat or '' }}" placeholder="lb"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:22px;">
+  <span class="card-title">INFO ATLETA</span>
+  <div class="modal-form-grid">
+    <div class="field"><span class="m-label">Box</span>
+      <input class="m-input" name="atleta_box" value="{{ current_user.atleta_box or '' }}" placeholder="Nombre de tu box"></div>
+    <div class="field"><span class="m-label">Peso</span>
+      <input class="m-input" name="atleta_peso" value="{{ current_user.atleta_peso or '' }}" placeholder="kg"></div>
+    <div class="field"><span class="m-label">Estatura</span>
+      <input class="m-input" name="atleta_estatura" value="{{ current_user.atleta_estatura or '' }}" placeholder="mts"></div>
+    <div class="field"><span class="m-label">Talla Playera</span>
+      <select class="m-input" name="atleta_talla_playera">
+        <option value="">Seleccionar...</option>
+        {% for t in ['XS','S','M','L','XL','XXL'] %}
+        <option value="{{ t }}" {{ 'selected' if current_user.atleta_talla_playera == t }}>{{ t }}</option>
+        {% endfor %}
+      </select></div>
+    <div class="field"><span class="m-label">Tipo de sangre</span>
+      <select class="m-input" name="atleta_tipo_sangre">
+        <option value="">Seleccionar...</option>
+        {% for s in ['O+','O-','A+','A-','B+','B-','AB+','AB-'] %}
+        <option value="{{ s }}" {{ 'selected' if current_user.atleta_tipo_sangre == s }}>{{ s }}</option>
+        {% endfor %}
+      </select></div>
+  </div>
+</div>
+
+  <button type="submit" class="btn-save" style="cursor:pointer;">Guardar entrenamiento</button>
+</form>
+{% endblock %}

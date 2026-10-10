@@ -53,3 +53,54 @@ def test_axis_cliente_bloqueado_en_portal_vitelas(app, client):
     _login(app, client, num='AX9', nombre='Axis Bloqueado', empresa='Axis')
     resp = client.get('/vitelas/portal/dashboard')
     assert resp.status_code == 404
+
+
+ENTRENAMIENTO_TEST_DATA = {
+    'wod_grace': '3:45', 'wod_filthy50': '18:20', 'wod_fight_gone_bad': '312',
+    'wod_murph': '41:00', 'wod_max_pull_ups': '25',
+    'wod_fran': '4:12', 'wod_sprint_400m': '1:30', 'wod_helen': '9:15', 'wod_run_5km': '22:40',
+    'lift_clean_jerk': '225', 'lift_snatch': '185', 'lift_deadlift': '405',
+    'lift_back_squat': '315', 'lift_bench_press': '225', 'lift_overhead_squat': '135',
+    'atleta_box': 'AXIS HYBRID', 'atleta_peso': '85', 'atleta_estatura': '1.78',
+    'atleta_talla_playera': 'L', 'atleta_tipo_sangre': 'O+',
+}
+
+
+def test_entrenamiento_requiere_axis(app, client):
+    _login(app, client, num='B100', nombre='Box TRX', empresa='Box')
+    assert client.get('/ax/portal/entrenamiento').status_code == 404
+
+
+def test_entrenamiento_muestra_secciones_axis(app, client):
+    _login(app, client, num='AX100', nombre='Axis TRX', empresa='Axis')
+    resp = client.get('/ax/portal/entrenamiento')
+    assert resp.status_code == 200
+    assert b'BENCHMARK WORKOUTS' in resp.data
+    assert b'BENCHMARK LIFTS' in resp.data
+    assert b'INFO ATLETA' in resp.data
+    assert b'Talla Playera' in resp.data
+    assert b'Tipo de sangre' in resp.data
+
+
+def test_entrenamiento_guarda_y_recupera_campos(app, client):
+    _login(app, client, num='AX101', nombre='Axis Save', empresa='Axis')
+    r = client.post('/ax/portal/entrenamiento', data=ENTRENAMIENTO_TEST_DATA, follow_redirects=True)
+    assert r.status_code == 200
+    resp = client.get('/ax/portal/entrenamiento')
+    for val in ENTRENAMIENTO_TEST_DATA.values():
+        assert val.encode() in resp.data
+    with app.app_context():
+        c = Cliente.query.filter_by(usuario_login='AX101').one()
+        assert c.wod_grace == '3:45'
+        assert c.lift_deadlift == '405'
+        assert c.atleta_tipo_sangre == 'O+'
+        assert c.atleta_talla_playera == 'L'
+
+
+def test_entrenamiento_vacio_guarda_none(app, client):
+    _login(app, client, num='AX102', nombre='Axis Empty', empresa='Axis')
+    client.post('/ax/portal/entrenamiento', data={}, follow_redirects=True)
+    with app.app_context():
+        c = Cliente.query.filter_by(usuario_login='AX102').one()
+        assert c.wod_grace is None
+        assert c.atleta_peso is None

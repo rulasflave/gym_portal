@@ -97,10 +97,26 @@ def _en_progreso(*args, **kwargs):
     return redirect(url_for('axis.dashboard'))
 
 
+ENTRENAMIENTO_CAMPOS = [
+    'wod_grace', 'wod_filthy50', 'wod_fight_gone_bad', 'wod_murph',
+    'wod_max_pull_ups', 'wod_fran', 'wod_sprint_400m', 'wod_helen', 'wod_run_5km',
+    'lift_clean_jerk', 'lift_snatch', 'lift_deadlift', 'lift_back_squat',
+    'lift_bench_press', 'lift_overhead_squat',
+    'atleta_box', 'atleta_peso', 'atleta_estatura', 'atleta_talla_playera',
+    'atleta_tipo_sangre',
+]
+
+
 @axis_bp.route('/entrenamiento', methods=['GET', 'POST'])
 @axis_required
 def entrenamiento():
-    return redirect(url_for('axis.dashboard'))
+    if request.method == 'POST':
+        for campo in ENTRENAMIENTO_CAMPOS:
+            setattr(current_user, campo, request.form.get(campo, '').strip() or None)
+        db.session.commit()
+        flash('Entrenamiento actualizado', 'success')
+        return redirect(url_for('axis.entrenamiento'))
+    return render_template('axis/entrenamiento.html')
 
 
 @axis_bp.route('/mi-qr')
