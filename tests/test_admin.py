@@ -352,3 +352,9 @@ def test_reportes_table(app, client):
     assert b'Reporte de Pagos' in resp.data
     assert b'reporte_clientes_pdf' in resp.data or b'clientes/pdf' in resp.data
     assert b'reporte_pagos_excel' in resp.data or b'pagos/excel' in resp.data
+
+
+def test_admin_bloqueado_en_portales_cliente(app, client):
+    _login_admin(client, app)
+    assert client.get('/vitelas/portal/dashboard').status_code == 404
+    assert client.get('/ax/portal/dashboard').status_code == 404

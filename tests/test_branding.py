@@ -5,6 +5,8 @@ def test_is_axis_variants_insensibles_a_mayusculas():
     assert is_axis('Axis')
     assert is_axis('axis')
     assert is_axis('aXiS')
+    assert is_axis(' AXIS ')
+    assert is_axis(' axis ')
 
 
 def test_is_axis_falso_para_otros():

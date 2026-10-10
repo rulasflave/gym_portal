@@ -4,7 +4,6 @@ from werkzeug.security import check_password_hash
 from models.cliente import Cliente
 from models.admin import Admin
 from services.branding import is_axis
-from extensions import db
 
 auth_bp = Blueprint('auth', __name__)
 

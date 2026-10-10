@@ -21,8 +21,8 @@ def vitelas_required(view):
     @wraps(view)
     @login_required
     def wrapped(*args, **kwargs):
-        if getattr(current_user, '__class__', None).__name__ == 'Cliente' \
-                and is_axis(current_user.empresa):
+        if getattr(current_user, '__class__', None).__name__ != 'Cliente' \
+                or is_axis(current_user.empresa):
             abort(404)
         return view(*args, **kwargs)
     return wrapped

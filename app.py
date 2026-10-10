@@ -123,7 +123,7 @@ def migrate_config_column(app):
                 ('lift_back_squat', 'VARCHAR(50)'), ('lift_bench_press', 'VARCHAR(50)'),
                 ('lift_overhead_squat', 'VARCHAR(50)'), ('atleta_box', 'VARCHAR(50)'),
                 ('atleta_peso', 'VARCHAR(50)'), ('atleta_estatura', 'VARCHAR(50)'),
-                ('atleta_talla_playera', 'VARCHAR(10)'), ('atleta_tipo_sangre', 'VARCHAR(5)'),
+                ('atleta_talla_playera', 'VARCHAR(50)'), ('atleta_tipo_sangre', 'VARCHAR(50)'),
             ])
         except Exception as e:
             print(f"Migration entrenamiento skip: {e}")

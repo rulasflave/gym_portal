@@ -108,7 +108,8 @@ ENTRENAMIENTO_CAMPOS = [
 def entrenamiento():
     if request.method == 'POST':
         for campo in ENTRENAMIENTO_CAMPOS:
-            setattr(current_user, campo, request.form.get(campo, '').strip() or None)
+            valor = request.form.get(campo, '').strip() or None
+            setattr(current_user, campo, valor[:50] if valor else None)
         db.session.commit()
         flash('Entrenamiento actualizado', 'success')
         return redirect(url_for('axis.entrenamiento'))

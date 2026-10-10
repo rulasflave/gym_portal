@@ -133,6 +133,28 @@ def test_axis_bandeja_leer_y_eliminar(app, client):
     r = client.get(f'/ax/portal/mensajes/{mid}')
     assert r.status_code == 200
     client.post(f'/ax/portal/mensajes/{mid}/eliminar', follow_redirects=True)
+    with app.app_context():
+        assert Mensaje.query.get(mid) is None
+
+
+def test_axis_mensaje_ajeno_no_permitido(app, client):
+    from models.mensaje import Mensaje
+    _login(app, client, num='AX202', nombre='Axis Owner', empresa='Axis')
+    with app.app_context():
+        c = Cliente.query.filter_by(usuario_login='AX202').one()
+        m = Mensaje(id_cliente=c.id_cliente, asunto='Privado', cuerpo='Cuerpo')
+        db.session.add(m)
+        db.session.commit()
+        mid = m.id_mensaje
+
+    client.post('/vitelas/logout')
+    _login(app, client, num='AX203', nombre='Axis Intruso', empresa='Axis')
+    assert client.get(f'/ax/portal/mensajes/{mid}').status_code == 404
+    assert client.get(f'/ax/portal/bandeja/{mid}/imagen').status_code == 404
+    assert client.post(f'/ax/portal/bandeja/{mid}/leer').status_code == 200
+    assert client.post(f'/ax/portal/mensajes/{mid}/eliminar').status_code == 404
+    with app.app_context():
+        assert Mensaje.query.get(mid) is not None
 
 
 def test_ax_login_page_theme_axis(client):
