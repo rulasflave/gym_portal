@@ -95,3 +95,13 @@ def test_ax_landing_login_apunta_a_ax_login(client):
     body = client.get('/ax/').data.decode()
     assert 'https://nbroken.com/ax/login' in body
     assert 'https://nbroken.com/login' not in body
+
+
+def test_ax_landing_og_tags(client):
+    body = client.get('/ax/').data.decode()
+    assert 'og:title' in body
+    assert 'og:image' in body
+    assert 'og-axis.png' in body
+    assert 'og:image:width" content="1200' in body
+    assert 'og:image:height" content="630' in body
+    assert client.get('/static/ax/assets/images/og-axis.png').status_code == 200
