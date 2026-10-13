@@ -4,7 +4,7 @@ from models.admin import Admin
 from werkzeug.security import generate_password_hash
 
 
-def _login_admin(client, app, nombre='Test Admin', email='admin@test.com', rol='admin'):
+def _login_admin(client, app, nombre='Test Admin', email='admin@test.com', rol='superadmin'):
     with app.app_context():
         from extensions import db
         from models.admin import Admin
@@ -22,7 +22,7 @@ def test_admin_dashboard_requires_admin_role(app, client):
             nombre='Test Admin',
             email='admin@test.com',
             password_hash=password,
-            rol='admin'
+            rol='superadmin'
         )
         db.session.add(admin)
         db.session.commit()

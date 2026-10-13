@@ -52,7 +52,7 @@ def _login_admin(app, client, email='admin-sort@test.com'):
     with app.app_context():
         a = Admin(nombre='A', email=email,
                   password_hash=generate_password_hash('adminpass'),
-                  rol='admin', activo=True)
+                  rol='superadmin', activo=True)
         db.session.add(a)
         db.session.commit()
     client.post('/vitelas/login', data={'usuario': email, 'password': 'adminpass'})

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from models.configuracion_recordatorio import ConfiguracionRecordatorio
+from services.permisos import requiere_seccion
 from extensions import db
 
 config_bp = Blueprint('configuracion', __name__)
@@ -8,6 +9,7 @@ config_bp = Blueprint('configuracion', __name__)
 
 @config_bp.route('/admin/configuracion-recordatorios', methods=['GET', 'POST'])
 @login_required
+@requiere_seccion('recordatorios')
 def configuracion_recordatorios():
     config = ConfiguracionRecordatorio.get_config()
 

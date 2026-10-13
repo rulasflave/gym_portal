@@ -1,5 +1,5 @@
 from sqlalchemy.orm import selectinload
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, Response, jsonify, abort
 from flask_login import login_required, current_user
 from models.cliente import Cliente
 from models.asistencia import Asistencia
@@ -15,6 +15,7 @@ from PIL import Image
 from services.qr_service import generate_qr_code
 from services.notification_service import send_telegram
 from services.mensajeria import crear_mensaje
+from services.permisos import es_super, secciones_de, seccion_de_endpoint
 from extensions import db
 from datetime import datetime, timedelta
 import io
@@ -38,6 +39,21 @@ def admin_required(f):
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
+
+@admin_bp.before_request
+def _guard_seccion():
+    if not current_user.is_authenticated:
+        return None
+    if not hasattr(current_user, 'rol'):
+        abort(403)
+    if es_super(current_user):
+        return None
+    key = seccion_de_endpoint(request.endpoint)
+    if key is None:
+        abort(403)
+    if key not in secciones_de(current_user):
+        abort(403)
+    return None
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -132,6 +148,8 @@ def resize_image_to_base64(file, max_size=1200):
         return None
 
 @admin_bp.route('/foto/<int:id_cliente>')
+@login_required
+@admin_required
 def foto_cliente(id_cliente):
     cliente = Cliente.query.get_or_404(id_cliente)
     if cliente.foto_data:

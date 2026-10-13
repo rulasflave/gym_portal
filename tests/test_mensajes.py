@@ -67,7 +67,7 @@ def _login_admin(app, client, nombre='Admin', email='admin@test.com'):
     from werkzeug.security import generate_password_hash as g
     with app.app_context():
         a = Admin(nombre=nombre, email=email,
-                  password_hash=g('adminpass'), rol='admin', activo=True)
+                  password_hash=g('adminpass'), rol='superadmin', activo=True)
         db.session.add(a)
         db.session.commit()
     client.post('/vitelas/login', data={'usuario': email, 'password': 'adminpass'})

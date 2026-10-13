@@ -63,7 +63,7 @@ def _login_admin(app, client, email='soladmin@test.com'):
     with app.app_context():
         a = Admin(nombre='Admin', email=email,
                   password_hash=generate_password_hash('adminpass'),
-                  rol='admin', activo=True)
+                  rol='superadmin', activo=True)
         db.session.add(a)
         db.session.commit()
     client.post('/vitelas/login', data={'usuario': email, 'password': 'adminpass'})
@@ -134,7 +134,7 @@ def test_menu_admin_badge_pendientes(app, client):
         db.session.commit()
     with app.app_context():
         a = Admin(nombre='Admin', email='solmenu@test.com',
-                  password_hash=generate_password_hash('adminpass'), rol='admin', activo=True)
+                  password_hash=generate_password_hash('adminpass'), rol='superadmin', activo=True)
         db.session.add(a)
         db.session.commit()
     client.post('/vitelas/login', data={'usuario': 'solmenu@test.com', 'password': 'adminpass'})
