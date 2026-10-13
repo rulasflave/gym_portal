@@ -125,6 +125,8 @@ def migrate_config_column(app):
                 ('atleta_peso', 'VARCHAR(50)'), ('atleta_estatura', 'VARCHAR(50)'),
                 ('atleta_talla_playera', 'VARCHAR(50)'), ('atleta_tipo_sangre', 'VARCHAR(50)'),
             ])
+
+            ensure_columns('admins', [('permisos', 'TEXT')])
         except Exception as e:
             print(f"Migration entrenamiento skip: {e}")
             try:

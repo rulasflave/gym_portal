@@ -178,3 +178,16 @@ def test_cliente_tiene_columnas_de_entrenamiento():
     assert c.wod_grace == '3:45'
     assert c.lift_clean_jerk == '225'
     assert c.atleta_talla_playera == 'L'
+
+
+def test_admin_tiene_columna_permisos(app):
+    from models.admin import Admin
+    with app.app_context():
+        db.create_all()
+        a = Admin(nombre='X', email='x@x.com', password_hash='h',
+                  rol='admin', permisos='clientes,pagos')
+        db.session.add(a)
+        db.session.commit()
+        got = Admin.query.filter_by(email='x@x.com').first()
+        assert got.permisos == 'clientes,pagos'
+        assert got.rol == 'admin'
