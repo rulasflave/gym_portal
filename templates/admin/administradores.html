@@ -1,0 +1,52 @@
+{% extends "admin_base.html" %}
+{% block title %}Administradores - Vitelas Hub{% endblock %}
+{% block page_title %}Administradores{% endblock %}
+{% block admin_content %}
+<div class="admin-toolbar">
+    <div class="admin-subtitle">{{ admins|length }} cuentas</div>
+    <a class="admin-btn admin-btn-primary" href="{{ url_for('admin.nuevo_administrador') }}">Nuevo administrador</a>
+</div>
+
+<div class="admin-card" style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead>
+            <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Secciones</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        {% for a in admins %}
+            <tr>
+                <td>{{ a.nombre }}</td>
+                <td>{{ a.email }}</td>
+                <td>{{ a.rol }}</td>
+                <td>
+                    {% if a.rol == 'superadmin' %}Todas{% else %}
+                    {% for k in (a.permisos or '').split(',') if k.strip() %}{{ labels.get(k.strip(), k.strip()) }}{% if not loop.last %}, {% endif %}{% endfor %}
+                    {% endif %}
+                </td>
+                <td>{{ 'Activo' if a.activo else 'Inactivo' }}</td>
+                <td>
+                    {% if a.rol != 'superadmin' %}
+                        <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.editar_administrador', id_admin=a.id_admin) }}">Editar</a>
+                        {% if a.activo %}
+                        <form method="POST" action="{{ url_for('admin.desactivar_administrador', id_admin=a.id_admin) }}" style="display:inline;">
+                            <button class="admin-btn admin-btn-danger" type="submit">Desactivar</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('admin.activar_administrador', id_admin=a.id_admin) }}" style="display:inline;">
+                            <button class="admin-btn admin-btn-secondary" type="submit">Activar</button>
+                        </form>
+                        {% endif %}
+                        <form method="POST" action="{{ url_for('admin.reset_password_administrador', id_admin=a.id_admin) }}" style="display:inline-flex; gap:6px; align-items:center;">
+                            <input class="admin-input" type="password" name="password" placeholder="Nueva contraseña" required style="width:150px;">
+                            <button class="admin-btn admin-btn-secondary" type="submit">Reset</button>
+                        </form>
+                    {% else %}
+                        <span style="color:var(--text-secondary);">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

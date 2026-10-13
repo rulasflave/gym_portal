@@ -9,13 +9,14 @@ from models.configuracion_recordatorio import ConfiguracionRecordatorio
 from models.recordatorio_enviado import RecordatorioEnviado
 from models.mensaje import Mensaje
 from models.solicitud_validacion import SolicitudValidacion
+from models.admin import Admin
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
 from services.qr_service import generate_qr_code
 from services.notification_service import send_telegram
 from services.mensajeria import crear_mensaje
-from services.permisos import es_super, secciones_de, seccion_de_endpoint
+from services.permisos import es_super, secciones_de, seccion_de_endpoint, SECCIONES, SECCION_KEYS
 from extensions import db
 from datetime import datetime, timedelta
 import io
@@ -735,6 +736,142 @@ def rechazar_solicitud(id_solicitud):
     db.session.commit()
     flash(f'{etiqueta} de {s.cliente.nombre_completo} rechazada', 'warning')
     return redirect(url_for('admin.solicitudes'))
+
+
+def _validar_admin(nombre, email, password, secciones, admin_id):
+    errores = []
+    if not nombre:
+        errores.append('El nombre es obligatorio')
+    if not email:
+        errores.append('El email es obligatorio')
+    else:
+        existente = Admin.query.filter_by(email=email).first()
+        if existente and existente.id_admin != admin_id:
+            errores.append('Ya existe un administrador con ese email')
+    if admin_id is None and not password:
+        errores.append('La contraseña es obligatoria')
+    if not secciones:
+        errores.append('Debes seleccionar al menos una sección')
+    validas = set(SECCION_KEYS)
+    if any(s not in validas for s in secciones):
+        errores.append('Sección inválida')
+    return errores
+
+
+@admin_bp.route('/administradores')
+@login_required
+@admin_required
+def administradores():
+    admins = Admin.query.order_by(Admin.created_at.desc()).all()
+    labels = {s['key']: s['label'] for s in SECCIONES}
+    return render_template('admin/administradores.html', admins=admins, labels=labels)
+
+
+@admin_bp.route('/administradores/nuevo', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def nuevo_administrador():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        secciones = request.form.getlist('secciones')
+        activo = request.form.get('activo') == 'on'
+
+        errores = _validar_admin(nombre, email, password, secciones, None)
+        if errores:
+            for e in errores:
+                flash(e, 'error')
+            return render_template('admin/administrador_form.html', admin=None,
+                                   secciones_marcadas=secciones, SECCIONES=SECCIONES)
+
+        db.session.add(Admin(nombre=nombre, email=email,
+                             password_hash=generate_password_hash(password),
+                             rol='admin', activo=activo, permisos=','.join(secciones)))
+        db.session.commit()
+        flash('Administrador creado exitosamente', 'success')
+        return redirect(url_for('admin.administradores'))
+
+    return render_template('admin/administrador_form.html', admin=None,
+                           secciones_marcadas=[], SECCIONES=SECCIONES)
+
+
+@admin_bp.route('/administradores/<int:id_admin>/editar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def editar_administrador(id_admin):
+    admin_obj = Admin.query.get_or_404(id_admin)
+    if admin_obj.rol == 'superadmin':
+        flash('La cuenta super admin no se puede editar', 'error')
+        return redirect(url_for('admin.administradores'))
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        secciones = request.form.getlist('secciones')
+        activo = request.form.get('activo') == 'on'
+
+        errores = _validar_admin(nombre, email, password, secciones, admin_obj.id_admin)
+        if errores:
+            for e in errores:
+                flash(e, 'error')
+            return render_template('admin/administrador_form.html', admin=admin_obj,
+                                   secciones_marcadas=secciones, SECCIONES=SECCIONES)
+
+        admin_obj.nombre = nombre
+        admin_obj.email = email
+        admin_obj.permisos = ','.join(secciones)
+        admin_obj.activo = activo
+        if password:
+            admin_obj.password_hash = generate_password_hash(password)
+        db.session.commit()
+        flash('Administrador actualizado', 'success')
+        return redirect(url_for('admin.administradores'))
+
+    marcadas = [s.strip() for s in (admin_obj.permisos or '').split(',') if s.strip()]
+    return render_template('admin/administrador_form.html', admin=admin_obj,
+                           secciones_marcadas=marcadas, SECCIONES=SECCIONES)
+
+
+@admin_bp.route('/administradores/<int:id_admin>/activar', methods=['POST'])
+@login_required
+@admin_required
+def activar_administrador(id_admin):
+    admin_obj = Admin.query.get_or_404(id_admin)
+    admin_obj.activo = True
+    db.session.commit()
+    flash('Administrador activado', 'success')
+    return redirect(url_for('admin.administradores'))
+
+
+@admin_bp.route('/administradores/<int:id_admin>/desactivar', methods=['POST'])
+@login_required
+@admin_required
+def desactivar_administrador(id_admin):
+    admin_obj = Admin.query.get_or_404(id_admin)
+    if admin_obj.id_admin == current_user.id_admin:
+        flash('No puedes desactivar tu propia cuenta', 'error')
+        return redirect(url_for('admin.administradores'))
+    admin_obj.activo = False
+    db.session.commit()
+    flash('Administrador desactivado', 'success')
+    return redirect(url_for('admin.administradores'))
+
+
+@admin_bp.route('/administradores/<int:id_admin>/reset-password', methods=['POST'])
+@login_required
+@admin_required
+def reset_password_administrador(id_admin):
+    admin_obj = Admin.query.get_or_404(id_admin)
+    password = request.form.get('password', '')
+    if not password:
+        flash('La contraseña no puede estar vacía', 'error')
+        return redirect(url_for('admin.administradores'))
+    admin_obj.password_hash = generate_password_hash(password)
+    db.session.commit()
+    flash('Contraseña actualizada', 'success')
+    return redirect(url_for('admin.administradores'))
 
 
 

@@ -1,0 +1,46 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ 'Editar' if admin else 'Nuevo' }} administrador - Vitelas Hub{% endblock %}
+{% block page_title %}{{ 'Editar' if admin else 'Nuevo' }} administrador{% endblock %}
+{% block admin_content %}
+<div class="admin-card" style="max-width:680px;">
+    <form method="POST">
+        <div class="admin-form-grid">
+            <div>
+                <label class="admin-label">Nombre</label>
+                <input class="admin-input" type="text" name="nombre" value="{{ admin.nombre if admin else '' }}" required>
+            </div>
+            <div>
+                <label class="admin-label">Email</label>
+                <input class="admin-input" type="email" name="email" value="{{ admin.email if admin else '' }}" required>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;">
+            <label class="admin-label">Contraseña {{ '(dejar vacío para no cambiar)' if admin else '' }}</label>
+            <input class="admin-input" type="password" name="password" {{ '' if admin else 'required' }}>
+        </div>
+
+        <div style="margin-top:16px;">
+            <label class="admin-label">Secciones permitidas</label>
+            <div class="admin-form-grid">
+                {% for s in SECCIONES %}
+                <label style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" name="secciones" value="{{ s.key }}" {{ 'checked' if s.key in secciones_marcadas }}>
+                    <span>{{ s.label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="margin-top:16px; display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" name="activo" id="activo" {{ 'checked' if (admin.activo if admin else true) }}>
+            <label class="admin-label" for="activo" style="margin:0;">Cuenta activa</label>
+        </div>
+
+        <div style="margin-top:16px; display:flex; gap:10px;">
+            <button type="submit" class="admin-btn admin-btn-primary">Guardar</button>
+            <a class="admin-btn admin-btn-secondary" href="{{ url_for('admin.administradores') }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
