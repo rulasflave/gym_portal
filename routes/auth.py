@@ -4,6 +4,7 @@ from werkzeug.security import check_password_hash
 from models.cliente import Cliente
 from models.admin import Admin
 from services.branding import is_axis
+from services.permisos import secciones_de, SECCIONES
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -13,14 +14,21 @@ def authenticate(usuario, password):
     if cliente and check_password_hash(cliente.password_hash, password):
         return cliente, 'cliente'
     admin = Admin.query.filter_by(email=usuario.lower()).first()
-    if admin and check_password_hash(admin.password_hash, password):
+    if admin and admin.activo and check_password_hash(admin.password_hash, password):
         return admin, 'admin'
     return None, None
 
 
+def _destino_admin(admin):
+    for seccion in SECCIONES:
+        if seccion['key'] in secciones_de(admin):
+            return seccion['endpoint']
+    return 'admin.dashboard'
+
+
 def redirect_after_login(user, tipo):
     if tipo == 'admin':
-        return url_for('admin.dashboard')
+        return url_for(_destino_admin(user))
     if user.primer_login:
         if is_axis(user.empresa):
             return url_for('axis.cambiar_password')

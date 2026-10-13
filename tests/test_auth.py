@@ -51,3 +51,43 @@ def test_login_cliente_axis_redirige_a_portal_axis(app, client):
     resp = client.post('/vitelas/login', data={'usuario': 'AUTH1', 'password': 'test123'})
     assert resp.status_code == 302
     assert resp.headers['Location'].endswith('/ax/portal/dashboard')
+
+
+def _admin(activo=True, rol='admin', permisos=None, email='a@a.com', password='pw'):
+    from models.admin import Admin
+    return Admin(nombre='A', email=email,
+                 password_hash=generate_password_hash(password),
+                 rol=rol, activo=activo, permisos=permisos)
+
+
+def test_login_admin_inactivo_rechazado(app, client):
+    with app.app_context():
+        db.session.add(_admin(activo=False, email='inact@a.com'))
+        db.session.commit()
+    resp = client.post('/vitelas/login', data={'usuario': 'inact@a.com', 'password': 'pw'})
+    # credenciales válidas pero inactivo => NO redirige (se queda en login 200)
+    assert resp.status_code == 200
+
+
+def test_login_super_redirige_dashboard(app, client):
+    from flask import url_for
+    with app.app_context():
+        db.session.add(_admin(rol='superadmin', email='sup@a.com'))
+        db.session.commit()
+        with app.test_request_context():
+            dest = url_for('admin.dashboard')
+    resp = client.post('/vitelas/login', data={'usuario': 'sup@a.com', 'password': 'pw'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith(dest)
+
+
+def test_login_admin_restringido_redirige_primera_seccion(app, client):
+    from flask import url_for
+    with app.app_context():
+        db.session.add(_admin(rol='admin', permisos='mensajes', email='res@a.com'))
+        db.session.commit()
+        with app.test_request_context():
+            dest = url_for('admin.mensajes')
+    resp = client.post('/vitelas/login', data={'usuario': 'res@a.com', 'password': 'pw'})
+    assert resp.status_code == 302
+    assert resp.headers['Location'].endswith(dest)
