@@ -124,3 +124,26 @@ def test_reset_password_admin(app, client):
                 data={'password': 'brandnew'})
     client.get('/vitelas/logout')
     assert _login(client, 'rp@test.com', 'brandnew').status_code == 302
+
+
+def test_super_ve_menu_completo(app, client):
+    _crear(app, rol='superadmin', email='menusup@test.com')
+    _login(client, 'menusup@test.com')
+    html = client.get('/vitelas/admin/dashboard').get_data(as_text=True)
+    for href in ['/vitelas/admin/dashboard', '/vitelas/admin/clientes',
+                 '/vitelas/admin/pagos', '/vitelas/admin/noticias',
+                 '/vitelas/admin/mensajes', '/vitelas/admin/solicitudes',
+                 '/vitelas/admin/reportes',
+                 '/vitelas/admin/configuracion-recordatorios',
+                 '/vitelas/admin/administradores']:
+        assert href in html, href
+
+
+def test_restringido_ve_solo_su_seccion_en_menu(app, client):
+    _crear(app, permisos='clientes', email='menures@test.com')
+    _login(client, 'menures@test.com')
+    html = client.get('/vitelas/admin/clientes').get_data(as_text=True)
+    assert '/vitelas/admin/clientes' in html
+    assert '/vitelas/admin/pagos' not in html
+    assert '/vitelas/admin/configuracion-recordatorios' not in html
+    assert '/vitelas/admin/administradores' not in html

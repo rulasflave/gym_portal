@@ -18,31 +18,20 @@
             </a>
 
             <nav class="admin-sidebar-menu" id="adminSidebarMenu">
-                <a class="menu-item {{ 'active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}">
-                    <i class="fas fa-tachometer-alt"></i> Panel
+                {% set permitidas = secciones_de(current_user) %}
+                {% for s in SECCIONES %}
+                    {% if s.key in permitidas %}
+                    <a class="menu-item {{ 'active' if request.endpoint in s.endpoints }}" href="{{ url_for(s.endpoint) }}">
+                        <i class="fas {{ s.icon }}"></i> {{ s.label }}
+                        {% if s.key == 'validaciones' and solicitudes_pendientes %}<span class="menu-badge">{{ solicitudes_pendientes }}</span>{% endif %}
+                    </a>
+                    {% endif %}
+                {% endfor %}
+                {% if es_super(current_user) %}
+                <a class="menu-item {{ 'active' if request.endpoint == 'admin.administradores' }}" href="{{ url_for('admin.administradores') }}">
+                    <i class="fas fa-user-shield"></i> Administradores
                 </a>
-                <a class="menu-item {{ 'active' if request.endpoint == 'admin.clientes' }}" href="{{ url_for('admin.clientes') }}">
-                    <i class="fas fa-user-friends"></i> Clientes
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint == 'admin.pagos' }}" href="{{ url_for('admin.pagos') }}">
-                    <i class="fas fa-dollar-sign"></i> Pagos
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint == 'admin.noticias' }}" href="{{ url_for('admin.noticias') }}">
-                    <i class="fas fa-newspaper"></i> Noticias
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint in ['admin.mensajes', 'admin.nuevo_mensaje'] }}" href="{{ url_for('admin.mensajes') }}">
-                    <i class="fas fa-envelope"></i> Mensajes
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint in ['admin.solicitudes', 'admin.aprobar_solicitud', 'admin.rechazar_solicitud'] }}" href="{{ url_for('admin.solicitudes') }}">
-                    <i class="fas fa-clipboard-check"></i> Validaciones
-                    {% if solicitudes_pendientes %}<span class="menu-badge">{{ solicitudes_pendientes }}</span>{% endif %}
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint == 'admin.reportes' }}" href="{{ url_for('admin.reportes') }}">
-                    <i class="fas fa-chart-bar"></i> Reportes
-                </a>
-                <a class="menu-item {{ 'active' if request.endpoint == 'configuracion.configuracion_recordatorios' }}" href="{{ url_for('configuracion.configuracion_recordatorios') }}">
-                    <i class="fas fa-bell"></i> Recordatorios
-                </a>
+                {% endif %}
                 <a class="menu-item" href="{{ url_for('auth.logout') }}">
                     <i class="fas fa-sign-out-alt"></i> Salir
                 </a>

@@ -181,6 +181,11 @@ def create_app(config_class=Config):
     from services.timeutil import to_local
     app.jinja_env.filters['localdt'] = lambda dt, fmt: to_local(dt).strftime(fmt) if dt is not None else '—'
 
+    from services.permisos import SECCIONES, secciones_de, es_super
+    app.jinja_env.globals['SECCIONES'] = SECCIONES
+    app.jinja_env.globals['secciones_de'] = secciones_de
+    app.jinja_env.globals['es_super'] = es_super
+
     @app.context_processor
     def inject_mensajes():
         from flask_login import current_user
