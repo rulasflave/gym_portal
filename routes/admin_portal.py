@@ -659,6 +659,8 @@ def solicitudes():
 
 
 @admin_bp.route('/solicitudes/<int:id_solicitud>/archivo')
+@login_required
+@admin_required
 def solicitud_archivo(id_solicitud):
     s = SolicitudValidacion.query.get_or_404(id_solicitud)
     try:
@@ -839,6 +841,9 @@ def editar_administrador(id_admin):
 @admin_required
 def activar_administrador(id_admin):
     admin_obj = Admin.query.get_or_404(id_admin)
+    if admin_obj.rol == 'superadmin':
+        flash('La cuenta super admin no se puede modificar', 'error')
+        return redirect(url_for('admin.administradores'))
     admin_obj.activo = True
     db.session.commit()
     flash('Administrador activado', 'success')
@@ -864,6 +869,9 @@ def desactivar_administrador(id_admin):
 @admin_required
 def reset_password_administrador(id_admin):
     admin_obj = Admin.query.get_or_404(id_admin)
+    if admin_obj.rol == 'superadmin':
+        flash('La cuenta super admin no se puede modificar', 'error')
+        return redirect(url_for('admin.administradores'))
     password = request.form.get('password', '')
     if not password:
         flash('La contraseña no puede estar vacía', 'error')

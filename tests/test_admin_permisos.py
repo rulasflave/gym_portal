@@ -147,3 +147,61 @@ def test_restringido_ve_solo_su_seccion_en_menu(app, client):
     assert '/vitelas/admin/pagos' not in html
     assert '/vitelas/admin/configuracion-recordatorios' not in html
     assert '/vitelas/admin/administradores' not in html
+
+
+def test_editar_admin_cambia_secciones(app, client):
+    _crear(app, rol='superadmin', email='supedit@test.com')
+    _crear(app, email='edit@test.com', permisos='clientes')
+    _login(client, 'supedit@test.com')
+    with app.app_context():
+        id_e = Admin.query.filter_by(email='edit@test.com').first().id_admin
+    resp = client.post(f'/vitelas/admin/administradores/{id_e}/editar', data={
+        'nombre': 'Edit', 'email': 'edit@test.com',
+        'secciones': ['pagos', 'noticias'], 'activo': 'on'}, follow_redirects=True)
+    assert resp.status_code == 200
+    with app.app_context():
+        assert set(Admin.query.get(id_e).permisos.split(',')) == {'pagos', 'noticias'}
+
+
+def test_editar_admin_sin_secciones_no_cambia(app, client):
+    _crear(app, rol='superadmin', email='supedit2@test.com')
+    _crear(app, email='edit2@test.com', permisos='clientes')
+    _login(client, 'supedit2@test.com')
+    with app.app_context():
+        id_e = Admin.query.filter_by(email='edit2@test.com').first().id_admin
+    client.post(f'/vitelas/admin/administradores/{id_e}/editar', data={
+        'nombre': 'Edit', 'email': 'edit2@test.com',
+        'secciones': [], 'activo': 'on'})
+    with app.app_context():
+        assert Admin.query.get(id_e).permisos == 'clientes'
+
+
+def test_activar_admin(app, client):
+    _crear(app, rol='superadmin', email='supact@test.com')
+    _crear(app, email='act@test.com', permisos='clientes', activo=False)
+    _login(client, 'supact@test.com')
+    with app.app_context():
+        id_a = Admin.query.filter_by(email='act@test.com').first().id_admin
+    client.post(f'/vitelas/admin/administradores/{id_a}/activar')
+    with app.app_context():
+        assert Admin.query.get(id_a).activo is True
+
+
+def test_no_se_puede_resetear_ni_activar_al_super(app, client):
+    _crear(app, rol='superadmin', email='supself@test.com')
+    _login(client, 'supself@test.com')
+    with app.app_context():
+        id_sup = Admin.query.filter_by(email='supself@test.com').first().id_admin
+    client.post(f'/vitelas/admin/administradores/{id_sup}/reset-password', data={'password': 'hacked'})
+    client.post(f'/vitelas/admin/administradores/{id_sup}/activar')
+    with app.app_context():
+        assert Admin.query.get(id_sup).activo is True
+    client.get('/vitelas/logout')
+    # la contraseña del super no cambió
+    assert _login(client, 'supself@test.com', 'pw').status_code == 302
+
+
+def test_archivo_solicitud_no_accesible_anonimo(client):
+    resp = client.get('/vitelas/admin/solicitudes/1/archivo')
+    assert resp.status_code != 200
+    assert resp.status_code in (302, 403)
